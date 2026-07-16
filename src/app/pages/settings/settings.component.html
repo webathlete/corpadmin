@@ -1,0 +1,250 @@
+<div class="settings-page">
+  <!-- Header -->
+  <app-page-layout [loading]="loading()" title="Settings"
+                   description="Manage your account, preferences, and system configuration."
+                   [breadcrumbs]="[{ label: 'Home', link: '/dashboard' }, { label: 'Settings' }]">
+
+  <mat-tab-group animationDuration="200ms" color="primary">
+
+    <!-- Profile Tab -->
+    <mat-tab label="Profile">
+      <div class="tab-content">
+        <div class="section-card">
+          <div class="section-card-header"><h3>Personal Information</h3></div>
+          <div class="section-card-body">
+            <form [formGroup]="profileForm" class="form-stack">
+              <div class="avatar-row">
+                <div class="avatar-xl">GS</div>
+                <div>
+                  <button mat-stroked-button><mat-icon>upload</mat-icon> Upload Photo</button>
+                  <p class="field-note">JPG, PNG up to 5MB</p>
+                </div>
+              </div>
+              <div class="form-grid-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>First Name</mat-label>
+                  <input matInput formControlName="firstName">
+                  <mat-error>Required</mat-error>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Last Name</mat-label>
+                  <input matInput formControlName="lastName">
+                </mat-form-field>
+              </div>
+              <mat-form-field appearance="outline">
+                <mat-label>Email Address</mat-label>
+                <input matInput type="email" formControlName="email">
+                <mat-icon matSuffix>email</mat-icon>
+                <mat-error>Valid email required</mat-error>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Phone Number</mat-label>
+                <input matInput formControlName="phone" placeholder="+1 (555) 000-0000">
+                <mat-icon matSuffix>phone</mat-icon>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Job Title</mat-label>
+                <input matInput formControlName="jobTitle">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Department</mat-label>
+                <mat-select formControlName="department">
+                  <mat-option value="engineering">Engineering</mat-option>
+                  <mat-option value="sales">Sales</mat-option>
+                  <mat-option value="marketing">Marketing</mat-option>
+                  <mat-option value="operations">Operations</mat-option>
+                  <mat-option value="hr">Human Resources</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Start Date</mat-label>
+                <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+                <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Bio</mat-label>
+                <textarea matInput formControlName="bio" rows="3" placeholder="Tell us a bit about yourself…"></textarea>
+                <mat-hint>{{ profileForm.get('bio')?.value?.length ?? 0 }} / 300</mat-hint>
+              </mat-form-field>
+              <div class="btn-row">
+                <button mat-raised-button color="primary" (click)="saveProfile()">Save Changes</button>
+                <button mat-button>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Appearance Tab -->
+    <mat-tab label="Appearance">
+      <div class="tab-content">
+        <div class="section-card">
+          <div class="section-card-header"><h3>Theme</h3></div>
+          <div class="section-card-body">
+            <p class="muted-note">Choose a colour theme for your workspace.</p>
+            <div class="theme-grid">
+              @for (t of themes; track t.id) {
+                <div class="theme-card" [class.active]="themeService.activeThemeId() === t.id"
+                     (click)="themeService.setTheme(t.id)">
+                  <div class="theme-preview" [style.background]="t.primaryColor">
+                    <div class="theme-preview-sidebar" [style.opacity]="0.7"></div>
+                    <div class="theme-preview-content">
+                      <div class="theme-preview-bar"></div>
+                      <div class="theme-preview-bar short"></div>
+                    </div>
+                  </div>
+                  <div class="theme-card-label">
+                    <span>{{ t.name }}</span>
+                    @if (themeService.activeThemeId() === t.id) {
+                      <mat-icon class="theme-check">check_circle</mat-icon>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card mt-4">
+          <div class="section-card-header"><h3>Display</h3></div>
+          <div class="section-card-body setting-stack">
+            <div class="setting-row">
+              <div>
+                <p class="setting-title">Compact sidebar</p>
+                <p class="setting-desc">Collapse sidebar to icon-only mode</p>
+              </div>
+              <mat-slide-toggle color="primary"
+                [checked]="themeService.sidebarCollapsed()"
+                (change)="themeService.toggleSidebar()">
+              </mat-slide-toggle>
+            </div>
+            <mat-divider></mat-divider>
+            <div>
+              <p class="setting-title">Font size</p>
+              <p class="setting-desc mb-3">Adjust text size across the app</p>
+              <mat-radio-group [value]="themeService.fontScale()" class="radio-row">
+                <mat-radio-button [value]="0.875" color="primary" (change)="themeService.setFontScale(0.875)">Small</mat-radio-button>
+                <mat-radio-button [value]="1" color="primary" (change)="themeService.setFontScale(1)">Medium</mat-radio-button>
+                <mat-radio-button [value]="1.125" color="primary" (change)="themeService.setFontScale(1.125)">Large</mat-radio-button>
+              </mat-radio-group>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Notifications Tab -->
+    <mat-tab label="Notifications">
+      <div class="tab-content">
+        <div class="section-card">
+          <div class="section-card-header"><h3>Email Notifications</h3></div>
+          <div class="section-card-body setting-stack">
+            @for (notif of emailNotifications; track notif.key) {
+              <div class="setting-row top">
+                <div>
+                  <p class="setting-title">{{ notif.title }}</p>
+                  <p class="setting-desc">{{ notif.desc }}</p>
+                </div>
+                <mat-slide-toggle color="primary" [checked]="notif.enabled"
+                                  (change)="notif.enabled = !notif.enabled"></mat-slide-toggle>
+              </div>
+              @if (!$last) { <mat-divider></mat-divider> }
+            }
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Security Tab (Stepper demo) -->
+    <mat-tab label="Security">
+      <div class="tab-content">
+        <div class="section-card">
+          <div class="section-card-header"><h3>Change Password</h3></div>
+          <div class="section-card-body">
+            <mat-stepper linear #stepper orientation="vertical">
+              <mat-step [stepControl]="passwordStepOne" label="Verify Current Password">
+                <form [formGroup]="passwordStepOne" class="form-stack step-body">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Current Password</mat-label>
+                    <input matInput type="password" formControlName="current">
+                    <mat-icon matSuffix>lock</mat-icon>
+                    <mat-error>Required</mat-error>
+                  </mat-form-field>
+                  <div>
+                    <button mat-raised-button color="primary" matStepperNext [disabled]="passwordStepOne.invalid">Next</button>
+                  </div>
+                </form>
+              </mat-step>
+              <mat-step [stepControl]="passwordStepTwo" label="Enter New Password">
+                <form [formGroup]="passwordStepTwo" class="form-stack step-body">
+                  <mat-form-field appearance="outline">
+                    <mat-label>New Password</mat-label>
+                    <input matInput type="password" formControlName="newPass">
+                    <mat-hint>Minimum 12 characters</mat-hint>
+                    <mat-error>Required</mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>Confirm New Password</mat-label>
+                    <input matInput type="password" formControlName="confirm">
+                    <mat-error>Required</mat-error>
+                  </mat-form-field>
+                  <div class="btn-row">
+                    <button mat-button matStepperPrevious>Back</button>
+                    <button mat-raised-button color="primary" matStepperNext [disabled]="passwordStepTwo.invalid">Next</button>
+                  </div>
+                </form>
+              </mat-step>
+              <mat-step label="Confirm & Save">
+                <div class="step-body">
+                  <p class="muted-note">Review your changes and confirm.</p>
+                  <mat-chip-set>
+                    <mat-chip class="status-badge success">
+                      <mat-icon matChipAvatar>check</mat-icon>
+                      Password strength: Strong
+                    </mat-chip>
+                  </mat-chip-set>
+                  <div class="btn-row mt-4">
+                    <button mat-button matStepperPrevious>Back</button>
+                    <button mat-raised-button color="primary" (click)="savePassword(stepper)">Save Password</button>
+                  </div>
+                </div>
+              </mat-step>
+            </mat-stepper>
+          </div>
+        </div>
+
+        <!-- 2FA -->
+        <div class="section-card mt-4">
+          <div class="section-card-header"><h3>Two-Factor Authentication</h3></div>
+          <div class="section-card-body setting-stack">
+            <div class="setting-row">
+              <div>
+                <p class="setting-title">Authenticator App</p>
+                <p class="setting-desc">Use an app like Google Authenticator or Authy</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="status-badge success">Enabled</span>
+                <button mat-stroked-button>Reconfigure</button>
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+            <div class="setting-row">
+              <div>
+                <p class="setting-title">SMS Backup</p>
+                <p class="setting-desc">Receive codes via text message as a backup</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="status-badge neutral">Disabled</span>
+                <button mat-raised-button color="primary">Enable</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+  </app-page-layout>
+</div>

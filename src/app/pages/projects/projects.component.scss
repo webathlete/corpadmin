@@ -1,0 +1,106 @@
+:host { display: block; }
+
+.header-controls {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.status-select { width: 160px; }
+// (bottom hint space removed via the shared .inline-field class)
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.project-card {
+  border-radius: var(--card-radius);
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  &:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-2px); }
+}
+
+.card-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.card-menu-btn { margin: -8px -8px 0 0; }
+
+.project-name {
+  margin: 0 0 4px; font-size: var(--fs-lg); font-weight: 600; color: var(--text-primary);
+}
+.project-client {
+  margin: 0 0 12px; font-size: var(--fs-sm); color: var(--text-secondary);
+  display: flex; align-items: center; gap: 4px;
+  mat-icon { font-size: 15px; width: 15px; height: 15px; }
+}
+
+.tags { margin-bottom: 14px; }
+.tags ::ng-deep .mat-mdc-chip { font-size: var(--fs-2xs); min-height: 24px; }
+
+.progress-row {
+  display: flex; justify-content: space-between; margin-bottom: 6px;
+}
+.progress-label { font-size: var(--fs-xs); color: var(--text-secondary); }
+.progress-pct { font-size: var(--fs-xs); font-weight: 600; color: var(--text-primary); }
+
+.card-divider { margin: 14px 0; }
+
+.card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.avatars { display: flex; }
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--app-primary); color: white;
+  font-size: var(--fs-3xs); font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--surface-bg);
+  margin-left: -8px;
+  &:first-child { margin-left: 0; }
+}
+.footer-meta { display: flex; align-items: center; gap: 16px; }
+.meta {
+  display: flex; align-items: center; gap: 4px;
+  font-size: var(--fs-xs); color: var(--text-secondary);
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+.meta.due.overdue { color: var(--status-error); font-weight: 600; }
+
+/* List view */
+.list-row { height: auto; }
+.list-title { font-weight: 600; font-size: var(--fs-base); }
+.list-sub { font-size: var(--fs-xs); color: var(--text-secondary); }
+.list-meta { display: flex; align-items: center; gap: 16px; }
+.list-progress { width: 120px; }
+
+/* Bottom grid: accordion + activity */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+@media (max-width: 900px) {
+  .bottom-grid { grid-template-columns: 1fr; }
+}
+
+.detail-accordion mat-panel-title {
+  display: flex; align-items: center; gap: 8px;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+.panel-text { margin: 0; font-size: var(--fs-sm); line-height: 1.6; color: var(--text-secondary); }
+.done { text-decoration: line-through; color: var(--text-muted); }
+
+.activity-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 0;
+  & + .activity-item { border-top: 1px solid var(--surface-border); }
+}
+.activity-icon {
+  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+.activity-content { flex: 1; min-width: 0; }
+.activity-text { margin: 0 0 2px; font-size: var(--fs-sm); color: var(--text-primary); }
+.activity-time { margin: 0; font-size: var(--fs-2xs); color: var(--text-secondary); }

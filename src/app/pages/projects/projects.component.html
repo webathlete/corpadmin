@@ -1,0 +1,167 @@
+<div class="projects-page">
+
+  <app-page-layout [loading]="loading()" title="Projects"
+                   description="Track delivery across active client engagements."
+                   [breadcrumbs]="[{ label: 'Home', link: '/dashboard' }, { label: 'Projects' }]">
+    <div pageActions class="header-controls">
+      <mat-form-field appearance="outline" class="status-select inline-field">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="statusFilter">
+          @for (s of statuses; track s) {
+            <mat-option [value]="s">{{ s === 'all' ? 'All statuses' : s }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-button-toggle-group [(ngModel)]="view" hideSingleSelectionIndicator aria-label="View">
+        <mat-button-toggle value="board" matTooltip="Board view">
+          <mat-icon>grid_view</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="list" matTooltip="List view">
+          <mat-icon>view_list</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <button mat-raised-button color="primary">
+        <mat-icon>add</mat-icon> New Project
+      </button>
+    </div>
+
+  <!-- BOARD VIEW -->
+  @if (view === 'board') {
+    <div class="board-grid">
+      @for (p of filtered; track p.id) {
+        <mat-card class="project-card" appearance="outlined">
+          <mat-card-content>
+            <div class="card-top">
+              <span class="status-badge" [class]="statusClass(p.status)">{{ p.status }}</span>
+              <button mat-icon-button [matMenuTriggerFor]="cardMenu" class="card-menu-btn"
+                      matTooltip="Actions" aria-label="Project actions">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #cardMenu="matMenu">
+                <button mat-menu-item><mat-icon>edit</mat-icon><span>Edit</span></button>
+                <button mat-menu-item><mat-icon>content_copy</mat-icon><span>Duplicate</span></button>
+                <button mat-menu-item><mat-icon>archive</mat-icon><span>Archive</span></button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item><mat-icon color="warn">delete</mat-icon><span>Delete</span></button>
+              </mat-menu>
+            </div>
+
+            <h3 class="project-name">{{ p.name }}</h3>
+            <p class="project-client">
+              <mat-icon>business</mat-icon> {{ p.client }}
+            </p>
+
+            <div class="tags">
+              <mat-chip-set>
+                @for (t of p.tags; track t) {
+                  <mat-chip>{{ t }}</mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+
+            <div class="progress-row">
+              <span class="progress-label">Progress</span>
+              <span class="progress-pct">{{ p.progress }}%</span>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="p.progress"
+                              [color]="p.status === 'At Risk' ? 'warn' : 'primary'"></mat-progress-bar>
+
+            <mat-divider class="card-divider"></mat-divider>
+
+            <div class="card-footer">
+              <div class="avatars">
+                @for (m of p.members; track m) {
+                  <span class="avatar" [matTooltip]="m">{{ m }}</span>
+                }
+              </div>
+              <div class="footer-meta">
+                <span class="meta" matTooltip="Comments">
+                  <mat-icon [matBadge]="p.comments" matBadgeColor="accent"
+                            matBadgeSize="small" matBadgeOverlap="false">chat_bubble_outline</mat-icon>
+                </span>
+                <span class="meta due" [class.overdue]="p.status === 'Delayed'">
+                  <mat-icon>event</mat-icon> {{ p.due }}
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <!-- LIST VIEW -->
+  @if (view === 'list') {
+    <div class="section-card">
+      <mat-list>
+        @for (p of filtered; track p.id; let last = $last) {
+          <mat-list-item class="list-row">
+            <mat-icon matListItemIcon [style.color]="'var(--app-primary)'">folder</mat-icon>
+            <div matListItemTitle class="list-title">{{ p.name }}</div>
+            <div matListItemLine class="list-sub">{{ p.client }} · due {{ p.due }}</div>
+            <div matListItemMeta class="list-meta">
+              <span class="status-badge" [class]="statusClass(p.status)">{{ p.status }}</span>
+              <mat-progress-bar mode="determinate" [value]="p.progress" class="list-progress"></mat-progress-bar>
+            </div>
+          </mat-list-item>
+          @if (!last) { <mat-divider></mat-divider> }
+        }
+      </mat-list>
+    </div>
+  }
+
+  <!-- Accordion + activity -->
+  <div class="bottom-grid">
+    <mat-accordion class="detail-accordion">
+      <mat-expansion-panel expanded>
+        <mat-expansion-panel-header>
+          <mat-panel-title><mat-icon>flag</mat-icon> Milestones</mat-panel-title>
+          <mat-panel-description>Website Redesign</mat-panel-description>
+        </mat-expansion-panel-header>
+        <mat-list>
+          @for (m of milestones; track m.name) {
+            <mat-list-item>
+              <mat-icon matListItemIcon [style.color]="m.done ? 'var(--status-success)' : 'var(--text-muted)'">
+                {{ m.done ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              <span matListItemTitle [class.done]="m.done">{{ m.name }}</span>
+            </mat-list-item>
+          }
+        </mat-list>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title><mat-icon>help_outline</mat-icon> How are statuses calculated?</mat-panel-title>
+        </mat-expansion-panel-header>
+        <p class="panel-text">
+          Status is derived from milestone completion versus the planned timeline.
+          Projects more than 10% behind schedule are automatically flagged
+          <strong>At Risk</strong>, and those past their due date become <strong>Delayed</strong>.
+        </p>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <div class="section-card activity-card">
+      <div class="section-card-header"><h3>Recent Activity</h3></div>
+      <div class="section-card-body">
+        @for (a of activity; track a.text) {
+          <div class="activity-item">
+            <div class="activity-icon" [style.color]="a.color"
+                 [style.background]="'color-mix(in srgb, ' + a.color + ' 14%, transparent)'">
+              <mat-icon>{{ a.icon }}</mat-icon>
+            </div>
+            <div class="activity-content">
+              <p class="activity-text">{{ a.text }}</p>
+              <p class="activity-time">{{ a.time }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  </app-page-layout>
+</div>

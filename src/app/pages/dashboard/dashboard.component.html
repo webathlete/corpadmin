@@ -1,0 +1,219 @@
+<div class="dashboard">
+
+  <!-- Page Header -->
+  <app-page-layout [loading]="loading()" title="Dashboard"
+                   description="Welcome back, Govind! Here's what's happening today.">
+    <div pageActions class="flex gap-2">
+      <button mat-stroked-button (click)="export()">
+        <mat-icon>download</mat-icon> Export
+      </button>
+      <button mat-raised-button color="primary" (click)="addWidget()">
+        <mat-icon>add</mat-icon> New Report
+      </button>
+    </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    @for (kpi of kpiCards; track kpi.title; let i = $index) {
+      <mat-card class="kpi-card" [style.--gradient]="'var(--kpi-gradient-' + (i+1) + ')'">
+        <div class="kpi-inner">
+          <div class="kpi-left">
+            <p class="kpi-title">{{ kpi.title }}</p>
+            <h2 class="kpi-value">{{ kpi.value }}</h2>
+            <div class="kpi-change" [class.trend-up]="kpi.trend === 'up'" [class.trend-down]="kpi.trend === 'down'">
+              <mat-icon class="trend-icon">
+                {{ kpi.trend === 'up' ? 'trending_up' : kpi.trend === 'down' ? 'trending_down' : 'trending_flat' }}
+              </mat-icon>
+              <span>{{ kpi.change }} vs last month</span>
+            </div>
+          </div>
+          <div class="kpi-right">
+            <div class="kpi-icon-wrap">
+              <mat-icon>{{ kpi.icon }}</mat-icon>
+            </div>
+            <!-- Sparkline SVG -->
+            <svg class="sparkline" viewBox="0 0 80 36" preserveAspectRatio="none">
+              <polyline
+                [attr.points]="getSparkPoints(kpi.sparkData)"
+                fill="none"
+                stroke="rgba(255,255,255,0.6)"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </mat-card>
+    }
+  </div>
+
+  <!-- Middle row: Pipeline + Activity -->
+  <div class="middle-grid">
+
+    <!-- Pipeline Progress -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>Sales Pipeline</h3>
+        <button mat-icon-button [matMenuTriggerFor]="pipelineMenu" matTooltip="Pipeline options" aria-label="Pipeline options">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #pipelineMenu>
+          <button mat-menu-item><mat-icon>refresh</mat-icon> Refresh</button>
+          <button mat-menu-item><mat-icon>download</mat-icon> Export</button>
+        </mat-menu>
+      </div>
+      <div class="section-card-body">
+        @for (stage of pipeline; track stage.name) {
+          <div class="pipeline-item">
+            <div class="pipeline-top">
+              <span class="pipeline-name">{{ stage.name }}</span>
+              <div class="pipeline-meta">
+                <span class="pipeline-count">{{ stage.count }} deals</span>
+                <span class="pipeline-value">{{ stage.value }}</span>
+              </div>
+            </div>
+            <mat-progress-bar
+              [value]="stage.percent"
+              [color]="stage.color"
+              class="pipeline-bar">
+            </mat-progress-bar>
+            <div class="pipeline-percent">{{ stage.percent }}%</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Recent Activity Feed -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>Activity Feed</h3>
+        <span class="text-muted">Today</span>
+      </div>
+      <div class="section-card-body activity-body">
+        @for (act of activities; track act.id) {
+          <div class="activity-item">
+            <div class="activity-icon" [style.background]="act.color + '20'" [style.color]="act.color">
+              <mat-icon>{{ act.icon }}</mat-icon>
+            </div>
+            <div class="activity-content">
+              <p class="activity-text">
+                <strong>{{ act.user }}</strong> {{ act.action }}
+                <span class="activity-target">{{ act.target }}</span>
+              </p>
+              <p class="activity-time">{{ act.time }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>Performance</h3>
+        <mat-chip-listbox>
+          <mat-chip-option [selected]="selectedPeriod() === 'week'" (click)="selectedPeriod.set('week')">Week</mat-chip-option>
+          <mat-chip-option [selected]="selectedPeriod() === 'month'" (click)="selectedPeriod.set('month')">Month</mat-chip-option>
+        </mat-chip-listbox>
+      </div>
+      <div class="section-card-body">
+        @for (metric of performanceMetrics; track metric.label) {
+          <div class="metric-item">
+            <div class="metric-top">
+              <span class="metric-label">{{ metric.label }}</span>
+              <span class="metric-value">{{ metric.value }}</span>
+            </div>
+            <mat-progress-bar [value]="metric.percent" color="primary"></mat-progress-bar>
+            <div class="metric-sub">{{ metric.sub }}</div>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Deals Table -->
+  <div class="section-card">
+    <div class="section-card-header">
+      <h3>Recent Deals</h3>
+      <button mat-button color="primary" [routerLink]="'/analytics'">View all</button>
+    </div>
+    <div class="table-wrapper">
+      <table mat-table [dataSource]="deals" matSort class="deals-table w-full">
+
+        <ng-container matColumnDef="client">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Client</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="client-cell">
+              <div class="client-avatar">{{ row.avatar }}</div>
+              <span>{{ row.client }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Amount</th>
+          <td mat-cell *matCellDef="let row">
+            <strong>{{ row.amount | currency:'USD':'symbol':'1.0-0' }}</strong>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="stage">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Stage</th>
+          <td mat-cell *matCellDef="let row">
+            <span>{{ row.stage }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-badge"
+                  [class.success]="row.status === 'won'"
+                  [class.error]="row.status === 'lost'"
+                  [class.info]="row.status === 'active'"
+                  [class.warning]="row.status === 'pending'">
+              {{ row.status | titlecase }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="probability">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Win %</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="prob-cell">
+              <mat-progress-bar [value]="row.probability" color="primary"></mat-progress-bar>
+              <span>{{ row.probability }}%</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="rep">
+          <th mat-header-cell *matHeaderCellDef>Rep</th>
+          <td mat-cell *matCellDef="let row">{{ row.rep }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            <button mat-icon-button [matMenuTriggerFor]="rowMenu" matTooltip="Actions" aria-label="Row actions">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #rowMenu>
+              <button mat-menu-item><mat-icon>visibility</mat-icon> View</button>
+              <button mat-menu-item><mat-icon>edit</mat-icon> Edit</button>
+              <button mat-menu-item><mat-icon>delete</mat-icon> Delete</button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+      </table>
+      <mat-paginator [pageSizeOptions]="[5, 10, 20]" [pageSize]="5"
+                     showFirstLastButtons aria-label="Select page"></mat-paginator>
+    </div>
+  </div>
+
+  </app-page-layout>
+</div>

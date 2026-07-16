@@ -1,0 +1,147 @@
+<!-- Overlay backdrop -->
+@if (open()) {
+  <div class="backdrop" (click)="closed.emit()"></div>
+}
+
+<!-- Sliding panel -->
+<div class="customizer-panel" [class.open]="open()">
+
+  <!-- Panel Header -->
+  <div class="panel-header">
+    <div class="panel-title">
+      <mat-icon>palette</mat-icon>
+      <h3>Theme Customizer</h3>
+    </div>
+    <button mat-icon-button (click)="closed.emit()" matTooltip="Close" aria-label="Close theme customizer">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="panel-body">
+
+    <!-- Section: Theme Presets -->
+    <div class="section">
+      <p class="section-label">Theme Presets</p>
+      <div class="theme-grid">
+        @for (t of themes; track t.id) {
+          <div class="theme-swatch"
+               [class.active]="themeService.activeThemeId() === t.id"
+               (click)="selectTheme(t.id)"
+               [matTooltip]="t.name">
+            <div class="swatch-color" [style.background]="t.primaryColor">
+              @if (t.isDark) {
+                <mat-icon class="dark-icon">nightlight</mat-icon>
+              }
+            </div>
+            <span class="swatch-label">{{ t.name }}</span>
+            @if (themeService.activeThemeId() === t.id) {
+              <mat-icon class="swatch-check">check</mat-icon>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Section: Custom Colors -->
+    <div class="section">
+      <p class="section-label">Custom Colors</p>
+
+      <div class="color-row">
+        <label class="color-label">
+          <mat-icon>circle</mat-icon> Primary Color
+        </label>
+        <div class="color-controls">
+          <input type="color" class="color-input"
+                 [value]="customPrimary"
+                 (input)="onPrimaryChange($event)">
+          <span class="color-hex">{{ customPrimary }}</span>
+        </div>
+      </div>
+
+      <div class="color-row">
+        <label class="color-label">
+          <mat-icon>radio_button_unchecked</mat-icon> Accent Color
+        </label>
+        <div class="color-controls">
+          <input type="color" class="color-input"
+                 [value]="customAccent"
+                 (input)="onAccentChange($event)">
+          <span class="color-hex">{{ customAccent }}</span>
+        </div>
+      </div>
+
+      <div class="color-row">
+        <label class="color-label">
+          <mat-icon>view_sidebar</mat-icon> Sidebar
+        </label>
+        <div class="color-controls">
+          <input type="color" class="color-input"
+                 [value]="customSidebar"
+                 (input)="onSidebarChange($event)">
+          <span class="color-hex">{{ customSidebar }}</span>
+        </div>
+      </div>
+
+      <div class="color-row">
+        <label class="color-label">
+          <mat-icon>web_asset</mat-icon> Header
+        </label>
+        <div class="color-controls">
+          <input type="color" class="color-input"
+                 [value]="customHeader"
+                 (input)="onHeaderChange($event)">
+          <span class="color-hex">{{ customHeader }}</span>
+        </div>
+      </div>
+
+      <!-- Quick presets row -->
+      <div class="quick-block">
+        <p class="quick-label">Quick swatches</p>
+        <div class="quick-swatches">
+          @for (c of quickColors; track c) {
+            <div class="quick-swatch"
+                 [style.background]="c"
+                 [matTooltip]="c"
+                 (click)="applyQuickColor(c)"></div>
+          }
+        </div>
+      </div>
+
+      <button mat-stroked-button (click)="resetColors()" class="reset-btn">
+        <mat-icon>refresh</mat-icon> Reset to Theme Default
+      </button>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Section: Layout -->
+    <div class="section">
+      <p class="section-label">Layout</p>
+
+      <div class="toggle-row">
+        <div>
+          <p class="toggle-title">Compact Sidebar</p>
+          <p class="toggle-sub">Icon-only navigation</p>
+        </div>
+        <mat-slide-toggle color="primary"
+                          [checked]="themeService.sidebarCollapsed()"
+                          (change)="themeService.toggleSidebar()">
+        </mat-slide-toggle>
+      </div>
+
+      <mat-divider class="section-divider"></mat-divider>
+
+      <div>
+        <p class="field-label">Font Size</p>
+        <mat-radio-group [value]="themeService.fontScale()" class="radio-stack">
+          <mat-radio-button [value]="0.875" color="primary" (change)="themeService.setFontScale(0.875)">Small (87.5%)</mat-radio-button>
+          <mat-radio-button [value]="1"     color="primary" (change)="themeService.setFontScale(1)">Medium (100%)</mat-radio-button>
+          <mat-radio-button [value]="1.125" color="primary" (change)="themeService.setFontScale(1.125)">Large (112.5%)</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+
+  </div>
+</div>

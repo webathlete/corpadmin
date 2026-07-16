@@ -1,0 +1,186 @@
+<div class="onboarding-page">
+
+  <app-page-layout [loading]="loading()" title="Onboard a Team Member"
+                   description="Complete the steps to create and configure a new account."
+                   [breadcrumbs]="[{ label: 'Home', link: '/dashboard' }, { label: 'Team', link: '/team' }, { label: 'Onboarding' }]">
+
+    <button pageActions mat-stroked-button routerLink="/team">
+      <mat-icon>close</mat-icon> Cancel
+    </button>
+
+  <div class="section-card wizard-card">
+    <mat-stepper #stepper linear [animationDuration]="'250ms'" class="wizard">
+
+      <!-- Step 1: Account -->
+      <mat-step [stepControl]="account" label="Account">
+        <form [formGroup]="account" class="step-form">
+          <h3 class="step-title">Account details</h3>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Full name</mat-label>
+            <mat-icon matPrefix>person</mat-icon>
+            <input matInput formControlName="fullName" placeholder="Jane Doe">
+            @if (account.get('fullName')?.hasError('required')) {
+              <mat-error>Name is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Work email</mat-label>
+            <mat-icon matPrefix>mail</mat-icon>
+            <input matInput formControlName="email" placeholder="jane@company.com">
+            @if (account.get('email')?.hasError('required')) {
+              <mat-error>Email is required</mat-error>
+            } @else if (account.get('email')?.hasError('email')) {
+              <mat-error>Enter a valid email</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Role</mat-label>
+            <mat-select formControlName="role">
+              @for (r of roles; track r) {
+                <mat-option [value]="r">{{ r }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <div class="step-actions">
+            <button mat-raised-button color="primary" matStepperNext [disabled]="account.invalid">
+              Continue <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- Step 2: Profile -->
+      <mat-step [stepControl]="profile" label="Profile">
+        <form [formGroup]="profile" class="step-form">
+          <h3 class="step-title">Profile & role setup</h3>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Start date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="startDate">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if (profile.get('startDate')?.hasError('required')) {
+              <mat-error>Pick a start date</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="field-label">Employment type</div>
+          <mat-radio-group formControlName="employment" class="radio-row">
+            <mat-radio-button value="full-time">Full-time</mat-radio-button>
+            <mat-radio-button value="part-time">Part-time</mat-radio-button>
+            <mat-radio-button value="contract">Contract</mat-radio-button>
+          </mat-radio-group>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Department</mat-label>
+            <mat-icon matPrefix>apartment</mat-icon>
+            <input matInput formControlName="department" [matAutocomplete]="auto" placeholder="Start typing…">
+            <mat-autocomplete #auto="matAutocomplete">
+              @for (d of filteredDepartments | async; track d) {
+                <mat-option [value]="d">{{ d }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <div class="field-label">Skills</div>
+          <mat-form-field appearance="outline" class="full">
+            <mat-chip-grid #chipGrid aria-label="Skills">
+              @for (skill of skills(); track skill) {
+                <mat-chip-row (removed)="removeSkill(skill)">
+                  {{ skill }}
+                  <button matChipRemove [attr.aria-label]="'remove ' + skill">
+                    <mat-icon>cancel</mat-icon>
+                  </button>
+                </mat-chip-row>
+              }
+              <input placeholder="Add a skill…"
+                     [matChipInputFor]="chipGrid"
+                     [matChipInputSeparatorKeyCodes]="separatorKeys"
+                     (matChipInputTokenEnd)="addSkill($event)">
+            </mat-chip-grid>
+          </mat-form-field>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
+            <button mat-raised-button color="primary" matStepperNext [disabled]="profile.invalid">
+              Continue <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- Step 3: Preferences -->
+      <mat-step [stepControl]="preferences" label="Preferences">
+        <form [formGroup]="preferences" class="step-form">
+          <h3 class="step-title">Preferences</h3>
+
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-title">Product notifications</div>
+              <div class="toggle-sub">Email updates about features and releases.</div>
+            </div>
+            <mat-slide-toggle formControlName="notifications" color="primary"></mat-slide-toggle>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="toggle-row">
+            <div>
+              <div class="toggle-title">Weekly digest</div>
+              <div class="toggle-sub">A Monday summary of team activity.</div>
+            </div>
+            <mat-slide-toggle formControlName="weeklyDigest" color="primary"></mat-slide-toggle>
+          </div>
+
+          <div class="field-label">Target workload: <strong>{{ preferences.get('workload')?.value }}%</strong></div>
+          <mat-slider min="0" max="100" step="5" discrete class="full-slider">
+            <input matSliderThumb formControlName="workload">
+          </mat-slider>
+
+          <mat-checkbox formControlName="agree" color="primary" class="agree">
+            I confirm the information provided is accurate.
+          </mat-checkbox>
+
+          <div class="step-actions">
+            <button mat-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
+            <button mat-raised-button color="primary" matStepperNext [disabled]="preferences.invalid">
+              Review <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- Step 4: Review -->
+      <mat-step label="Review">
+        <h3 class="step-title">Review & confirm</h3>
+        <div class="review-grid">
+          <div class="review-item"><span>Name</span><strong>{{ summary().name || '—' }}</strong></div>
+          <div class="review-item"><span>Email</span><strong>{{ summary().email || '—' }}</strong></div>
+          <div class="review-item"><span>Role</span><strong>{{ summary().role || '—' }}</strong></div>
+          <div class="review-item"><span>Start date</span><strong>{{ profile.get('startDate')?.value | date:'mediumDate' }}</strong></div>
+          <div class="review-item"><span>Employment</span><strong>{{ profile.get('employment')?.value }}</strong></div>
+          <div class="review-item"><span>Department</span><strong>{{ profile.get('department')?.value || '—' }}</strong></div>
+          <div class="review-item full-span"><span>Skills</span>
+            <div class="review-chips">
+              <mat-chip-set>
+                @for (s of skills(); track s) { <mat-chip>{{ s }}</mat-chip> }
+              </mat-chip-set>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious><mat-icon>arrow_back</mat-icon> Back</button>
+          <button mat-raised-button color="primary" (click)="finish()">
+            <mat-icon>how_to_reg</mat-icon> Finish onboarding
+          </button>
+        </div>
+      </mat-step>
+
+    </mat-stepper>
+  </div>
+
+  </app-page-layout>
+</div>

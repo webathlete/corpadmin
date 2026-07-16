@@ -1,0 +1,514 @@
+// ============================================================
+//  App Material Theme
+//  Brand gradient: #02A7DF (Sky Blue) → #74BA58 (Fresh Green)
+//  Angular Material 18  |  Material Design 3
+// ============================================================
+
+@use '@angular/material' as mat;
+
+// ── Include core once at root ──────────────────────────────
+@include mat.core();
+
+
+// ════════════════════════════════════════════════════════════
+//  TONAL PALETTES
+//  Derived from the two brand anchors + a neutral mid-tone
+// ════════════════════════════════════════════════════════════
+
+//  Primary  — Sky Blue  #02A7DF
+$sky-blue-palette: (
+  0:    #000000,
+  10:   #001E2F,   // deepest, near-black blue
+  20:   #00344F,
+  25:   #003E5F,
+  30:   #004970,
+  35:   #005582,
+  40:   #006194,   // M3 "on-primary-container" dark text
+  50:   #027BB9,
+  60:   #02A7DF,   // ← BRAND anchor (primary)
+  70:   #41BEE9,
+  80:   #7DD4F3,
+  90:   #BDE9FA,   // primary-container light
+  95:   #DEF4FD,
+  98:   #F2FBFF,
+  99:   #F9FDFF,
+  100:  #FFFFFF,
+  contrast: (
+    0:   #FFFFFF,
+    10:  #FFFFFF,
+    20:  #FFFFFF,
+    25:  #FFFFFF,
+    30:  #FFFFFF,
+    35:  #FFFFFF,
+    40:  #FFFFFF,
+    50:  #FFFFFF,
+    60:  #FFFFFF,
+    70:  #001E2F,
+    80:  #001E2F,
+    90:  #001E2F,
+    95:  #001E2F,
+    98:  #001E2F,
+    99:  #001E2F,
+    100: #001E2F,
+  )
+);
+
+//  Secondary  — Fresh Green  #74BA58
+$fresh-green-palette: (
+  0:    #000000,
+  10:   #082000,   // deepest, near-black green
+  20:   #113800,
+  25:   #174300,
+  30:   #1D4F00,
+  35:   #235C00,
+  40:   #2A6900,   // M3 "on-secondary-container" dark text
+  50:   #3D8B00,
+  60:   #56AD1A,
+  70:   #74BA58,   // ← BRAND anchor (secondary)
+  80:   #93D172,
+  90:   #AEED8A,   // secondary-container light
+  95:   #D3F8B9,
+  98:   #EEFCE4,
+  99:   #F5FEF0,
+  100:  #FFFFFF,
+  contrast: (
+    0:   #FFFFFF,
+    10:  #FFFFFF,
+    20:  #FFFFFF,
+    25:  #FFFFFF,
+    30:  #FFFFFF,
+    35:  #FFFFFF,
+    40:  #FFFFFF,
+    50:  #FFFFFF,
+    60:  #FFFFFF,
+    70:  #082000,
+    80:  #082000,
+    90:  #082000,
+    95:  #082000,
+    98:  #082000,
+    99:  #082000,
+    100: #082000,
+  )
+);
+
+//  Tertiary  — Teal mid-point (#02A7DF blended with #74BA58)
+//  Hex midpoint ≈ #3BB19B — used for accents, FABs, chips
+$teal-mid-palette: (
+  0:    #000000,
+  10:   #00201C,
+  20:   #003731,
+  25:   #004239,
+  30:   #004E43,
+  35:   #005A4E,
+  40:   #00675A,
+  50:   #008473,
+  60:   #22A18E,
+  70:   #3BB19B,   // ← midpoint anchor
+  80:   #69CCBA,
+  90:   #84E8D4,
+  95:   #B4F1E8,
+  98:   #D9FAF5,
+  99:   #EDFDF9,
+  100:  #FFFFFF,
+  contrast: (
+    0:   #FFFFFF,
+    10:  #FFFFFF,
+    20:  #FFFFFF,
+    25:  #FFFFFF,
+    30:  #FFFFFF,
+    35:  #FFFFFF,
+    40:  #FFFFFF,
+    50:  #FFFFFF,
+    60:  #FFFFFF,
+    70:  #00201C,
+    80:  #00201C,
+    90:  #00201C,
+    95:  #00201C,
+    98:  #00201C,
+    99:  #00201C,
+    100: #00201C,
+  )
+);
+
+//  Neutral  — Blue-grey (cool neutral derived from primary hue)
+$neutral-palette: (
+  0:    #000000,
+  10:   #191C1E,
+  20:   #2D3133,
+  25:   #383C3E,
+  30:   #43474A,
+  35:   #4F5356,
+  40:   #5B5F62,
+  50:   #74787B,
+  60:   #8E9194,
+  70:   #A8ACAF,
+  80:   #C4C7CA,
+  90:   #E0E3E6,
+  95:   #EFF1F4,
+  98:   #F7F9FC,
+  99:   #FAFCFF,
+  100:  #FFFFFF,
+  contrast: (
+    0:   #FFFFFF,
+    10:  #FFFFFF,
+    20:  #FFFFFF,
+    25:  #FFFFFF,
+    30:  #FFFFFF,
+    35:  #FFFFFF,
+    40:  #FFFFFF,
+    50:  #FFFFFF,
+    60:  #191C1E,
+    70:  #191C1E,
+    80:  #191C1E,
+    90:  #191C1E,
+    95:  #191C1E,
+    98:  #191C1E,
+    99:  #191C1E,
+    100: #191C1E,
+  )
+);
+
+//  Neutral Variant  — slightly warmer for surface variants
+$neutral-variant-palette: (
+  0:    #000000,
+  10:   #181C1F,
+  20:   #2C3033,
+  25:   #373B3F,
+  30:   #42474A,
+  35:   #4E5256,
+  40:   #5A5E62,
+  50:   #73777B,
+  60:   #8D9195,
+  70:   #A7ABAF,
+  80:   #C3C7CB,
+  90:   #DFE3E7,
+  95:   #EDF1F5,
+  98:   #F6F9FD,
+  99:   #F9FCFF,
+  100:  #FFFFFF,
+  contrast: (
+    0:   #FFFFFF,
+    10:  #FFFFFF,
+    20:  #FFFFFF,
+    25:  #FFFFFF,
+    30:  #FFFFFF,
+    35:  #FFFFFF,
+    40:  #FFFFFF,
+    50:  #FFFFFF,
+    60:  #181C1F,
+    70:  #181C1F,
+    80:  #181C1F,
+    90:  #181C1F,
+    95:  #181C1F,
+    98:  #181C1F,
+    99:  #181C1F,
+    100: #181C1F,
+  )
+);
+
+//  Error  — warm red (kept standard for accessibility)
+$error-palette: (
+  0:    #000000,
+  10:   #410002,
+  20:   #690005,
+  25:   #7E0007,
+  30:   #93000A,
+  35:   #A80710,
+  40:   #BA1A1A,
+  50:   #DE3730,
+  60:   #FF5449,
+  70:   #FF897D,
+  80:   #FFB4AB,
+  90:   #FFDAD6,
+  95:   #FFEDEA,
+  98:   #FFF8F7,
+  99:   #FFFBFF,
+  100:  #FFFFFF,
+  contrast: (
+    0:   #FFFFFF,
+    10:  #FFFFFF,
+    20:  #FFFFFF,
+    25:  #FFFFFF,
+    30:  #FFFFFF,
+    35:  #FFFFFF,
+    40:  #FFFFFF,
+    50:  #FFFFFF,
+    60:  #FFFFFF,
+    70:  #410002,
+    80:  #410002,
+    90:  #410002,
+    95:  #410002,
+    98:  #410002,
+    99:  #410002,
+    100: #410002,
+  )
+);
+
+
+// ════════════════════════════════════════════════════════════
+//  LIGHT THEME  (default)
+// ════════════════════════════════════════════════════════════
+$app-light-theme: mat.define-theme((
+  color: (
+    theme-type:         light,
+    primary:            mat.m2-define-palette($sky-blue-palette,  60, 40, 80),
+    accent:             mat.m2-define-palette($fresh-green-palette, 70, 40, 90),
+    warn:               mat.m2-define-palette($error-palette,      40, 20, 80),
+  ),
+  typography: (
+    brand-family:       'Google Sans, sans-serif',
+    bold-weight:        500,
+  ),
+  density: (
+    scale: 0,
+  ),
+));
+
+// ════════════════════════════════════════════════════════════
+//  DARK THEME
+// ════════════════════════════════════════════════════════════
+$app-dark-theme: mat.define-theme((
+  color: (
+    theme-type:         dark,
+    primary:            mat.m2-define-palette($sky-blue-palette,  80, 90, 40),
+    accent:             mat.m2-define-palette($fresh-green-palette, 80, 90, 40),
+    warn:               mat.m2-define-palette($error-palette,      80, 90, 40),
+  ),
+  typography: (
+    brand-family:       'Google Sans, sans-serif',
+    bold-weight:        500,
+  ),
+  density: (
+    scale: 0,
+  ),
+));
+
+
+// ════════════════════════════════════════════════════════════
+//  APPLY THEMES
+// ════════════════════════════════════════════════════════════
+
+// -- Light (default) --
+html {
+  @include mat.all-component-themes($app-light-theme);
+}
+
+// -- Dark (system preference or .dark-mode class) --
+@media (prefers-color-scheme: dark) {
+  html {
+    @include mat.all-component-themes($app-dark-theme);
+  }
+}
+.dark-mode {
+  @include mat.all-component-themes($app-dark-theme);
+}
+
+
+// ════════════════════════════════════════════════════════════
+//  DESIGN TOKENS  (CSS custom properties)
+//  Use these anywhere in your app templates/styles
+// ════════════════════════════════════════════════════════════
+:root {
+  // ── Brand gradient ──────────────────────────────────────
+  --brand-gradient:          linear-gradient(90deg, #02A7DF 0%, #3BB19B 50%, #74BA58 100%);
+  --brand-gradient-diagonal: linear-gradient(135deg, #02A7DF 0%, #3BB19B 50%, #74BA58 100%);
+  --brand-gradient-vertical: linear-gradient(180deg, #02A7DF 0%, #74BA58 100%);
+
+  // ── Primary (Sky Blue) ──────────────────────────────────
+  --color-primary-10:   #001E2F;
+  --color-primary-20:   #00344F;
+  --color-primary-40:   #006194;
+  --color-primary-60:   #02A7DF;   /* primary */
+  --color-primary-70:   #41BEE9;
+  --color-primary-80:   #7DD4F3;
+  --color-primary-90:   #BDE9FA;   /* primary-container */
+  --color-primary-95:   #DEF4FD;
+
+  // ── Secondary (Fresh Green) ─────────────────────────────
+  --color-secondary-10: #082000;
+  --color-secondary-40: #2A6900;
+  --color-secondary-60: #56AD1A;
+  --color-secondary-70: #74BA58;   /* secondary */
+  --color-secondary-80: #93D172;
+  --color-secondary-90: #AEED8A;   /* secondary-container */
+  --color-secondary-95: #D3F8B9;
+
+  // ── Tertiary (Teal midpoint) ────────────────────────────
+  --color-tertiary-40:  #00675A;
+  --color-tertiary-60:  #22A18E;
+  --color-tertiary-70:  #3BB19B;   /* tertiary */
+  --color-tertiary-80:  #69CCBA;
+  --color-tertiary-90:  #84E8D4;   /* tertiary-container */
+
+  // ── Neutral surface tokens ──────────────────────────────
+  --color-surface:          #F7F9FC;
+  --color-surface-variant:  #DFE3E7;
+  --color-on-surface:       #191C1E;
+  --color-outline:          #73777B;
+  --color-outline-variant:  #C3C7CB;
+
+  // ── Semantic status ─────────────────────────────────────
+  --color-success:      #74BA58;
+  --color-success-bg:   #D3F8B9;
+  --color-info:         #02A7DF;
+  --color-info-bg:      #BDE9FA;
+  --color-warning:      #BA7517;
+  --color-warning-bg:   #FAC775;
+  --color-error:        #BA1A1A;
+  --color-error-bg:     #FFDAD6;
+
+  // ── Elevation (box-shadow) ───────────────────────────────
+  --elevation-1:  0 1px 2px rgba(2,167,223,.12), 0 1px 4px rgba(116,186,88,.08);
+  --elevation-2:  0 2px 6px rgba(2,167,223,.16), 0 1px 8px rgba(116,186,88,.10);
+  --elevation-3:  0 4px 12px rgba(2,167,223,.20), 0 2px 12px rgba(116,186,88,.12);
+}
+
+// Dark mode token overrides
+.dark-mode, @media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface:         #191C1E;
+    --color-surface-variant: #2C3033;
+    --color-on-surface:      #E0E3E6;
+    --color-outline:         #8D9195;
+    --color-outline-variant: #42474A;
+  }
+}
+
+
+// ════════════════════════════════════════════════════════════
+//  COMPONENT OVERRIDES
+//  Fine-tune Material components to match the brand gradient
+// ════════════════════════════════════════════════════════════
+
+// ── Toolbar gradient header ──────────────────────────────
+.mat-toolbar.brand-header {
+  background: var(--brand-gradient) !important;
+  color: #ffffff !important;
+
+  .mat-toolbar-row { color: #ffffff; }
+  button.mat-icon-button { color: rgba(255,255,255,.9); }
+}
+
+// ── Primary button with gradient ────────────────────────
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-fab.mat-primary,
+.mat-mdc-mini-fab.mat-primary {
+  background: var(--brand-gradient) !important;
+  color: #ffffff !important;
+  box-shadow: var(--elevation-2);
+  transition: box-shadow .2s, filter .15s;
+  &:hover { filter: brightness(1.06); box-shadow: var(--elevation-3); }
+}
+
+// ── Tab group active indicator ──────────────────────────
+.mat-mdc-tab-group,
+.mat-mdc-tab-nav-bar {
+  --mdc-tab-indicator-active-indicator-color: #02A7DF;
+  --mat-tab-header-active-label-text-color:   #02A7DF;
+  --mat-tab-header-active-ripple-color:       rgba(2,167,223,.15);
+  --mat-tab-header-inactive-ripple-color:     rgba(2,167,223,.08);
+}
+
+// ── Level-2 tab group uses the green accent ──────────────
+.mat-mdc-tab-group.secondary-tabs {
+  --mdc-tab-indicator-active-indicator-color: #74BA58;
+  --mat-tab-header-active-label-text-color:   #56AD1A;
+  --mat-tab-header-active-ripple-color:       rgba(116,186,88,.15);
+}
+
+// ── Level-3 tab group uses the teal midpoint ────────────
+.mat-mdc-tab-group.tertiary-tabs {
+  --mdc-tab-indicator-active-indicator-color: #3BB19B;
+  --mat-tab-header-active-label-text-color:   #00675A;
+  --mat-tab-header-active-ripple-color:       rgba(59,177,155,.15);
+}
+
+// ── Chip: primary ────────────────────────────────────────
+.mat-mdc-chip.mat-primary {
+  --mdc-chip-elevated-container-color:        var(--color-primary-90);
+  --mdc-chip-label-text-color:                var(--color-primary-40);
+  --mdc-chip-with-icon-icon-color:            var(--color-primary-60);
+  &.mat-mdc-chip-selected {
+    --mdc-chip-elevated-container-color:      var(--color-primary-60);
+    --mdc-chip-label-text-color:              #ffffff;
+  }
+}
+
+// ── Chip: secondary ─────────────────────────────────────
+.mat-mdc-chip.mat-accent {
+  --mdc-chip-elevated-container-color:        var(--color-secondary-90);
+  --mdc-chip-label-text-color:                var(--color-secondary-40);
+  &.mat-mdc-chip-selected {
+    --mdc-chip-elevated-container-color:      var(--color-secondary-70);
+    --mdc-chip-label-text-color:              #ffffff;
+  }
+}
+
+// ── Sidenav ──────────────────────────────────────────────
+.mat-sidenav {
+  border-right: 1px solid var(--color-outline-variant);
+  .mat-nav-list .mat-list-item.active {
+    background: var(--color-primary-90);
+    color: var(--color-primary-40);
+    border-left: 3px solid var(--color-primary-60);
+  }
+}
+
+// ── Progress bar ────────────────────────────────────────
+.mat-mdc-progress-bar {
+  --mdc-linear-progress-active-indicator-color: var(--color-primary-60);
+  &.accent { --mdc-linear-progress-active-indicator-color: var(--color-secondary-70); }
+}
+
+// ── Slide toggle ────────────────────────────────────────
+.mat-mdc-slide-toggle.mat-primary {
+  --mdc-switch-selected-handle-color:         var(--color-primary-60);
+  --mdc-switch-selected-track-color:          var(--color-primary-80);
+  --mdc-switch-selected-pressed-handle-color: var(--color-primary-40);
+}
+
+// ── Badge ────────────────────────────────────────────────
+.mat-badge-content {
+  background: var(--color-primary-60) !important;
+  color: #fff !important;
+}
+
+// ── Form fields focus ────────────────────────────────────
+.mat-mdc-form-field.mat-focused {
+  .mat-mdc-floating-label { color: var(--color-primary-60) !important; }
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: var(--color-primary-60) !important;
+  }
+}
+
+// ── Stepper active step ──────────────────────────────────
+.mat-step-header[aria-selected="true"] .mat-step-icon {
+  background: var(--brand-gradient) !important;
+  color: #ffffff !important;
+}
+
+// ── Selection list ───────────────────────────────────────
+.mat-mdc-list-option.mdc-list-item--selected {
+  --mdc-checkbox-selected-checkmark-color:    #ffffff;
+  --mdc-checkbox-selected-icon-color:         var(--color-primary-60);
+  --mdc-checkbox-selected-pressed-icon-color: var(--color-primary-40);
+}
+
+// ── Card ─────────────────────────────────────────────────
+.mat-mdc-card.brand-card {
+  border-top: 3px solid transparent;
+  border-image: var(--brand-gradient) 1;
+  box-shadow: var(--elevation-1);
+}
+
+// ── Snackbar ─────────────────────────────────────────────
+.mat-mdc-snack-bar-container.success-snack .mdc-snackbar__surface {
+  background: var(--color-secondary-10) !important;
+  color: var(--color-secondary-90) !important;
+}
+.mat-mdc-snack-bar-container.info-snack .mdc-snackbar__surface {
+  background: var(--color-primary-10) !important;
+  color: var(--color-primary-90) !important;
+}

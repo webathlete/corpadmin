@@ -1,0 +1,153 @@
+<mat-toolbar class="app-header">
+  <!-- Left: Menu toggle + Brand -->
+  <button mat-icon-button (click)="menuToggle.emit()" class="menu-btn"
+          matTooltip="Toggle sidebar" aria-label="Toggle sidebar">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <div class="brand">
+    <div class="brand-logo">
+      <mat-icon>{{ brand().icon }}</mat-icon>
+    </div>
+    <span class="brand-name">{{ brand().name }}</span>
+  </div>
+
+  <span class="flex-1"></span>
+
+  <!-- Right: Actions -->
+  <div class="header-actions">
+
+    <!-- App Info / About -->
+    <button mat-icon-button (click)="openInfo.emit()"
+            matTooltip="About this app" aria-label="About this app" class="header-icon-btn">
+      <mat-icon>info_outline</mat-icon>
+    </button>
+
+    <!-- Theme Switcher -->
+    <button mat-icon-button [matMenuTriggerFor]="themeMenu"
+            matTooltip="Switch theme" aria-label="Switch theme" class="header-icon-btn">
+      <mat-icon>palette</mat-icon>
+    </button>
+    <mat-menu #themeMenu="matMenu" class="theme-menu">
+      <div class="theme-menu-header">
+        <span>Choose Theme</span>
+      </div>
+      @for (theme of themes; track theme.id) {
+        <button mat-menu-item (click)="selectTheme(theme.id)"
+                class="theme-menu-item"
+                [class.active]="themeService.activeThemeId() === theme.id">
+          <span class="theme-row">
+            <span class="theme-color-dot" [style.background]="theme.primaryColor"></span>
+            <span class="theme-info">
+              <span class="theme-name">{{ theme.name }}</span>
+              <span class="theme-desc">{{ theme.description }}</span>
+            </span>
+            <mat-icon class="check-icon"
+                      [class.hidden]="themeService.activeThemeId() !== theme.id">check</mat-icon>
+          </span>
+        </button>
+      }
+      <mat-divider></mat-divider>
+
+      <!-- Text size — segmented selector; current size preselected -->
+      <div class="theme-menu-header"><span>Text Size</span></div>
+      <div class="text-size" (click)="$event.stopPropagation()">
+        @for (s of fontSizes; track s.value) {
+          <button type="button" class="size-btn"
+                  [class.active]="themeService.fontScale() === s.value"
+                  [matTooltip]="s.label"
+                  (click)="themeService.setFontScale(s.value)">A</button>
+        }
+      </div>
+
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="openCustomizer.emit()">
+        <mat-icon>tune</mat-icon>
+        <span>Customize Colors</span>
+      </button>
+    </mat-menu>
+
+    <!-- Notifications -->
+    <button mat-icon-button [matMenuTriggerFor]="notifMenu"
+            matTooltip="Notifications" [attr.aria-label]="'Notifications, ' + unreadCount() + ' unread'"
+            class="header-icon-btn">
+      <mat-icon [matBadge]="unreadCount()" [matBadgeHidden]="unreadCount() === 0"
+                matBadgeColor="warn" matBadgeSize="small">
+        notifications
+      </mat-icon>
+    </button>
+    <mat-menu #notifMenu="matMenu" class="notif-menu">
+      <div class="notif-header">
+        <span>Notifications</span>
+        <button mat-button color="primary" class="notif-mark-read">Mark all read</button>
+      </div>
+      <mat-divider></mat-divider>
+      @for (n of notifications(); track n.id) {
+        <div class="notif-item" [class.unread]="n.unread">
+          <div class="notif-icon" [style.background]="n.color + '20'"
+               [style.color]="n.color">
+            <mat-icon>{{ n.icon }}</mat-icon>
+          </div>
+          <div class="notif-content">
+            <p class="notif-title">{{ n.title }}</p>
+            <p class="notif-time">{{ n.time }}</p>
+          </div>
+        </div>
+      }
+      <mat-divider></mat-divider>
+      <button mat-menu-item class="notif-view-all">
+        View all notifications
+      </button>
+    </mat-menu>
+
+    <!-- User Menu -->
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-btn"
+            [attr.aria-label]="'Account menu for ' + user().fullName">
+      <div class="avatar"><mat-icon>account_circle</mat-icon></div>
+      <span class="user-name">{{ user().name }}</span>
+      <mat-icon class="dropdown-icon">expand_more</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu" class="user-menu">
+      <div class="user-menu-header">
+        <div class="avatar-lg">{{ user().initials }}</div>
+        <div>
+          <p class="user-fullname">{{ user().fullName }}</p>
+          <p class="user-email">{{ user().email }}</p>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+
+      <!-- Roles this user is assigned to (read-only, color-coded chips) -->
+      <div class="roles-label">Your roles ({{ roles().length }})</div>
+      <div class="roles-chips" (click)="$event.stopPropagation()">
+        <mat-chip-set>
+          @for (r of roles(); track r.name) {
+            <mat-chip class="role-chip" [disableRipple]="true"
+                      [matTooltip]="r.scope"
+                      [style.color]="r.color"
+                      [style.background]="'color-mix(in srgb, ' + r.color + ' 14%, transparent)'">
+              <mat-icon matChipAvatar [style.color]="r.color">{{ r.icon }}</mat-icon>
+              {{ r.name }}
+            </mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+      <mat-divider></mat-divider>
+
+      <button mat-menu-item>
+        <mat-icon>person</mat-icon><span>My Profile</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>settings</mat-icon><span>Account Settings</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>help_outline</mat-icon><span>Help & Support</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item>
+        <mat-icon>logout</mat-icon><span>Sign Out</span>
+      </button>
+    </mat-menu>
+
+  </div>
+</mat-toolbar>

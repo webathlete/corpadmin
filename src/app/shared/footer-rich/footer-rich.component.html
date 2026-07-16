@@ -1,0 +1,41 @@
+<footer class="rich-footer">
+  <div class="rf-top">
+    <!-- Brand blurb + social -->
+    <div class="rf-brand">
+      <div class="rf-logo">
+        <div class="rf-logo-mark"><mat-icon>{{ footer().brandIcon }}</mat-icon></div>
+        <span class="rf-name">{{ footer().brandName }}</span>
+      </div>
+      <p class="rf-tagline">{{ footer().tagline }}</p>
+      <div class="rf-social">
+        @for (s of footer().social; track s.label) {
+          <a class="rf-social-btn" [href]="s.url" [attr.aria-label]="s.label" target="_blank" rel="noopener">
+            <mat-icon>{{ s.icon }}</mat-icon>
+          </a>
+        }
+      </div>
+    </div>
+
+    <!-- Link columns -->
+    <div class="rf-cols">
+      @for (col of footer().columns; track col.title) {
+        <nav class="rf-col" [attr.aria-label]="col.title">
+          <div class="rf-col-title">{{ col.title }}</div>
+          @for (link of col.links; track link.label) {
+            <a class="rf-link" [href]="link.url">{{ link.label }}</a>
+          }
+        </nav>
+      }
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="rf-bottom">
+    <span class="rf-copy">{{ footer().copyright }}</span>
+    <nav class="rf-legal" aria-label="Legal">
+      @for (l of footer().legal; track l.label) {
+        <a class="rf-link" [href]="l.url">{{ l.label }}</a>
+      }
+    </nav>
+  </div>
+</footer>

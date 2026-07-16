@@ -1,0 +1,119 @@
+<div class="dt-card">
+
+  <!-- Toolbar -->
+  <div class="dt-toolbar">
+    <div class="dt-title">
+      @if (title()) { <h3>{{ title() }}</h3> }
+      <span class="dt-count">{{ dataSource.filteredData.length }} rows</span>
+    </div>
+
+    <div class="dt-tools">
+      <div class="dt-search">
+        <mat-icon>search</mat-icon>
+        <input type="text" placeholder="Search…"
+               [ngModel]="quickFilter()" (ngModelChange)="setQuickFilter($event)">
+        @if (quickFilter()) {
+          <button mat-icon-button class="dt-search-clear" (click)="setQuickFilter('')" aria-label="Clear search">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <button mat-icon-button (click)="toggleFilterRow()"
+              [class.dt-active]="showFilterRow()"
+              matTooltip="Column filters" aria-label="Toggle column filters">
+        <mat-icon>filter_list</mat-icon>
+      </button>
+
+      <button mat-icon-button [matMenuTriggerFor]="colMenu"
+              matTooltip="Choose columns" aria-label="Choose columns">
+        <mat-icon>view_column</mat-icon>
+      </button>
+      <mat-menu #colMenu="matMenu" class="dt-col-menu">
+        <div class="dt-col-menu-title" (click)="$event.stopPropagation()">Columns</div>
+        @for (col of hideableColumns(); track col.key) {
+          <button mat-menu-item (click)="toggleColumn(col.key); $event.stopPropagation()">
+            <mat-checkbox [checked]="isVisible(col.key)"
+                          (click)="$event.stopPropagation()"
+                          (change)="toggleColumn(col.key)">
+              {{ col.header }}
+            </mat-checkbox>
+          </button>
+        }
+      </mat-menu>
+
+      @if (hasActiveFilters) {
+        <button mat-icon-button (click)="clearFilters()" matTooltip="Clear filters" aria-label="Clear filters">
+          <mat-icon>filter_alt_off</mat-icon>
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Loading bar (indeterminate) -->
+  <div class="dt-progress">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Loading"></mat-progress-bar>
+    }
+  </div>
+
+  <!-- Table -->
+  <div class="dt-scroll">
+    <table mat-table [dataSource]="dataSource" matSort class="dt-table">
+
+      @for (col of columns(); track col.key) {
+        <!-- Data column: header (sortable) + typed cell -->
+        <ng-container [matColumnDef]="col.key">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="col.sortable === false"
+              [class.align-right]="col.align === 'right'"
+              [class.align-center]="col.align === 'center'">
+            {{ col.header }}
+          </th>
+          <td mat-cell *matCellDef="let row"
+              [class.align-right]="col.align === 'right'"
+              [class.align-center]="col.align === 'center'">
+            @switch (col.type) {
+              @case ('badge') {
+                <span class="status-badge" [class]="col.badge ? col.badge(row) : 'neutral'">
+                  {{ cellText(col, row) }}
+                </span>
+              }
+              @case ('currency') { {{ row[col.key] | currency:'USD':'symbol':'1.0-0' }} }
+              @case ('number')   { {{ row[col.key] | number }} }
+              @case ('date')     { {{ row[col.key] | date:'mediumDate' }} }
+              @default           { {{ cellText(col, row) }} }
+            }
+          </td>
+        </ng-container>
+
+        <!-- Filter column (second header row) -->
+        <ng-container [matColumnDef]="col.key + '_f'">
+          <th mat-header-cell *matHeaderCellDef class="dt-filter-cell">
+            @if (col.filterable !== false) {
+              <input class="dt-col-filter" placeholder="Filter…"
+                     [ngModel]="filters()[col.key] || ''"
+                     (ngModelChange)="setColumnFilter(col.key, $event)">
+            }
+          </th>
+        </ng-container>
+      }
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+      @if (showFilterRow()) {
+        <tr mat-header-row *matHeaderRowDef="filterColumns()" class="dt-filter-row"></tr>
+      }
+      <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+    </table>
+
+    <!-- Empty state -->
+    @if (!loading() && dataSource.filteredData.length === 0) {
+      <div class="dt-empty">
+        <mat-icon>{{ hasActiveFilters ? 'search_off' : 'inbox' }}</mat-icon>
+        <span>{{ hasActiveFilters ? 'No rows match your filters.' : 'No data to display.' }}</span>
+      </div>
+    }
+  </div>
+
+  <mat-paginator [pageSize]="pageSize()" [pageSizeOptions]="pageSizeOptions()"
+                 showFirstLastButtons aria-label="Select page"></mat-paginator>
+</div>

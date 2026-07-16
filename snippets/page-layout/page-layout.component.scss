@@ -1,0 +1,29 @@
+:host { display: block; }
+
+.page-layout { display: flex; flex-direction: column; }
+
+/* Compact vertical rhythm between the composed parts:
+   header → breadcrumb → description → body */
+app-page-header { display: block; }
+
+app-breadcrumb {
+  display: block;
+  margin-top: 2px;
+}
+
+.pl-description {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text-secondary, #718096);
+  max-width: 80ch;
+}
+
+.pl-body {
+  margin-top: 12px;
+  min-width: 0;
+}
+
+@media (max-width: 599px) {
+  .pl-body { margin-top: 10px; }
+}

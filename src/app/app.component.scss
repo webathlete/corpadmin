@@ -1,0 +1,55 @@
+:host { display: block; height: 100vh; overflow: hidden; }
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--page-bg);
+}
+
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  margin-top: var(--header-height);
+}
+
+.app-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  height: 100%;
+  overflow: hidden;
+  transition: width var(--transition-normal);
+  z-index: 50;
+}
+
+.app-sidebar.collapsed {
+  width: 68px;
+}
+
+.app-main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--page-bg);
+}
+
+/* Footer pinned to the bottom of the shell; app-body flexes to fill the
+   space between the fixed header and this footer. */
+app-footer {
+  flex-shrink: 0;
+  z-index: 50;
+}
+
+.app-content {
+  padding: 20px 24px;
+  min-height: 100%;
+  /* Full content width — no centered max-width cap. */
+}
+
+@media (max-width: 768px) {
+  .app-sidebar { position: fixed; left: 0; top: var(--header-height); bottom: 0; z-index: 200; }
+  .app-sidebar.collapsed { width: 0; overflow: hidden; }
+  .app-content { padding: 16px; }
+}

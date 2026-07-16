@@ -1,0 +1,33 @@
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Angular cache
+/.angular/cache
+.sass-cache
+
+# Generated at build time (see scripts/generate-version.mjs)
+/src/app/core/version.ts
+
+# IDE / editors
+/.idea
+/.vscode/*
+!/.vscode/extensions.json
+.history
+
+# Local Claude Code settings
+/.claude
+
+# Misc
+*.log
+.DS_Store
+Thumbs.db
+/.env
+/.env.*
+npm-debug.log*
+yarn-error.log*

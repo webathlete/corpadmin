@@ -1,0 +1,66 @@
+<div class="sidebar" [class.collapsed]="collapsed()">
+
+  <!-- Collapse / expand handle on the right edge -->
+  <button type="button" class="collapse-handle"
+          (click)="toggleCollapse.emit()"
+          [matTooltip]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+          matTooltipPosition="right"
+          [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'">
+    <mat-icon>{{ collapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+  </button>
+
+  <!-- Navigation groups -->
+  <nav class="sidebar-nav">
+    @for (group of navGroups(); track group.title) {
+      @if (!collapsed()) {
+        <div class="nav-group-label">{{ group.title }}</div>
+      }
+      @for (item of group.items; track item.route) {
+        <a class="nav-item"
+           [routerLink]="item.route"
+           routerLinkActive="active"
+           [matTooltip]="collapsed() ? item.label : ''"
+           matTooltipPosition="right">
+          <div class="nav-icon">
+            <!-- Badge on the icon only when collapsed; expanded uses the pill -->
+            <mat-icon [matBadge]="item.badge" [matBadgeHidden]="!item.badge || !collapsed()"
+                      matBadgeColor="warn" matBadgeSize="small">
+              {{ item.icon }}
+            </mat-icon>
+          </div>
+          @if (!collapsed()) {
+            <span class="nav-label">{{ item.label }}</span>
+            @if (item.badge) {
+              <span class="nav-badge">{{ item.badge }}</span>
+            }
+          }
+        </a>
+      }
+      <div class="nav-spacer"></div>
+    }
+  </nav>
+
+  <div class="sidebar-footer">
+    <mat-divider class="sidebar-divider"></mat-divider>
+
+    <!-- User info at bottom -->
+    @if (!collapsed()) {
+      <div class="sidebar-user">
+        <div class="user-avatar">{{ user().initials }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ user().name }}</span>
+          <span class="user-role">{{ user().role }}</span>
+        </div>
+        <button mat-icon-button class="user-settings-btn"
+                [routerLink]="'/settings'"
+                matTooltip="Settings" aria-label="Settings">
+          <mat-icon>settings</mat-icon>
+        </button>
+      </div>
+    } @else {
+      <div class="sidebar-user-mini">
+        <div class="user-avatar" [matTooltip]="user().name + ' — ' + user().role" matTooltipPosition="right">{{ user().initials }}</div>
+      </div>
+    }
+  </div>
+</div>

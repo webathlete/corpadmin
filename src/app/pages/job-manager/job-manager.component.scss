@@ -1,0 +1,85 @@
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+}
+
+.stat-value {
+  font-size: var(--fs-5xl);
+  font-weight: 600;
+  line-height: 1;
+
+  // Status-coded values via tokens (no hard-coded hex)
+  &.running   { color: var(--app-primary); }
+  &.queued    { color: var(--text-muted); }
+  &.completed { color: var(--status-success); }
+  &.failed    { color: var(--status-error); }
+}
+
+// Name cell
+.job-name { font-weight: 600; color: var(--text-primary); }
+.job-id { font-size: var(--fs-xs); color: var(--text-secondary); }
+
+// Progress cell
+.progress-cell { display: flex; align-items: center; gap: 8px; min-width: 140px; }
+.progress-bar-flex { flex: 1; }
+.progress-pct { font-size: 12px; color: var(--text-secondary); width: 34px; text-align: right; }
+
+.stat-label {
+  margin-top: 6px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.table-card {
+  padding: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.job-table {
+  width: 100%;
+  background: transparent;
+}
+
+.job-row {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover {
+    background: var(--hover-bg, rgba(21, 101, 192, 0.06));
+  }
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-icon {
+  font-size: var(--fs-md);
+  width: 15px;
+  height: 15px;
+}
+
+.spin {
+  animation: job-spin 1.2s linear infinite;
+}
+
+@keyframes job-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

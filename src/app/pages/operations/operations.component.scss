@@ -1,0 +1,230 @@
+:host { display: block; }
+
+/* 3-card top row (wraps on narrow screens) */
+.top-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: stretch;
+}
+@media (max-width: 1100px) { .top-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 720px)  { .top-grid { grid-template-columns: 1fr; } }
+
+.ops-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  height: 400px;          // standard, equal height for all three cards
+}
+@media (max-width: 720px) { .ops-card { height: auto; min-height: 340px; } }
+.ops-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; flex-wrap: wrap;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--surface-border);
+  h3 { margin: 0; font-size: var(--fs-md); font-weight: 600; color: var(--text-primary); }
+  .head-sub { font-size: var(--fs-xs); color: var(--text-secondary); strong { color: var(--text-primary); } }
+}
+
+/* ---- Card 1: System Status ---- */
+.status-card { padding: 0; }
+
+/* Hero status band — light header with a subtle brand tint (theme-aware). */
+.status-hero {
+  position: relative;
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px;
+  border-bottom: 1px solid var(--surface-border);
+  background: color-mix(in srgb, var(--brand-1) 5%, var(--surface-bg));
+}
+.hero-ring {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 50%;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--status-success) 14%, transparent);
+}
+.hero-dot {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--status-success);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--status-success) 25%, transparent);
+  animation: ops-pulse 2s ease-in-out infinite;
+}
+.hero-text { flex: 1; min-width: 0; }
+.hero-title { font-size: var(--fs-lg); font-weight: 600; letter-spacing: -0.2px; color: var(--text-primary); }
+.hero-sub { font-size: var(--fs-2xs); color: var(--text-secondary); margin-top: 3px; }
+.hero-tag {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: var(--fs-3xs); font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase;
+  color: var(--status-success);
+  background: color-mix(in srgb, var(--status-success) 14%, transparent);
+  padding: 4px 10px; border-radius: var(--radius-pill);
+  &::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--status-success);
+    animation: ops-pulse-sm 2s ease-in-out infinite;
+  }
+}
+@keyframes ops-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--status-success) 40%, transparent); }
+  50%      { box-shadow: 0 0 0 6px color-mix(in srgb, var(--status-success) 0%, transparent); }
+}
+@keyframes ops-pulse-sm {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+/* Stat list — clean, divided rows with a soft hover */
+.stat-list {
+  list-style: none; margin: 0; padding: 6px;
+  flex: 1;
+  display: flex; flex-direction: column;
+}
+.stat-row {
+  display: flex; align-items: center; gap: 12px;
+  flex: 1;                                   // rows share the card height evenly
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+  &:hover { background: color-mix(in srgb, var(--app-primary) 5%, transparent); }
+  & + .stat-row { position: relative; }
+  & + .stat-row::before {
+    content: ''; position: absolute; left: 12px; right: 12px; top: 0;
+    border-top: 1px solid var(--surface-border);
+  }
+}
+/* Soft rounded icon chip */
+.stat-ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  font-size: 19px;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--text-secondary) 10%, transparent);
+}
+.stat-row.success .stat-ico {
+  color: var(--status-success);
+  background: color-mix(in srgb, var(--status-success) 14%, transparent);
+}
+.stat-row.error .stat-ico {
+  color: var(--status-error);
+  background: color-mix(in srgb, var(--status-error) 14%, transparent);
+}
+.stat-label {
+  flex: 1; min-width: 0;
+  font-size: var(--fs-sm); color: var(--text-secondary);
+}
+.stat-value {
+  font-size: var(--fs-xl); font-weight: 700; color: var(--text-primary);
+  line-height: 1; letter-spacing: -0.3px;
+}
+.stat-delta {
+  display: inline-flex; align-items: center; gap: 1px;
+  min-width: 54px; justify-content: flex-end;
+  font-size: var(--fs-2xs); font-weight: 600;
+  color: var(--status-success);
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+  &.bad { color: var(--status-error); }
+}
+
+/* ---- Card 2: tabs + scrollable table ---- */
+.filter-tabs {
+  // used purely as a segmented selector — hide the (empty) tab bodies
+  ::ng-deep .mat-mdc-tab-body-wrapper { display: none; }
+  ::ng-deep .mat-mdc-tab-header { padding: 0 8px; }
+}
+/* Table area fills the remaining card height; scrolls only if a page overflows */
+.mini-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.mini-table {
+  width: 100%;
+  background: transparent;
+  th.mat-mdc-header-cell {
+    background: var(--surface-bg);
+    font-size: var(--fs-2xs); font-weight: 600; color: var(--text-secondary);
+  }
+  td.mat-mdc-cell { font-size: var(--fs-xs); color: var(--text-primary); border-color: var(--surface-border); }
+  .mat-mdc-row { height: 40px; }
+}
+.mini-title { font-weight: 600; }
+.mini-sub { font-size: var(--fs-2xs); color: var(--text-secondary); }
+.mini-date { color: var(--text-secondary); white-space: nowrap; }
+/* Paginator pinned to the bottom of the card */
+.mini-paginator {
+  flex-shrink: 0;
+  border-top: 1px solid var(--surface-border);
+  background: transparent;
+  ::ng-deep .mat-mdc-paginator-container {
+    min-height: 44px;
+    padding: 0 6px;
+    justify-content: flex-end;   // range label + controls grouped on the right
+  }
+  ::ng-deep .mat-mdc-paginator-range-label { margin: 0 10px; }
+}
+
+/* ---- Card 3: clickable status chips ---- */
+.chip-wrap {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 16px 18px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+.status-chip {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background: var(--surface-bg);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:hover { border-color: var(--chip-color); }
+
+  .chip-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--chip-color);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--chip-color) 18%, transparent);
+    flex-shrink: 0;
+  }
+  .chip-main { flex: 1; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .chip-label { font-size: var(--fs-sm); font-weight: 600; color: var(--text-primary); text-align: left; }
+
+  /* thin proportion bar (count relative to the largest) */
+  .chip-bar {
+    height: 4px; border-radius: 2px;
+    background: var(--page-bg);
+    overflow: hidden;
+  }
+  .chip-bar-fill {
+    display: block; height: 100%;
+    background: var(--chip-color);
+    border-radius: 2px;
+    transition: width var(--transition-normal);
+  }
+
+  .chip-count {
+    font-size: var(--fs-sm); font-weight: 700; color: var(--text-primary);
+    min-width: 34px; text-align: right;
+  }
+
+  /* selected → tinted with its own status colour */
+  &.selected {
+    border-color: var(--chip-color);
+    background: color-mix(in srgb, var(--chip-color) 9%, transparent);
+    box-shadow: 0 0 0 1px var(--chip-color);
+    .chip-label, .chip-count { color: var(--chip-color); }
+  }
+}
+
+/* ---- Below: history table ---- */
+.history-table {
+  th.mat-mdc-header-cell { font-size: var(--fs-xs); font-weight: 600; color: var(--text-secondary); }
+  td.mat-mdc-cell { font-size: var(--fs-sm); color: var(--text-primary); }
+}
+.table-wrapper { overflow-x: auto; }

@@ -1,0 +1,29 @@
+<!-- Sample usage of <app-page-layout> with projected [pageActions] -->
+<!-- The `pageActions` attribute marks content projected into the header's -->
+<!-- right side; anything else becomes the page body.                       -->
+
+<app-page-layout
+  title="Job Manager"
+  description="Monitor, start and cancel background jobs"
+  [breadcrumbs]="[
+    { label: 'Home', link: '/dashboard' },
+    { label: 'Job Manager' }
+  ]">
+
+  <!-- Header actions (right side) — projected via the `pageActions` attribute.
+       Put them on a single wrapper, or on each control individually. -->
+  <div pageActions>
+    <button mat-stroked-button>
+      <mat-icon>refresh</mat-icon> Refresh
+    </button>
+    <button mat-raised-button color="primary" (click)="startJob()">
+      <mat-icon>play_arrow</mat-icon> Start Job
+    </button>
+  </div>
+
+  <!-- Everything else = the page body (default <ng-content>) -->
+  <mat-card>
+    <p>Your page content goes here…</p>
+  </mat-card>
+
+</app-page-layout>

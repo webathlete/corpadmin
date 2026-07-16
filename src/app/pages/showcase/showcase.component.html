@@ -1,0 +1,296 @@
+<app-page-layout title="Components"
+                 description="Reusable data table, tab styles and toggle groups — themed and configurable."
+                 [breadcrumbs]="[{ label: 'Home', link: '/dashboard' }, { label: 'Components' }]">
+
+  <!-- ============ Reusable data table (async API) ============ -->
+  <section class="showcase-section">
+    <div class="showcase-head">
+      <h2>Data table</h2>
+      <button mat-stroked-button (click)="load()" [disabled]="loading()">
+        <mat-icon>refresh</mat-icon> Reload
+      </button>
+    </div>
+    <p class="showcase-note">
+      Generic <code>&lt;app-data-table&gt;</code> — sort, per-column filters (filter icon),
+      column chooser (columns icon), global search and pagination. Data arrives from a
+      simulated async API.
+    </p>
+
+    <app-data-table
+      title="Transactions"
+      [columns]="columns"
+      [data]="rows()"
+      [loading]="loading()"
+      [pageSize]="10">
+    </app-data-table>
+  </section>
+
+  <!-- ============ Tab varieties ============ -->
+  <section class="showcase-section">
+    <h2>Tabs</h2>
+
+    <!-- Featured: modern segmented tabs with clickable affordance -->
+    <div class="section-card mb-4">
+      <div class="section-card-header">
+        <h3>Modern segmented — 4 tabs</h3>
+        <span>Each tab shows a hollow dot (selectable); the active tab lifts &amp; highlights</span>
+      </div>
+      <div class="section-card-body">
+        <mat-tab-group class="tabs-modern" disableRipple animationDuration="250ms">
+          @for (t of modernTabs; track t.label) {
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <span class="mt-tab">
+                  <span class="mt-label">{{ t.label }}</span>
+                  <span class="mt-hint">{{ t.hint }}</span>
+                </span>
+              </ng-template>
+              <div class="tab-body">{{ t.label }} — {{ t.hint }}</div>
+            </mat-tab>
+          }
+        </mat-tab-group>
+      </div>
+    </div>
+
+    <div class="tab-grid">
+      <!-- 1. Standard underline -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>1 · Standard (underline)</h3></div>
+        <div class="section-card-body">
+          <mat-tab-group animationDuration="200ms" color="primary">
+            <mat-tab label="Overview"><div class="tab-body">Overview content</div></mat-tab>
+            <mat-tab label="Activity"><div class="tab-body">Activity content</div></mat-tab>
+            <mat-tab label="Settings"><div class="tab-body">Settings content</div></mat-tab>
+          </mat-tab-group>
+        </div>
+      </div>
+
+      <!-- 2. Highlighted / segmented (selected tab is filled, no underline) -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>2 · Highlighted (segmented)</h3></div>
+        <div class="section-card-body">
+          <mat-tab-group class="tabs-segmented" animationDuration="200ms" disableRipple>
+            <mat-tab label="Daily"><div class="tab-body">Daily content</div></mat-tab>
+            <mat-tab label="Weekly"><div class="tab-body">Weekly content</div></mat-tab>
+            <mat-tab label="Monthly"><div class="tab-body">Monthly content</div></mat-tab>
+          </mat-tab-group>
+        </div>
+      </div>
+
+      <!-- 3. Icon tabs -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>3 · With icons</h3></div>
+        <div class="section-card-body">
+          <mat-tab-group class="tabs-icon" animationDuration="200ms" color="primary">
+            <mat-tab>
+              <ng-template mat-tab-label><mat-icon>dashboard</mat-icon> Dashboard</ng-template>
+              <div class="tab-body">Dashboard content</div>
+            </mat-tab>
+            <mat-tab>
+              <ng-template mat-tab-label><mat-icon>bar_chart</mat-icon> Reports</ng-template>
+              <div class="tab-body">Reports content</div>
+            </mat-tab>
+            <mat-tab>
+              <ng-template mat-tab-label><mat-icon>settings</mat-icon> Config</ng-template>
+              <div class="tab-body">Config content</div>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      </div>
+
+      <!-- 4. Stretched + badge counts -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>4 · Stretched + badges</h3></div>
+        <div class="section-card-body">
+          <mat-tab-group class="tabs-stretch" mat-stretch-tabs animationDuration="200ms" color="primary">
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <span [matBadge]="tabBadges.open" matBadgeColor="primary" matBadgeOverlap="false" matBadgeSize="small">Open</span>
+              </ng-template>
+              <div class="tab-body">Open items</div>
+            </mat-tab>
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <span [matBadge]="tabBadges.closed" matBadgeColor="accent" matBadgeOverlap="false" matBadgeSize="small">Closed</span>
+              </ng-template>
+              <div class="tab-body">Closed items</div>
+            </mat-tab>
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <span [matBadge]="tabBadges.flagged" matBadgeColor="warn" matBadgeOverlap="false" matBadgeSize="small">Flagged</span>
+              </ng-template>
+              <div class="tab-body">Flagged items</div>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      </div>
+
+      <!-- 5. Stacked tabs (selected highlighted) -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>5 · Stacked</h3></div>
+        <div class="section-card-body">
+          <mat-tab-group class="tabs-stacked" animationDuration="200ms">
+            <mat-tab label="Overview"><div class="tab-body">Overview content</div></mat-tab>
+            <mat-tab label="Activity"><div class="tab-body">Activity content</div></mat-tab>
+            <mat-tab label="Settings"><div class="tab-body">Settings content</div></mat-tab>
+          </mat-tab-group>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Toggle button groups ============ -->
+  <section class="showcase-section">
+    <h2>Toggle button groups</h2>
+
+    <div class="toggle-grid">
+      <!-- 1. Icon-only view switcher (single) -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>1 · Icon view switcher</h3></div>
+        <div class="section-card-body toggle-body">
+          <mat-button-toggle-group [(ngModel)]="viewValue" hideSingleSelectionIndicator aria-label="View">
+            <mat-button-toggle value="grid" matTooltip="Grid"><mat-icon>grid_view</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="list" matTooltip="List"><mat-icon>view_list</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="board" matTooltip="Board"><mat-icon>view_kanban</mat-icon></mat-button-toggle>
+          </mat-button-toggle-group>
+          <span class="toggle-value">Selected: <strong>{{ view() }}</strong></span>
+        </div>
+      </div>
+
+      <!-- 2. Text segmented (single) -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>2 · Text segmented</h3></div>
+        <div class="section-card-body toggle-body">
+          <mat-button-toggle-group [(ngModel)]="periodValue" hideSingleSelectionIndicator aria-label="Period">
+            <mat-button-toggle value="day">Day</mat-button-toggle>
+            <mat-button-toggle value="week">Week</mat-button-toggle>
+            <mat-button-toggle value="month">Month</mat-button-toggle>
+            <mat-button-toggle value="year">Year</mat-button-toggle>
+          </mat-button-toggle-group>
+          <span class="toggle-value">Range: <strong>{{ period() }}</strong></span>
+        </div>
+      </div>
+
+      <!-- 3. Multi-select (formatting) -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>3 · Multi-select</h3></div>
+        <div class="section-card-body toggle-body">
+          <mat-button-toggle-group [(ngModel)]="formatsValue" multiple aria-label="Text format">
+            <mat-button-toggle value="bold" matTooltip="Bold"><mat-icon>format_bold</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="italic" matTooltip="Italic"><mat-icon>format_italic</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="underline" matTooltip="Underline"><mat-icon>format_underlined</mat-icon></mat-button-toggle>
+          </mat-button-toggle-group>
+          <span class="toggle-value">Active: <strong>{{ formats().join(', ') || 'none' }}</strong></span>
+        </div>
+      </div>
+
+      <!-- 4. Data-bound filter -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>4 · Filters sample data</h3></div>
+        <div class="section-card-body toggle-body">
+          <mat-button-toggle-group [(ngModel)]="channelValue" hideSingleSelectionIndicator aria-label="Channel">
+            @for (c of channels; track c) {
+              <mat-button-toggle [value]="c">{{ c === 'all' ? 'All' : c }}</mat-button-toggle>
+            }
+          </mat-button-toggle-group>
+          <div class="people-chips">
+            <mat-chip-set>
+              @for (p of filteredPeople(); track p.name) {
+                <mat-chip>{{ p.name }}</mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Radio group varieties ============ -->
+  <section class="showcase-section">
+    <h2>Radio groups</h2>
+
+    <div class="radio-grid">
+      <!-- 1. Selectable cards (plan picker) -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>1 · Selectable cards</h3></div>
+        <div class="section-card-body">
+          <mat-radio-group class="radio-cards" [value]="plan()" (change)="plan.set($event.value)">
+            @for (p of plans; track p.value) {
+              <mat-radio-button [value]="p.value">
+                <span class="rc-body">
+                  <mat-icon class="rc-icon">{{ p.icon }}</mat-icon>
+                  <span class="rc-name">{{ p.name }}</span>
+                  <span class="rc-price">{{ p.price }}<small>/mo</small></span>
+                  <span class="rc-desc">{{ p.desc }}</span>
+                  <mat-icon class="rc-check">check_circle</mat-icon>
+                </span>
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+        </div>
+      </div>
+
+      <!-- 2. Segmented pills -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>2 · Segmented pills</h3></div>
+        <div class="section-card-body">
+          <mat-radio-group class="radio-pills" [value]="delivery()" (change)="delivery.set($event.value)">
+            @for (d of deliveries; track d.value) {
+              <mat-radio-button [value]="d.value">
+                <span class="rp-body">
+                  <span class="rp-label">{{ d.label }}</span>
+                  <span class="rp-sub">{{ d.sub }}</span>
+                </span>
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+        </div>
+      </div>
+
+      <!-- 3. Color swatches -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>3 · Colour swatches</h3></div>
+        <div class="section-card-body">
+          <mat-radio-group class="radio-swatches" [value]="swatch()" (change)="swatch.set($event.value)">
+            @for (c of swatches; track c) {
+              <mat-radio-button [value]="c" [matTooltip]="c">
+                <span class="sw-dot" [style.background]="c"></span>
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+          <div class="sw-preview">
+            Selected <strong [style.color]="swatch()">{{ swatch() }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Classic themed (inline) -->
+      <div class="section-card">
+        <div class="section-card-header"><h3>4 · Classic (themed)</h3></div>
+        <div class="section-card-body">
+          <mat-radio-group class="radio-inline" [value]="plainSize()"
+                           (change)="plainSize.set($event.value)" color="primary">
+            <mat-radio-button value="s">Small</mat-radio-button>
+            <mat-radio-button value="m">Medium</mat-radio-button>
+            <mat-radio-button value="l">Large</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Rich footer ============ -->
+  <section class="showcase-section">
+    <div class="showcase-head">
+      <h2>Footer</h2>
+    </div>
+    <p class="showcase-note">
+      Config-driven, theme-aware footer for marketing or landing pages. Drop
+      <code>&lt;app-footer-rich&gt;</code> at the bottom of a page, or pass a
+      <code>[footer]</code> config to customise brand, columns, social and legal links.
+    </p>
+
+    <app-footer-rich />
+  </section>
+
+</app-page-layout>

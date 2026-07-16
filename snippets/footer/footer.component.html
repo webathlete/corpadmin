@@ -1,0 +1,12 @@
+<footer class="app-footer">
+  <span class="footer-copy">{{ footer().copyright }}</span>
+
+  <nav class="footer-links" aria-label="Footer">
+    @for (link of footer().links; track link.label) {
+      <a class="footer-link" [href]="link.url">{{ link.label }}</a>
+    }
+    @if (footer().version) {
+      <span class="footer-version">{{ footer().version }}</span>
+    }
+  </nav>
+</footer>

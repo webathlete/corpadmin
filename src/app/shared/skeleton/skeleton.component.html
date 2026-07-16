@@ -1,0 +1,10 @@
+@for (i of repeat; track i) {
+  <span
+    class="sk"
+    [class]="'sk--' + variant"
+    [style.width]="resolvedWidth(i)"
+    [style.height]="height"
+    [style.borderRadius]="radius"
+    aria-hidden="true">
+  </span>
+}

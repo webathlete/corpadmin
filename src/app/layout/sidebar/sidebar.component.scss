@@ -1,0 +1,165 @@
+:host { display: block; height: 100%; }
+
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100%;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width var(--transition-normal);
+}
+
+.sidebar.collapsed {
+  width: 68px;
+}
+
+/* Circular collapse/expand handle straddling the sidebar's right edge.
+   Fixed so it escapes the sidebar/aside `overflow: hidden`; its `left`
+   tracks the sidebar width so it stays on the edge in both states. */
+.collapse-handle {
+  position: fixed;
+  top: calc(var(--header-height) + 50%);
+  left: var(--sidebar-width);
+  transform: translate(-50%, -50%);
+  z-index: 60;
+
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-bg);
+  color: var(--text-secondary);
+  box-shadow: var(--elevation-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left var(--transition-normal),
+              background var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast);
+
+  &:hover {
+    background: var(--app-primary);
+    border-color: var(--app-primary);
+    color: var(--on-primary);
+  }
+
+  mat-icon {
+    font-size: var(--fs-xl);
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.sidebar.collapsed .collapse-handle {
+  left: 68px;
+}
+
+/* On mobile the sidebar is an overlay toggled from the header — hide the edge handle. */
+@media (max-width: 768px) {
+  .collapse-handle { display: none; }
+}
+
+/* Divider */
+.sidebar-divider {
+  border-color: var(--sidebar-divider) !important;
+}
+
+/* Nav */
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
+}
+
+.nav-group-label {
+  padding: 12px 18px 4px;
+  font-size: var(--fs-3xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--sidebar-text-muted);
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  margin: 1px 8px;
+  border-radius: 8px;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  position: relative;
+
+  &:hover {
+    background: var(--sidebar-hover-bg);
+    color: var(--sidebar-active-text);
+    .nav-icon mat-icon { color: var(--sidebar-active-icon); }
+  }
+
+  &.active {
+    background: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+    font-weight: 600;
+    .nav-icon mat-icon { color: var(--sidebar-active-icon); }
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -8px; top: 50%;
+      transform: translateY(-50%);
+      width: 3px; height: 60%;
+      background: var(--sidebar-active-text);
+      border-radius: 0 3px 3px 0;
+    }
+  }
+}
+
+.nav-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; flex-shrink: 0;
+  mat-icon { color: var(--sidebar-icon); font-size: 20px; }
+}
+
+.nav-label {
+  flex: 1; font-size: var(--fs-base); white-space: nowrap; overflow: hidden;
+}
+
+.nav-badge {
+  background: var(--status-error);
+  color: white; font-size: var(--fs-3xs); font-weight: 600;
+  padding: 2px 6px; border-radius: 100px;
+  min-width: 18px; text-align: center;
+}
+
+.nav-spacer { height: 4px; }
+
+/* Footer */
+.sidebar-footer { flex-shrink: 0; }
+
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+}
+.sidebar-user-mini {
+  display: flex; justify-content: center;
+  padding: 12px 0;
+}
+.user-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  // Use the brand color so it stays legible on both dark and light sidebars
+  background: var(--app-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-2xs); font-weight: 600; color: white;
+  flex-shrink: 0; cursor: pointer;
+}
+.user-info {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.user-name { font-size: var(--fs-sm); font-weight: 600; color: var(--sidebar-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-role { font-size: var(--fs-2xs); color: var(--sidebar-text-muted); }
+.user-settings-btn { color: var(--sidebar-text-muted); }

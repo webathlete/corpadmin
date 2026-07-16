@@ -1,0 +1,155 @@
+:host { position: fixed; z-index: 300; }
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  z-index: 300;
+  animation: fadeIn 200ms ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.customizer-panel {
+  position: fixed;
+  right: 0; top: 0; bottom: 0;
+  width: 320px;
+  background: var(--surface-bg);
+  border-left: 1px solid var(--surface-border);
+  z-index: 301;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--duration-long) var(--ease-emphasized);
+  box-shadow: var(--elevation-drawer);
+}
+
+.customizer-panel.open {
+  transform: translateX(0);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 16px 20px;
+  border-bottom: 1px solid var(--surface-border);
+  flex-shrink: 0;
+  background: var(--surface-bg);
+
+  h3 { margin: 0; font-size: var(--fs-md); font-weight: 600; color: var(--text-primary); }
+}
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 24px;
+}
+
+.panel-title {
+  display: flex; align-items: center; gap: 10px;
+  mat-icon { color: var(--app-primary); }
+}
+.dark-icon { font-size: 12px; width: 12px; height: 12px; color: var(--on-primary-medium); }
+
+.quick-block { margin-top: 12px; }
+.quick-label { font-size: var(--fs-2xs); color: var(--text-secondary); margin: 0 0 8px; }
+.quick-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.reset-btn { width: 100%; margin-top: 12px; font-size: var(--fs-xs); }
+.section-divider { margin: 12px 0; }
+.field-label { font-size: var(--fs-sm); font-weight: 500; color: var(--text-primary); margin: 0 0 8px; }
+.radio-stack { display: flex; flex-direction: column; gap: 8px; }
+
+.section { padding: 16px 20px; }
+.section-label {
+  font-size: var(--fs-2xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+
+/* Theme grid */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.theme-swatch {
+  position: relative;
+  border: 2px solid var(--surface-border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+
+  &:hover { transform: translateY(-1px); border-color: var(--app-primary); }
+  &.active { border-color: var(--app-primary); }
+}
+
+.swatch-color {
+  height: 48px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.swatch-label {
+  display: block;
+  padding: 6px 8px;
+  font-size: var(--fs-2xs); font-weight: 500;
+  color: var(--text-primary);
+  background: var(--surface-bg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.swatch-check {
+  position: absolute; top: 4px; right: 4px;
+  font-size: var(--fs-lg); color: var(--on-primary);
+  background: var(--overlay-dark);
+  border-radius: 50%;
+  padding: 2px;
+}
+
+/* Color controls */
+.color-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.color-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: var(--fs-sm); color: var(--text-primary);
+  font-weight: 500;
+  mat-icon { font-size: 16px; color: var(--app-primary); }
+}
+.color-controls {
+  display: flex; align-items: center; gap: 8px;
+}
+.color-input {
+  width: 36px; height: 36px;
+  border: 2px solid var(--surface-border);
+  border-radius: 8px;
+  padding: 2px;
+  cursor: pointer;
+  background: none;
+}
+.color-hex {
+  font-size: var(--fs-xs); font-family: monospace;
+  color: var(--text-secondary);
+}
+
+/* Quick swatches */
+.quick-swatch {
+  width: 24px; height: 24px; border-radius: 50%;
+  cursor: pointer; border: 2px solid transparent;
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+  box-shadow: var(--elevation-1);
+  &:hover { transform: scale(1.2); border-color: var(--overlay-strong); }
+}
+
+/* Toggle */
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.toggle-title { font-size: var(--fs-sm); font-weight: 500; color: var(--text-primary); margin: 0 0 2px; }
+.toggle-sub   { font-size: var(--fs-xs); color: var(--text-secondary); margin: 0; }

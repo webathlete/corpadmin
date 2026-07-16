@@ -1,0 +1,62 @@
+@if (open()) {
+  <div class="backdrop" (click)="closed.emit()"></div>
+}
+
+<div class="info-panel" [class.open]="open()">
+  <!-- Header -->
+  <div class="panel-header">
+    <h3>About</h3>
+    <button mat-icon-button (click)="closed.emit()" matTooltip="Close" aria-label="Close about panel">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="panel-body">
+    <!-- Brand / version hero -->
+    <div class="info-hero">
+      <div class="info-logo">
+        <mat-icon>{{ info().icon }}</mat-icon>
+      </div>
+      <div class="info-name">{{ info().name }}</div>
+      <div class="info-version">
+        <span>v{{ info().version }}</span>
+        @if (info().channel) {
+          <span class="info-channel">{{ info().channel }}</span>
+        }
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Detail rows -->
+    <div class="info-rows">
+      @for (row of info().rows; track row.label) {
+        <div class="info-row">
+          <span class="info-row-key">
+            <mat-icon>{{ row.icon }}</mat-icon>
+            {{ row.label }}
+          </span>
+          <span class="info-row-val">{{ row.value }}</span>
+        </div>
+      }
+    </div>
+
+    @if (info().links.length) {
+      <mat-divider></mat-divider>
+      <div class="info-links">
+        @for (link of info().links; track link.label) {
+          <a class="info-link" [href]="link.url" target="_blank" rel="noopener">
+            <mat-icon>{{ link.icon }}</mat-icon>
+            <span>{{ link.label }}</span>
+            <mat-icon class="info-link-arrow">open_in_new</mat-icon>
+          </a>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Footer -->
+  <div class="panel-footer">
+    {{ info().copyright }}
+  </div>
+</div>

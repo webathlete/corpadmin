@@ -1,0 +1,23 @@
+<section class="page-layout">
+
+  <!-- 1. Page header component (title + projected actions) -->
+  <app-page-header [title]="title()">
+    <ng-content select="[pageActions]"></ng-content>
+  </app-page-header>
+
+  <!-- 2. Optional breadcrumb component (hidden when no crumbs are passed) -->
+  @if (breadcrumbs().length) {
+    <app-breadcrumb [items]="breadcrumbs()"></app-breadcrumb>
+  }
+
+  <!-- 3. Optional short description -->
+  @if (description()) {
+    <p class="pl-description">{{ description() }}</p>
+  }
+
+  <!-- Page body -->
+  <div class="pl-body">
+    <ng-content></ng-content>
+  </div>
+
+</section>

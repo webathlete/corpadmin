@@ -1,0 +1,39 @@
+:host { display: block; }
+
+.page-layout { display: flex; flex-direction: column; position: relative; }
+
+/* Pin the loading bar to the very top of the page content; absolute so
+   toggling it never shifts the header/body. Sits in the content top padding. */
+.pl-loading {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  right: 0;
+  z-index: 5;
+}
+
+/* Compact vertical rhythm between the composed parts:
+   header → breadcrumb → description → body */
+app-page-header { display: block; }
+
+app-breadcrumb {
+  display: block;
+  margin-top: 2px;
+}
+
+.pl-description {
+  margin: 2px 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  color: var(--text-secondary);
+  max-width: 80ch;
+}
+
+.pl-body {
+  margin-top: 12px;
+  min-width: 0;
+}
+
+@media (max-width: 599px) {
+  .pl-body { margin-top: 10px; }
+}

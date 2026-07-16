@@ -1,0 +1,41 @@
+:host { display: block; }
+
+.sk {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: var(--sk-base, rgba(0,0,0,0.08));
+}
+.sk + .sk { margin-top: 10px; }
+
+/* Shimmer sweep */
+.sk::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--sk-sheen, rgba(255,255,255,0.55)) 50%,
+    transparent 100%
+  );
+  animation: sk-shimmer 1.4s ease-in-out infinite;
+}
+
+/* Variants */
+.sk--text      { height: 12px; border-radius: 6px; }
+.sk--title     { height: 22px; width: 45%; border-radius: 8px; }
+.sk--avatar    { width: 42px; height: 42px; border-radius: 50%; }
+.sk--thumbnail { width: 48px; height: 48px; border-radius: 10px; }
+.sk--button    { width: 110px; height: 36px; border-radius: 18px; }
+.sk--chart     { height: 180px; border-radius: 12px; }
+.sk--block     { height: 80px; border-radius: 10px; }
+
+@keyframes sk-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sk::after { animation: none; }
+}

@@ -1,0 +1,95 @@
+.team-card {
+  transition: transform var(--transition-fast);
+  &:hover { transform: translateY(-2px); }
+}
+
+.member-header { display: flex; align-items: flex-start; gap: 12px; }
+
+.member-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-lg); font-weight: 600; color: white;
+  position: relative; flex-shrink: 0;
+}
+
+.status-dot {
+  position: absolute; bottom: 2px; right: 2px;
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid var(--surface-bg);
+  &.active  { background: var(--status-success); }
+  &.away    { background: var(--status-warning); }
+  &.offline { background: var(--text-muted); }
+}
+
+.member-info {
+  flex: 1; min-width: 0;
+  h3 { margin: 0 0 2px; font-size: var(--fs-md); font-weight: 600; color: var(--text-primary); }
+  p  { margin: 0 0 6px; font-size: var(--fs-xs); color: var(--text-secondary); }
+}
+
+.dept-chip {
+  font-size: var(--fs-3xs); font-weight: 600;
+  background: rgba(var(--app-primary-rgb, 21,101,192), 0.1);
+  color: var(--app-primary);
+  padding: 2px 8px; border-radius: 100px;
+}
+
+.member-menu-btn { color: var(--text-secondary); }
+
+.member-stats {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.stat {
+  display: flex; align-items: center; gap: 6px;
+  font-size: var(--fs-xs); color: var(--text-secondary);
+  mat-icon { font-size: 15px; color: var(--text-muted); }
+}
+
+/* Toolbar / filters */
+.toolbar-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.search-field { width: 200px; }
+.dept-field { width: 140px; }
+.dept-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+
+/* Cards grid */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+.card-divider { margin: 14px 0; }
+
+/* Skills */
+.skills-block {
+  margin: 12px 0;
+  mat-chip { font-size: var(--fs-2xs); }
+}
+.skills-label {
+  font-size: var(--fs-2xs); text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-secondary); font-weight: 600; margin: 0 0 8px;
+}
+
+/* Performance */
+.perf-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.perf-label { font-size: var(--fs-xs); color: var(--text-secondary); }
+.perf-value { font-size: var(--fs-xs); font-weight: 600; color: var(--app-primary); }
+
+.card-actions {
+  display: flex; gap: 8px; margin-top: 14px;
+  button { flex: 1; font-size: var(--fs-xs); }
+}
+
+.danger-item { color: var(--status-error); }
+
+/* Departments section */
+.subsection { margin-top: 24px; }
+.subsection-title { font-size: var(--fs-lg); font-weight: 600; color: var(--text-primary); margin: 0 0 12px; }
+.panel-icon { margin-right: 8px; color: var(--app-primary); }
+.dept-body { padding: 8px 0; }
+.dept-desc { color: var(--text-secondary); font-size: var(--fs-sm); margin: 0 0 12px; }
+.goals { display: flex; gap: 16px; flex-wrap: wrap; }
+.goal {
+  display: flex; align-items: center; gap: 6px;
+  font-size: var(--fs-sm); color: var(--text-primary);
+  mat-icon { font-size: 16px; color: var(--status-success); }
+}

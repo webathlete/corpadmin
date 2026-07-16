@@ -1,0 +1,313 @@
+<div class="analytics-page">
+
+  <app-page-layout [loading]="loading()" title="Analytics"
+                   description="Track performance, revenue trends, and team KPIs."
+                   [breadcrumbs]="[{ label: 'Home', link: '/dashboard' }, { label: 'Analytics' }]">
+    <div pageActions class="toolbar-actions">
+      <mat-form-field appearance="outline" class="inline-field period-field">
+        <mat-label>Period</mat-label>
+        <mat-select [(ngModel)]="selectedPeriod">
+          <mat-option value="7d">Last 7 days</mat-option>
+          <mat-option value="30d">Last 30 days</mat-option>
+          <mat-option value="90d">Last 90 days</mat-option>
+          <mat-option value="1y">Last year</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-stroked-button (click)="reload()" matTooltip="Simulate reload">
+        <mat-icon>refresh</mat-icon> Reload
+      </button>
+      <button mat-raised-button color="primary">
+        <mat-icon>download</mat-icon> Export
+      </button>
+    </div>
+
+  <!-- Summary chips (ghost skeletons while loading) -->
+  <div class="chips-row">
+    @if (loading()) {
+      @for (i of [1,2,3,4]; track i) {
+        <app-skeleton variant="button" width="150px" height="32px" radius="100px"></app-skeleton>
+      }
+    } @else {
+      @for (chip of summaryChips; track chip.label) {
+        <mat-chip-set>
+          <mat-chip [style.--mdc-chip-label-text-color]="chip.color"
+                    [style.background]="chip.bg">
+            <mat-icon matChipAvatar>{{ chip.icon }}</mat-icon>
+            {{ chip.label }}
+          </mat-chip>
+        </mat-chip-set>
+      }
+    }
+  </div>
+
+  <mat-tab-group animationDuration="200ms" color="primary">
+
+    <!-- Revenue Tab — multilevel (nested) tabs + view toggle -->
+    <mat-tab label="Revenue">
+      <div class="tab-pad">
+
+        <!-- Toolbar: Material button-toggle view switcher -->
+        <div class="tab-toolbar">
+          <span class="toolbar-label">Chart style</span>
+          <mat-button-toggle-group [(ngModel)]="chartView" hideSingleSelectionIndicator
+                                   aria-label="Chart style">
+            <mat-button-toggle value="bar">
+              <mat-icon>bar_chart</mat-icon> Bars
+            </mat-button-toggle>
+            <mat-button-toggle value="line">
+              <mat-icon>show_chart</mat-icon> Line
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+        <!-- Nested tab group lives INSIDE the Revenue tab -->
+        <mat-tab-group animationDuration="200ms" class="nested-tabs">
+
+          <!-- Sub-tab: By Month -->
+          <mat-tab label="By Month">
+            <div class="section-card mt-card">
+              <div class="section-card-header"><h3>Monthly Revenue</h3><span class="text-muted">2024</span></div>
+              <div class="section-card-body">
+                @if (loading()) {
+                  <app-skeleton variant="chart" height="180px"></app-skeleton>
+                } @else {
+                  <svg viewBox="0 0 400 180" class="chart-svg">
+                    <!-- Y-axis labels -->
+                    @for (label of yLabels; track label.y) {
+                      <text [attr.x]="8" [attr.y]="label.y" font-size="9" fill="var(--text-secondary)">{{ label.v }}</text>
+                      <line [attr.x1]="40" [attr.y1]="label.y - 4" x2="395" [attr.y2]="label.y - 4"
+                            stroke="var(--surface-border)" stroke-width="0.5"/>
+                    }
+
+                    @if (chartView === 'bar') {
+                      @for (bar of monthlyRevenue; track bar.month; let i = $index) {
+                        <g [attr.transform]="'translate(' + (44 + i * 30) + ',0)'">
+                          <rect [attr.y]="160 - bar.height" [attr.height]="bar.height"
+                                width="20" rx="4"
+                                [attr.fill]="'var(--chart-color-1)'"
+                                opacity="0.85"/>
+                          <text x="10" y="175" text-anchor="middle" font-size="8" fill="var(--text-secondary)">{{ bar.month }}</text>
+                        </g>
+                      }
+                    } @else {
+                      <polyline [attr.points]="linePoints" fill="none"
+                                stroke="var(--chart-color-1)" stroke-width="2.5"
+                                stroke-linejoin="round" stroke-linecap="round"/>
+                      @for (bar of monthlyRevenue; track bar.month; let i = $index) {
+                        <circle [attr.cx]="54 + i * 30" [attr.cy]="160 - bar.height" r="3"
+                                fill="var(--chart-color-1)"/>
+                        <text [attr.x]="54 + i * 30" y="175" text-anchor="middle" font-size="8" fill="var(--text-secondary)">{{ bar.month }}</text>
+                      }
+                    }
+                  </svg>
+                }
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Sub-tab: By Region -->
+          <mat-tab label="By Region">
+            <div class="section-card mt-card">
+              <div class="section-card-header"><h3>Revenue by Region</h3></div>
+              <div class="section-card-body">
+                @if (loading()) {
+                  <app-skeleton variant="text" [count]="4" height="16px"></app-skeleton>
+                } @else {
+                  @for (r of revenueByRegion; track r.region) {
+                    <div class="region-row">
+                      <div class="region-top">
+                        <span class="region-name">{{ r.region }}</span>
+                        <div class="region-meta">
+                          <span class="region-deals">{{ r.deals }} deals</span>
+                          <span class="region-rev">{{ r.revenue }}</span>
+                        </div>
+                      </div>
+                      <mat-progress-bar [value]="r.percent" color="primary" class="region-bar"></mat-progress-bar>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Sub-tab: Top Products -->
+          <mat-tab label="Top Products">
+            <div class="section-card mt-card">
+              <div class="section-card-header"><h3>Top Products / Services</h3></div>
+              @if (loading()) {
+                <div class="section-card-body">
+                  <div class="sk-row">
+                    <app-skeleton variant="thumbnail"></app-skeleton>
+                    <app-skeleton class="sk-flex" variant="text" width="100%" height="14px"></app-skeleton>
+                  </div>
+                  <app-skeleton variant="text" [count]="4" height="14px"></app-skeleton>
+                </div>
+              } @else {
+                <div class="table-scroll">
+                  <table mat-table [dataSource]="filteredProducts" class="products-table">
+                    <ng-container matColumnDef="product">
+                      <th mat-header-cell *matHeaderCellDef>Product</th>
+                      <td mat-cell *matCellDef="let r">
+                        <div class="product-cell">
+                          <div class="product-icon">
+                            <mat-icon>{{ r.icon }}</mat-icon>
+                          </div>
+                          <span class="product-name">{{ r.product }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="revenue">
+                      <th mat-header-cell *matHeaderCellDef>Revenue</th>
+                      <td mat-cell *matCellDef="let r"><strong>{{ r.revenue }}</strong></td>
+                    </ng-container>
+                    <ng-container matColumnDef="units">
+                      <th mat-header-cell *matHeaderCellDef>Units</th>
+                      <td mat-cell *matCellDef="let r">{{ r.units }}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="growth">
+                      <th mat-header-cell *matHeaderCellDef>Growth</th>
+                      <td mat-cell *matCellDef="let r">
+                        <span class="growth-cell" [class.trend-up]="r.trend > 0" [class.trend-down]="r.trend < 0">
+                          <mat-icon>{{ r.trend > 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+                          {{ r.growth }}
+                        </span>
+                      </td>
+                    </ng-container>
+                    <ng-container matColumnDef="share">
+                      <th mat-header-cell *matHeaderCellDef>Market Share</th>
+                      <td mat-cell *matCellDef="let r">
+                        <mat-progress-bar [value]="r.share" color="primary" class="share-bar"></mat-progress-bar>
+                      </td>
+                    </ng-container>
+
+                    <!-- Per-column filter header row -->
+                    <ng-container matColumnDef="product-f">
+                      <th mat-header-cell *matHeaderCellDef class="filter-cell">
+                        <input class="col-filter" placeholder="Filter…" [(ngModel)]="productFilters['product']">
+                      </th>
+                    </ng-container>
+                    <ng-container matColumnDef="revenue-f">
+                      <th mat-header-cell *matHeaderCellDef class="filter-cell">
+                        <input class="col-filter" placeholder="Filter…" [(ngModel)]="productFilters['revenue']">
+                      </th>
+                    </ng-container>
+                    <ng-container matColumnDef="units-f">
+                      <th mat-header-cell *matHeaderCellDef class="filter-cell">
+                        <input class="col-filter" placeholder="Filter…" [(ngModel)]="productFilters['units']">
+                      </th>
+                    </ng-container>
+                    <ng-container matColumnDef="growth-f">
+                      <th mat-header-cell *matHeaderCellDef class="filter-cell">
+                        <input class="col-filter" placeholder="Filter…" [(ngModel)]="productFilters['growth']">
+                      </th>
+                    </ng-container>
+                    <ng-container matColumnDef="share-f">
+                      <th mat-header-cell *matHeaderCellDef class="filter-cell">
+                        @if (hasProductFilters) {
+                          <button mat-icon-button class="clear-filters" (click)="clearProductFilters()"
+                                  matTooltip="Clear filters" aria-label="Clear filters">
+                            <mat-icon>filter_alt_off</mat-icon>
+                          </button>
+                        }
+                      </th>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="productColumns"></tr>
+                    <tr mat-header-row *matHeaderRowDef="productFilterColumns" class="filter-row"></tr>
+                    <tr mat-row *matRowDef="let r; columns: productColumns;" class="table-row"></tr>
+                  </table>
+
+                  @if (filteredProducts.length === 0) {
+                    <div class="no-results">
+                      <mat-icon>search_off</mat-icon>
+                      <span>No products match your filters.</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </mat-tab>
+
+        </mat-tab-group>
+      </div>
+    </mat-tab>
+
+    <!-- Team Performance Tab -->
+    <mat-tab label="Team Performance">
+      <div class="perf-grid">
+        @for (member of teamPerf; track member.name) {
+          <mat-card>
+            <mat-card-content class="pm-body">
+              <div class="pm-head">
+                <div class="pm-avatar">{{ member.initials }}</div>
+                <div>
+                  <div class="pm-name">{{ member.name }}</div>
+                  <div class="pm-role">{{ member.role }}</div>
+                </div>
+                <div class="pm-status">
+                  <span class="status-badge" [class.success]="member.status === 'On Track'"
+                        [class.warning]="member.status === 'At Risk'"
+                        [class.info]="member.status === 'Exceeded'">
+                    {{ member.status }}
+                  </span>
+                </div>
+              </div>
+              @for (kpi of member.kpis; track kpi.label) {
+                <div class="pm-kpi">
+                  <div class="pm-kpi-top">
+                    <span class="pm-kpi-label">{{ kpi.label }}</span>
+                    <span class="pm-kpi-value">{{ kpi.value }}</span>
+                  </div>
+                  <mat-progress-bar [value]="kpi.percent" color="primary"></mat-progress-bar>
+                </div>
+              }
+              <mat-divider class="pm-divider"></mat-divider>
+              <div class="pm-foot">
+                <div class="pm-score">
+                  <mat-icon>star</mat-icon>
+                  <span class="pm-score-val">{{ member.score }}</span>
+                  <span class="pm-score-label">Score</span>
+                </div>
+                <button mat-button color="primary">View Profile</button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- Funnels Tab -->
+    <mat-tab label="Conversion Funnel">
+      <div class="tab-pad">
+        <div class="section-card">
+          <div class="section-card-header"><h3>Sales Funnel</h3><span class="text-muted">All time</span></div>
+          <div class="section-card-body">
+            <div class="funnel">
+              @for (step of funnel; track step.name; let i = $index) {
+                <div>
+                  <div class="funnel-top">
+                    <div class="funnel-label">
+                      <div class="funnel-num">{{ i+1 }}</div>
+                      <span class="funnel-name">{{ step.name }}</span>
+                    </div>
+                    <div class="funnel-meta">
+                      <span class="funnel-count">{{ step.count | number }}</span>
+                      <span class="funnel-rate">{{ step.rate }}</span>
+                    </div>
+                  </div>
+                  <div class="funnel-track">
+                    <div class="funnel-fill" [style.width]="step.width + '%'" [style.opacity]="1 - i * 0.12">
+                      <span class="funnel-fill-label">{{ step.rate }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+  </app-page-layout>
+</div>

@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>
+  <mat-icon class="title-icon">how_to_reg</mat-icon> Confirm onboarding
+</h2>
+
+<mat-dialog-content>
+  <p>You're about to create an account for:</p>
+  <div class="summary">
+    <div class="summary-avatar">{{ data.name ? data.name[0] : '?' }}</div>
+    <div>
+      <div class="summary-name">{{ data.name || 'Unnamed' }}</div>
+      <div class="summary-sub">{{ data.role }} · {{ data.email }}</div>
+    </div>
+  </div>
+  <p class="note">A welcome email with setup instructions will be sent on confirmation.</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="ref.close(false)">Cancel</button>
+  <button mat-raised-button color="primary" (click)="ref.close(true)">
+    <mat-icon>send</mat-icon> Confirm &amp; Send
+  </button>
+</mat-dialog-actions>

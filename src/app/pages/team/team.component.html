@@ -1,0 +1,148 @@
+<div>
+  <!-- Header -->
+  <app-page-layout [loading]="loading()" title="Team"
+                   [description]="filteredMembers().length + ' members across ' + departments.length + ' departments'"
+                   [breadcrumbs]="[{ label: 'Home', link: '/dashboard' }, { label: 'Team' }]">
+    <div pageActions class="toolbar-actions">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search</mat-label>
+        <input matInput [(ngModel)]="search" placeholder="Name or role…">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="dept-field">
+        <mat-label>Department</mat-label>
+        <mat-select [(ngModel)]="selectedDept">
+          <mat-option value="">All</mat-option>
+          @for (d of departments; track d) {
+            <mat-option [value]="d">{{ d }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <button mat-raised-button color="primary">
+        <mat-icon>person_add</mat-icon> Invite Member
+      </button>
+    </div>
+
+  <!-- Dept summary chips -->
+  <div class="dept-chips">
+    @for (dept of deptSummary; track dept.name) {
+      <mat-chip-listbox>
+        <mat-chip-option (click)="selectedDept = dept.name === selectedDept ? '' : dept.name"
+                  [selected]="selectedDept === dept.name">
+          {{ dept.name }} · {{ dept.count }}
+        </mat-chip-option>
+      </mat-chip-listbox>
+    }
+  </div>
+
+  <!-- Team Cards Grid -->
+  <div class="team-grid">
+    @for (m of filteredMembers(); track m.id) {
+      <mat-card class="team-card">
+        <mat-card-content>
+          <div class="member-header">
+            <div class="member-avatar" [style.background]="m.avatarColor">
+              {{ m.avatar }}
+              <span class="status-dot" [class]="m.status"></span>
+            </div>
+            <div class="member-info">
+              <h3>{{ m.name }}</h3>
+              <p>{{ m.role }}</p>
+              <span class="dept-chip">{{ m.dept }}</span>
+            </div>
+            <button mat-icon-button [matMenuTriggerFor]="memberMenu" class="member-menu-btn"
+                    matTooltip="Member actions" aria-label="Member actions">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #memberMenu>
+              <button mat-menu-item><mat-icon>email</mat-icon> Send Message</button>
+              <button mat-menu-item><mat-icon>edit</mat-icon> Edit Profile</button>
+              <button mat-menu-item><mat-icon>bar_chart</mat-icon> View Reports</button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item class="danger-item"><mat-icon>person_off</mat-icon> Deactivate</button>
+            </mat-menu>
+          </div>
+
+          <mat-divider class="card-divider"></mat-divider>
+
+          <!-- Quick stats -->
+          <div class="member-stats">
+            <div class="stat">
+              <mat-icon>folder</mat-icon>
+              <span>{{ m.projects }} projects</span>
+            </div>
+            <div class="stat">
+              <mat-icon>location_on</mat-icon>
+              <span>{{ m.location }}</span>
+            </div>
+            <div class="stat">
+              <mat-icon>calendar_today</mat-icon>
+              <span>Joined {{ m.joined }}</span>
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div class="skills-block">
+            <p class="skills-label">Skills</p>
+            <mat-chip-set>
+              @for (skill of m.skills; track skill) {
+                <mat-chip>{{ skill }}</mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+
+          <!-- Performance bar -->
+          <div>
+            <div class="perf-row">
+              <span class="perf-label">Performance Score</span>
+              <span class="perf-value">{{ m.performance }}%</span>
+            </div>
+            <mat-progress-bar [value]="m.performance" color="primary"></mat-progress-bar>
+          </div>
+
+          <div class="card-actions">
+            <button mat-stroked-button>
+              <mat-icon>mail</mat-icon> Email
+            </button>
+            <button mat-raised-button color="primary">
+              <mat-icon>visibility</mat-icon> Profile
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+  <!-- Expansion panel: org chart / departments -->
+  <div class="subsection">
+    <h2 class="subsection-title">Departments</h2>
+    <mat-accordion>
+      @for (dept of deptDetails; track dept.name) {
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title class="font-semibold">
+              <mat-icon class="panel-icon">{{ dept.icon }}</mat-icon>
+              {{ dept.name }}
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ dept.headcount }} members · Head: {{ dept.head }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="dept-body">
+            <p class="dept-desc">{{ dept.description }}</p>
+            <div class="goals">
+              @for (goal of dept.goals; track goal) {
+                <div class="goal">
+                  <mat-icon>check_circle</mat-icon>
+                  {{ goal }}
+                </div>
+              }
+            </div>
+          </div>
+        </mat-expansion-panel>
+      }
+    </mat-accordion>
+  </div>
+
+  </app-page-layout>
+</div>

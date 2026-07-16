@@ -1,0 +1,20 @@
+[mat-dialog-title] {
+  display: flex; align-items: center; gap: 8px;
+}
+.title-icon { color: var(--app-primary); }
+
+.summary {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; margin: 8px 0;
+  background: color-mix(in srgb, var(--app-primary) 8%, transparent);
+  border-radius: 10px;
+}
+.summary-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--app-primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; text-transform: uppercase;
+}
+.summary-name { font-weight: 600; color: var(--text-primary); }
+.summary-sub { font-size: var(--fs-xs); color: var(--text-secondary); }
+.note { font-size: var(--fs-xs); color: var(--text-secondary); margin: 8px 0 0; }

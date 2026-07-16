@@ -1,0 +1,35 @@
+:host { display: block; }
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.breadcrumb-item {
+  color: var(--text-secondary, #718096);
+  text-decoration: none;
+
+  &.current {
+    color: var(--text-primary, #2d3748);
+    font-weight: 500;
+  }
+}
+
+/* Only real links (crumbs with a route) get the hover affordance. */
+a.breadcrumb-item.link {
+  transition: color var(--transition-fast, 150ms ease);
+  cursor: pointer;
+
+  &:hover { color: var(--app-primary, #1565c0); }
+}
+
+.breadcrumb-sep {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted, #a0aec0);
+}

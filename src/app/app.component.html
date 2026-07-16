@@ -1,0 +1,45 @@
+<div class="app-shell" [class.dark]="themeService.isDarkMode()">
+
+  <!-- Header -->
+  <app-header
+    (menuToggle)="themeService.toggleSidebar()"
+    (openCustomizer)="customizerOpen.set(true)"
+    (openInfo)="infoOpen.set(true)">
+  </app-header>
+
+  <!-- Body: sidebar + content -->
+  <div class="app-body">
+
+    <!-- Sidebar -->
+    <aside class="app-sidebar" [class.collapsed]="themeService.sidebarCollapsed()">
+      <app-sidebar [collapsed]="themeService.sidebarCollapsed()"
+                   (toggleCollapse)="themeService.toggleSidebar()"></app-sidebar>
+    </aside>
+
+    <!-- Main content -->
+    <main class="app-main">
+      <div class="app-content">
+        <!-- Breadcrumb now lives inside <app-page-layout> per page. -->
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Footer (pinned to the bottom of the shell) -->
+  <app-footer></app-footer>
+
+  <!-- Theme Customizer (sliding panel, right) -->
+  <app-theme-customizer
+    [open]="customizerOpen()"
+    (closed)="customizerOpen.set(false)">
+  </app-theme-customizer>
+
+  <!-- App Info / About (sliding panel, right) -->
+  <app-info-drawer
+    [open]="infoOpen()"
+    [info]="appInfo"
+    (closed)="infoOpen.set(false)">
+  </app-info-drawer>
+
+</div>

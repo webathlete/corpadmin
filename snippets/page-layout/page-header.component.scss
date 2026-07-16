@@ -1,0 +1,28 @@
+/* :host is the flex row — no wrapper class, so nothing collides with a global
+   `.page-header` rule in a host app. Compact by default. */
+:host {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.ph-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary, #2d3748);
+}
+
+.ph-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 599px) {
+  .ph-title { font-size: 18px; }
+}

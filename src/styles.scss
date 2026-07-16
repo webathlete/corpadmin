@@ -1,0 +1,808 @@
+// ============================================================
+// Corporate Admin Dashboard — Global Styles & Theme System
+// Angular Material 18 — Material 3 (M3) theming
+// Runtime theme switching via CSS custom properties
+// ============================================================
+
+@use '@angular/material' as mat;
+
+// ------------------------------------------------------------
+// 1. CORE (must be included exactly once)
+// ------------------------------------------------------------
+@include mat.core();
+
+// ------------------------------------------------------------
+// 2. THEME DEFINITIONS (Material 3)
+// ------------------------------------------------------------
+// M3 themes are built from tonal palettes. Each brand theme maps to the
+// closest predefined M3 palette for the Material components themselves; the
+// exact brand colors live in the CSS custom properties below (section 5),
+// which drive the custom UI (sidebar, cards, header, charts).
+//
+//   primary  → main brand color group
+//   tertiary → accent (M3 derives `secondary` from `primary` automatically;
+//              the `error` group defaults to red)
+
+$brand-typography: (
+  brand-family: 'Inter, Roboto, sans-serif',
+  plain-family: 'Inter, Roboto, sans-serif',
+);
+
+// Corporate Blue (#1565C0) — base theme: emits color + typography + density.
+$theme-corporate-blue: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+    tertiary: mat.$cyan-palette,
+  ),
+  typography: $brand-typography,
+  density: ( scale: -1 ),
+));
+
+// Color-only variants (applied via class; typography + density inherited).
+$theme-brand-cyan: mat.define-theme((
+  color: ( theme-type: light, primary: mat.$cyan-palette,   tertiary: mat.$azure-palette ),
+));
+
+$theme-growth-green: mat.define-theme((
+  color: ( theme-type: light, primary: mat.$green-palette,  tertiary: mat.$spring-green-palette ),
+));
+
+$theme-sunset-orange: mat.define-theme((
+  color: ( theme-type: light, primary: mat.$orange-palette, tertiary: mat.$yellow-palette ),
+));
+
+$theme-midnight: mat.define-theme((
+  color: ( theme-type: dark,  primary: mat.$azure-palette, tertiary: mat.$cyan-palette ),
+));
+
+$theme-aurora: mat.define-theme((
+  color: ( theme-type: light, primary: mat.$cyan-palette,   tertiary: mat.$orange-palette ),
+));
+
+$theme-lagoon: mat.define-theme((
+  color: ( theme-type: light, primary: mat.$cyan-palette,   tertiary: mat.$green-palette ),
+));
+
+// ------------------------------------------------------------
+// 4. APPLY THEMES
+// Default (Corporate Blue) applied globally; others scoped to class
+// ------------------------------------------------------------
+// Corporate Blue is the default — applied globally on `html` (emits color,
+// typography and density). The other themes only override colors via a class.
+// Note: no `.theme-corporate-blue` color block — `html` already supplies it,
+// and re-emitting it would duplicate the generated color styles.
+html {
+  @include mat.all-component-themes($theme-corporate-blue);
+}
+
+.theme-brand-cyan {
+  @include mat.all-component-colors($theme-brand-cyan);
+}
+
+.theme-growth-green {
+  @include mat.all-component-colors($theme-growth-green);
+}
+
+.theme-sunset-orange {
+  @include mat.all-component-colors($theme-sunset-orange);
+}
+
+.theme-midnight {
+  @include mat.all-component-colors($theme-midnight);
+}
+
+.theme-aurora {
+  @include mat.all-component-colors($theme-aurora);
+}
+
+.theme-lagoon {
+  @include mat.all-component-colors($theme-lagoon);
+}
+
+// ------------------------------------------------------------
+// 5. CUSTOM APP-LEVEL CSS VARIABLES (defaults = Corporate Blue)
+// ------------------------------------------------------------
+:root {
+  // Brand colors (mirrors the active palette's primary)
+  --app-primary:           #1565C0;
+  --app-primary-dark:      #0d47a1;
+  --app-primary-light:     #42a5f5;
+  --app-accent:            #0288D1;
+  --app-warn:              #f44336;
+
+  // Brand palette — 5 signature colors per theme (used across the header, KPI
+  // cards, charts and accents). Each theme overrides just these; the derived
+  // tokens below (chart/KPI gradient) follow automatically.
+  --brand-1:               #1565C0;
+  --brand-2:               #0288D1;
+  --brand-3:               #42a5f5;
+  --brand-4:               #90caf9;
+  --brand-5:               #0d47a1;
+
+  // Layout
+  --sidebar-width:         260px;
+  --header-height:         64px;
+  --footer-height:         48px;
+
+  // Sidebar
+  --sidebar-bg:            #1a237e;
+  --sidebar-text:          rgba(255,255,255,0.87);
+  --sidebar-text-muted:    rgba(255,255,255,0.54);
+  --sidebar-active-bg:     rgba(255,255,255,0.15);
+  --sidebar-active-text:   #ffffff;
+  --sidebar-hover-bg:      rgba(255,255,255,0.08);
+  --sidebar-icon:          rgba(255,255,255,0.7);
+  --sidebar-active-icon:   #ffffff;
+  --sidebar-brand-bg:      #0d47a1;
+  --sidebar-divider:       rgba(255,255,255,0.12);
+
+  // Header
+  --header-bg:             #1565C0;
+  --header-text:           #ffffff;
+  --header-icon:           rgba(255,255,255,0.85);
+
+  // Foreground on primary / brand / gradient surfaces (header, KPI cards,
+  // colored sidebars, avatars). Use these instead of literal white so a
+  // future light-on-color theme only overrides one place.
+  --on-primary:            #ffffff;
+  --on-primary-strong:     rgba(255,255,255,0.90);
+  --on-primary-medium:     rgba(255,255,255,0.70);
+  --on-primary-weak:       rgba(255,255,255,0.50);
+  // Translucent overlays layered ON a colored/brand surface (chips, hovers).
+  --overlay-on-primary:        rgba(255,255,255,0.15);
+  --overlay-on-primary-strong: rgba(255,255,255,0.25);
+  // Subtle tint layered on a neutral surface (row hover on light bg).
+  --overlay-hover:         rgba(0,0,0,0.04);
+  --overlay-hover-weak:    rgba(0,0,0,0.02);
+  // Neutral dark overlays layered on light surfaces (borders, scrollbars, fills).
+  --overlay-strong:        rgba(0,0,0,0.20);
+  --overlay-dark:          rgba(0,0,0,0.30);
+  // Scrim behind modals / side drawers.
+  --scrim:                 rgba(0,0,0,0.40);
+  // Side-drawer / flyout shadow.
+  --elevation-drawer:      -4px 0 24px rgba(0,0,0,0.15);
+  // Fixed app-bar shadow (tighter/darker than the card elevation scale).
+  --shadow-header:         0 2px 8px rgba(0,0,0,0.20);
+
+  // Page
+  --page-bg:               #f0f4f8;
+  --surface-bg:            #ffffff;
+  --surface-border:        #e2e8f0;
+  // Softer than near-black so bold/heading text doesn't read as harsh black
+  // (still ~10:1 on white → WCAG AAA).
+  --text-primary:          #2d3748;
+  --text-secondary:        #718096;
+  --text-muted:            #a0aec0;
+
+  // Shape — single corner-radius scale (use these everywhere)
+  --radius-sm:             8px;
+  --radius-md:             12px;
+  --radius-lg:             16px;
+  --radius-pill:           999px;
+
+  // Elevation — Material dp levels (light mode)
+  --elevation-1:           0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.10);
+  --elevation-2:           0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --elevation-3:           0 4px 8px rgba(0,0,0,0.10), 0 8px 24px rgba(0,0,0,0.10);
+  --elevation-4:           0 8px 16px rgba(0,0,0,0.12), 0 16px 32px rgba(0,0,0,0.12);
+
+  // Card styling (derived from the scale above)
+  --card-radius:           var(--radius-md);
+  --card-shadow:           var(--elevation-2);
+  --card-shadow-hover:     var(--elevation-3);
+
+  // KPI card gradients (gradient-1 derives from the brand palette)
+  --kpi-gradient-1:        linear-gradient(135deg, var(--brand-1) 0%, var(--brand-2) 100%);
+  --kpi-gradient-2:        linear-gradient(135deg, #7B1FA2 0%, #E040FB 100%);
+  --kpi-gradient-3:        linear-gradient(135deg, #2E7D32 0%, #66BB6A 100%);
+  --kpi-gradient-4:        linear-gradient(135deg, #E65100 0%, #FF9800 100%);
+
+  // Chart accents (derived from the brand palette — the 3 display hues)
+  --chart-color-1:         var(--brand-1);
+  --chart-color-2:         var(--brand-2);
+  --chart-color-3:         var(--brand-3);
+
+  // Status colors
+  --status-success:        #22c55e;
+  --status-warning:        #f59e0b;
+  --status-error:          #ef4444;
+  --status-info:           #3b82f6;
+
+  // Motion — Material easing curves (M2 standard set)
+  --ease-standard:         cubic-bezier(0.4, 0, 0.2, 1);   // most transitions
+  --ease-decelerate:       cubic-bezier(0, 0, 0.2, 1);     // entering the screen
+  --ease-accelerate:       cubic-bezier(0.4, 0, 1, 1);     // leaving the screen
+  --ease-emphasized:       cubic-bezier(0.2, 0, 0, 1);     // large/expressive surfaces
+
+  // Motion — durations
+  --duration-short:        150ms;
+  --duration-medium:       250ms;
+  --duration-long:         350ms;
+
+  // Transitions (duration + Material easing)
+  --transition-fast:       var(--duration-short)  var(--ease-standard);
+  --transition-normal:     var(--duration-medium) var(--ease-standard);
+  --transition-slow:       var(--duration-long)   var(--ease-standard);
+
+  // ----------------------------------------------------------
+  // Font-size scale — every text size is a token multiplied by a single
+  // user-configurable factor (Settings → Appearance: Small / Medium / Large,
+  // which sets --app-font-scale to 0.875 / 1 / 1.125). Components use these
+  // tokens instead of hard-coded px, so the whole app resizes from one lever.
+  // ----------------------------------------------------------
+  --app-font-scale:        1;
+  --fs-3xs:                calc(10px * var(--app-font-scale));
+  --fs-2xs:                calc(11px * var(--app-font-scale));
+  --fs-xs:                 calc(12px * var(--app-font-scale));
+  --fs-sm:                 calc(13px * var(--app-font-scale));
+  --fs-base:               calc(14px * var(--app-font-scale));
+  --fs-md:                 calc(15px * var(--app-font-scale));
+  --fs-lg:                 calc(16px * var(--app-font-scale));
+  --fs-xl:                 calc(18px * var(--app-font-scale));
+  --fs-2xl:                calc(20px * var(--app-font-scale));
+  --fs-3xl:                calc(24px * var(--app-font-scale));
+  --fs-4xl:                calc(28px * var(--app-font-scale));
+  --fs-5xl:                calc(30px * var(--app-font-scale));
+}
+
+// ------------------------------------------------------------
+// 6. THEME-SPECIFIC CSS VARIABLE OVERRIDES
+// ------------------------------------------------------------
+.theme-corporate-blue {
+  --app-primary:       #1565C0;
+  --app-primary-dark:  #0d47a1;
+  --app-primary-light: #42a5f5;
+  --app-accent:        #0288D1;
+  --sidebar-bg:        #1a237e;
+  --sidebar-brand-bg:  #0d47a1;
+  --header-bg:         var(--brand-1);
+  --brand-1: #1565C0;
+  --brand-2: #0288D1;
+  --brand-3: #42a5f5;
+  --brand-4: #90caf9;
+  --brand-5: #0d47a1;
+}
+
+.theme-brand-cyan {
+  --app-primary:       #02A7DF;
+  --app-primary-dark:  #0180b0;
+  --app-primary-light: #67d9ff;
+  --app-accent:        #00BCD4;
+  --sidebar-bg:        #01579B;
+  --sidebar-brand-bg:  #0180b0;
+  --header-bg:         var(--brand-1);
+  --brand-1: #02A7DF;
+  --brand-2: #00BCD4;
+  --brand-3: #4fc3f7;
+  --brand-4: #b3e5fc;
+  --brand-5: #0180b0;
+}
+
+.theme-growth-green {
+  --app-primary:       #74BA58;
+  --app-primary-dark:  #4a8e3a;
+  --app-primary-light: #a5d98f;
+  --app-accent:        #26A69A;
+  --sidebar-bg:        #1B5E20;
+  --sidebar-brand-bg:  #2E7D32;
+  --header-bg:         #4CAF50;
+  --brand-1: #74BA58;
+  --brand-2: #26A69A;
+  --brand-3: #a5d98f;
+  --brand-4: #c8e6c9;
+  --brand-5: #4a8e3a;
+}
+
+.theme-sunset-orange {
+  --app-primary:       #FF6A1C;
+  --app-primary-dark:  #d44e0e;
+  --app-primary-light: #ffa06a;
+  --app-accent:        #FF9800;
+  --sidebar-bg:        #BF360C;
+  --sidebar-brand-bg:  #d84315;
+  --header-bg:         var(--brand-1);
+  --brand-1: #FF6A1C;
+  --brand-2: #FF9800;
+  --brand-3: #ffab76;
+  --brand-4: #ffe0cc;
+  --brand-5: #d44e0e;
+}
+
+.theme-midnight {
+  --app-primary:       #82B1FF;
+  --app-primary-dark:  #4a90d9;
+  --app-primary-light: #b3d4ff;
+  --app-accent:        #80CBC4;
+  --sidebar-bg:        #121212;
+  --sidebar-brand-bg:  #1e1e1e;
+  --sidebar-text:          rgba(255,255,255,0.87);
+  --sidebar-text-muted:    rgba(255,255,255,0.54);
+  --sidebar-active-bg:     rgba(130,177,255,0.2);
+  --sidebar-active-text:   #82B1FF;
+  --sidebar-hover-bg:      rgba(255,255,255,0.06);
+  --sidebar-icon:          rgba(255,255,255,0.6);
+  --sidebar-active-icon:   #82B1FF;
+  --sidebar-divider:       rgba(255,255,255,0.1);
+  --header-bg:         #1e1e1e;
+  --header-text:       rgba(255,255,255,0.87);
+  --header-icon:       rgba(255,255,255,0.7);
+  --page-bg:           #121212;
+  --surface-bg:        #1e1e1e;
+  --surface-border:    rgba(255,255,255,0.1);
+  --text-primary:      rgba(255,255,255,0.87);
+  --text-secondary:    rgba(255,255,255,0.6);
+  --text-muted:        rgba(255,255,255,0.38);
+  --card-shadow:       0 2px 8px rgba(0,0,0,0.5);
+  --card-shadow-hover: 0 8px 30px rgba(0,0,0,0.7);
+  --kpi-gradient-2:    linear-gradient(135deg, #00695C 0%, #80CBC4 100%);
+  --kpi-gradient-3:    linear-gradient(135deg, #0D47A1 0%, #64B5F6 100%);
+  --kpi-gradient-4:    linear-gradient(135deg, #1565C0 0%, #90CAF9 100%);
+  --brand-1: #82B1FF;
+  --brand-2: #80CBC4;
+  --brand-3: #90CAF9;
+  --brand-4: #b3d4ff;
+  --brand-5: #4a90d9;
+
+  // Skeleton loader tones for dark surfaces
+  --sk-base:           rgba(255,255,255,0.07);
+  --sk-sheen:          rgba(255,255,255,0.12);
+}
+
+// Aurora — modern tri-tone: cyan (#02A7DF) + green (#74BA58) + orange (#FF6A1C)
+.theme-aurora {
+  --app-primary:       #02A7DF;
+  --app-primary-dark:  #0180b0;
+  --app-primary-light: #67d9ff;
+  --app-accent:        #FF6A1C;
+  --app-primary-rgb:   2,167,223;
+
+  // Sidebar: deep cyan→green gradient
+  --sidebar-bg:        linear-gradient(165deg, #013E55 0%, #064F47 60%, #0B5A33 100%);
+  --sidebar-brand-bg:  rgba(2,167,223,0.25);
+  --sidebar-active-bg: rgba(116,186,88,0.28);
+  --sidebar-active-text: #ffffff;
+  --sidebar-active-icon: #9be07e;
+
+  // Brand palette — three signature hues + supports
+  --brand-1: #02A7DF;
+  --brand-2: #74BA58;
+  --brand-3: #FF6A1C;
+  --brand-4: #4FC3F7;
+  --brand-5: #38B19B;
+
+  // Header: full tri-tone gradient built from the brand palette
+  --header-bg:         linear-gradient(90deg, var(--brand-1) 0%, var(--brand-2) 55%, var(--brand-3) 100%);
+
+  // KPI gradients (gradient-1 derives from brand; the rest cycle the hues)
+  --kpi-gradient-2:    linear-gradient(135deg, #4a8e3a 0%, #74BA58 100%);
+  --kpi-gradient-3:    linear-gradient(135deg, #FF6A1C 0%, #FF9800 100%);
+  --kpi-gradient-4:    linear-gradient(135deg, #02A7DF 0%, #74BA58 100%);
+}
+
+// Lagoon — fresh light UI: cyan→teal→green gradient header + white sidebar
+.theme-lagoon {
+  --app-primary:       #02A7DF;
+  --app-primary-dark:  #0180b0;
+  --app-primary-light: #67d9ff;
+  --app-accent:        #38B19B;   // teal (tertiary)
+  --app-primary-rgb:   2,167,223;
+
+  // Light sidebar with teal/green accents
+  --sidebar-bg:          #ffffff;
+  --sidebar-text:        #334155;
+  --sidebar-text-muted:  #94a3b8;
+  --sidebar-active-bg:   rgba(56,177,155,0.14);
+  --sidebar-active-text: #0f766e;
+  --sidebar-hover-bg:    rgba(2,167,223,0.06);
+  --sidebar-icon:        #64748b;
+  --sidebar-active-icon: #02A7DF;
+  --sidebar-brand-bg:    linear-gradient(90deg, #02A7DF 0%, #38B19B 55%, #74BA58 100%);
+  --sidebar-divider:     rgba(0,0,0,0.08);
+
+  // Brand palette — cyan / teal / green + supports
+  --brand-1: #02A7DF;
+  --brand-2: #38B19B;
+  --brand-3: #74BA58;
+  --brand-4: #67d9ff;
+  --brand-5: #0180b0;
+
+  // Signature header: cyan → teal → green gradient from the brand palette
+  --header-bg:    linear-gradient(90deg, var(--brand-1) 0%, var(--brand-2) 50%, var(--brand-3) 100%);
+  --header-text:  #ffffff;
+  --header-icon:  rgba(255,255,255,0.9);
+
+  // Airy surfaces
+  --page-bg:      #f5f8fb;
+  --surface-bg:   #ffffff;
+  --surface-border: #e6edf3;
+
+  // KPI gradients (gradient-1 derives from brand; rest cycle the hues)
+  --kpi-gradient-2:    linear-gradient(135deg, #38B19B 0%, #74BA58 100%);
+  --kpi-gradient-3:    linear-gradient(135deg, #02A7DF 0%, #67d9ff 100%);
+  --kpi-gradient-4:    linear-gradient(135deg, #4a8e3a 0%, #74BA58 100%);
+}
+
+// ------------------------------------------------------------
+// 7. GLOBAL BASE STYLES
+// ------------------------------------------------------------
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Inter, Roboto, sans-serif;
+}
+
+body {
+  background: var(--page-bg);
+  color: var(--text-primary);
+  transition: background var(--transition-normal), color var(--transition-normal);
+}
+
+// ------------------------------------------------------------
+// 8. MATERIAL COMPONENT OVERRIDES
+// ------------------------------------------------------------
+.mat-mdc-card {
+  border-radius: var(--card-radius) !important;
+  box-shadow: var(--card-shadow) !important;
+  background: var(--surface-bg) !important;
+  border: 1px solid var(--surface-border);
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  &:hover { box-shadow: var(--card-shadow-hover) !important; }
+}
+
+.mat-toolbar {
+  background: var(--header-bg) !important;
+  color: var(--header-text) !important;
+}
+
+// Density & touch targets
+// Components inherit Material density 0 from the theme applied on `html`.
+// Guarantee a 48×48 minimum touch target (WCAG 2.5.5 / Material spec) for
+// icon buttons even where their visual glyph box is smaller.
+.mat-mdc-icon-button {
+  --mdc-icon-button-state-layer-size: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+.mat-drawer {
+  background: var(--sidebar-bg) !important;
+  border-right: none !important;
+}
+
+.mat-drawer-container {
+  background: var(--page-bg) !important;
+}
+
+// ------------------------------------------------------------
+// FORM FIELD — consistent compact sizing across ALL pages.
+// NOTE: do NOT force a fixed height on the text-field wrapper — that
+// breaks MDC's vertical centering and drops the floating label to the
+// bottom. Instead drive the height from the infix min-height/padding so
+// MDC keeps the label centered (resting) and notched (floated) correctly.
+// ------------------------------------------------------------
+.mat-mdc-form-field {
+  font-size: var(--fs-base);
+
+  // Compact outlined field (~44px) with a correctly centered label
+  .mdc-text-field--outlined .mat-mdc-form-field-infix {
+    min-height: 44px;
+    padding-top: 11px;
+    padding-bottom: 11px;
+  }
+
+  // Compact filled field
+  .mat-mdc-text-field-wrapper:not(.mdc-text-field--outlined) .mat-mdc-form-field-infix {
+    min-height: 44px;
+    padding-top: 20px;
+    padding-bottom: 6px;
+  }
+
+  .mat-mdc-floating-label { font-size: var(--fs-base); }
+
+  // Prefix/suffix icons aligned and sized to match the 14px text
+  .mat-mdc-form-field-icon-prefix > mat-icon,
+  .mat-mdc-form-field-icon-suffix > mat-icon {
+    font-size: 18px; width: 18px; height: 18px;
+    padding: 0 2px;
+    color: var(--text-secondary);
+  }
+
+  .mat-mdc-form-field-subscript-wrapper { font-size: var(--fs-2xs); }
+
+  // Inline / toolbar fields: drop the reserved hint/error row so the
+  // field lines up vertically with adjacent buttons & toggles, and trim the
+  // height a touch so the field matches the 36px toolbar buttons beside it.
+  &.inline-field {
+    .mat-mdc-form-field-subscript-wrapper { display: none; }
+    .mdc-text-field--outlined .mat-mdc-form-field-infix {
+      min-height: 40px;
+      padding-top: 9px;
+      padding-bottom: 9px;
+    }
+  }
+}
+
+// ------------------------------------------------------------
+// BUTTON TOGGLE GROUP — one consistent look everywhere
+// (matches the 36px button height; even padding; sized icons)
+// ------------------------------------------------------------
+.mat-button-toggle-group {
+  border-radius: 8px;
+  overflow: hidden;
+  height: 36px;
+
+  .mat-button-toggle {
+    background: var(--surface-bg);
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+  }
+  .mat-button-toggle-checked {
+    background: color-mix(in srgb, var(--app-primary) 14%, transparent);
+    color: var(--app-primary);
+  }
+  .mat-button-toggle-button { height: 100%; }
+  .mat-button-toggle-label-content {
+    height: 36px;
+    line-height: 36px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  mat-icon {
+    font-size: 18px; width: 18px; height: 18px;
+    margin: 0;
+  }
+}
+
+// Select panel: match field font size
+.mat-mdc-select {
+  font-size: var(--fs-base);
+}
+.mat-mdc-option {
+  font-size: var(--fs-base);
+  min-height: 36px;
+}
+
+// Input element itself
+.mat-mdc-input-element {
+  font-size: var(--fs-base) !important;
+}
+
+// Buttons: consistent compact height
+.mat-mdc-raised-button,
+.mat-mdc-stroked-button,
+.mat-mdc-button {
+  height: 36px;
+  font-size: var(--fs-sm);
+  letter-spacing: 0.3px;
+}
+
+// Primary buttons → exact brand color.
+// M3 doesn't style `color="primary"` itself, but the input still adds the
+// `.mat-primary` DOM class, which we target here and bind to --app-primary so
+// Material CTAs match the brand UI (and recolor per theme). Disabled state is
+// left to M3's separate disabled-* tokens.
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary {
+  --mdc-protected-button-container-color: var(--app-primary);
+  --mdc-protected-button-label-text-color: var(--on-primary);
+  --mdc-filled-button-container-color: var(--app-primary);
+  --mdc-filled-button-label-text-color: var(--on-primary);
+  .mat-icon { color: var(--on-primary); }
+}
+
+.mat-mdc-button.mat-primary,
+.mat-mdc-stroked-button.mat-primary {
+  --mdc-text-button-label-text-color: var(--app-primary);
+  --mdc-outlined-button-label-text-color: var(--app-primary);
+  color: var(--app-primary);
+  .mat-icon { color: var(--app-primary); }
+}
+
+.mat-mdc-stroked-button.mat-primary {
+  --mdc-outlined-button-outline-color: color-mix(in srgb, var(--app-primary) 45%, transparent);
+}
+
+// Icon buttons: keep square
+.mat-mdc-icon-button {
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+}
+
+// Chips: compact
+.mat-mdc-chip {
+  font-size: var(--fs-xs);
+  height: 28px !important;
+}
+
+// Slide toggle: M3's switch is noticeably larger than M2 — scale it down
+// slightly so it sits in proportion with the compact form controls.
+.mat-mdc-slide-toggle {
+  transform: scale(0.82);
+  transform-origin: right center;
+}
+// In left-aligned contexts (e.g. the theme customizer), anchor from the left.
+.toggle-row .mat-mdc-slide-toggle,
+.customizer-panel .mat-mdc-slide-toggle {
+  transform-origin: left center;
+}
+
+// Scrollbar
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--overlay-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--overlay-dark); }
+
+// Smooth transitions
+.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-fab,
+.mat-mdc-icon-button, .mat-mdc-card, .mat-toolbar,
+.mat-drawer, mat-sidenav {
+  transition: background-color var(--transition-normal),
+              color var(--transition-normal),
+              box-shadow var(--transition-normal) !important;
+}
+
+// ------------------------------------------------------------
+// 9. UTILITY CLASSES
+// ------------------------------------------------------------
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-4 { gap: 16px; }
+.gap-2 { gap: 8px; }
+.gap-1 { gap: 4px; }
+.flex-1 { flex: 1; }
+.w-full { width: 100%; }
+.text-muted { color: var(--text-secondary); }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+
+// Elevation (Material dp levels)
+.elevation-1 { box-shadow: var(--elevation-1); }
+.elevation-2 { box-shadow: var(--elevation-2); }
+.elevation-3 { box-shadow: var(--elevation-3); }
+.elevation-4 { box-shadow: var(--elevation-4); }
+
+// Shape
+.radius-sm { border-radius: var(--radius-sm); }
+.radius-md { border-radius: var(--radius-md); }
+.radius-lg { border-radius: var(--radius-lg); }
+
+// Reusable surface (background + border + radius + elevation in one class)
+.surface {
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elevation-2);
+}
+
+// Spacing scale (8px grid)
+.grid { display: grid; }
+.flex-wrap { flex-wrap: wrap; }
+.items-start { align-items: flex-start; }
+.gap-3 { gap: 12px; }
+.gap-5 { gap: 20px; }
+.gap-6 { gap: 24px; }
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-5 { margin-bottom: 20px; }
+.mb-6 { margin-bottom: 24px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+
+// Status badge
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+
+  &.success { background: rgba(34,197,94,0.12);  color: #15803d; }
+  &.warning { background: rgba(245,158,11,0.12); color: #92400e; }
+  &.error   { background: rgba(239,68,68,0.12);  color: #b91c1c; }
+  &.info    { background: rgba(59,130,246,0.12);  color: #1d4ed8; }
+  &.neutral { background: rgba(107,114,128,0.12); color: #374151; }
+}
+
+.trend-up   { color: var(--status-success); }
+.trend-down { color: var(--status-error); }
+
+// Shared table row hover (used by dashboard & analytics tables)
+.table-row:hover { background: var(--overlay-hover-weak); cursor: pointer; }
+
+// (Legacy global `.page-header` removed — page headers now come from the
+//  <app-page-header> / <app-page-layout> components.)
+
+// Section card
+.section-card {
+  background: var(--surface-bg);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--surface-border);
+  overflow: hidden;
+
+  .section-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--surface-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    h3 { margin: 0; font-size: var(--fs-md); font-weight: 600; color: var(--text-primary); }
+    span { font-size: var(--fs-sm); color: var(--text-secondary); }
+  }
+
+  .section-card-body { padding: 20px; }
+}
+
+// Dark mode fixes
+.theme-midnight {
+  .mat-mdc-table { background: var(--surface-bg) !important; }
+  .mat-mdc-header-row { background: rgba(255,255,255,0.05) !important; }
+  .mat-mdc-row:hover { background: rgba(255,255,255,0.04) !important; }
+  .mat-mdc-cell, .mat-mdc-header-cell { color: var(--text-primary) !important; border-color: var(--surface-border) !important; }
+  .mat-mdc-paginator { background: var(--surface-bg) !important; color: var(--text-primary) !important; }
+  .mat-mdc-text-field-wrapper { background: rgba(255,255,255,0.05) !important; }
+  .mat-mdc-select-value, .mat-mdc-input-element { color: var(--text-primary) !important; }
+  .mat-mdc-card-title, .mat-mdc-card-subtitle { color: var(--text-primary) !important; }
+  .section-card { background: var(--surface-bg); border-color: var(--surface-border); }
+  .section-card .section-card-header { border-color: var(--surface-border); }
+  .mat-expansion-panel { background: var(--surface-bg) !important; color: var(--text-primary) !important; }
+  .mat-expansion-panel-header-title { color: var(--text-primary) !important; }
+  color-scheme: dark;
+}
+
+// ------------------------------------------------------------
+// 7. ACCESSIBILITY
+// ------------------------------------------------------------
+
+// Visible keyboard-focus ring for interactive elements. Mouse users don't
+// see it (:focus-visible), keyboard users always do — per WCAG 2.4.7.
+:focus-visible {
+  outline: 2px solid var(--app-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+// Material already renders its own focus state on these, so suppress the
+// double ring and let Material's ripple/overlay handle it.
+.mat-mdc-button-base:focus-visible,
+.mat-mdc-icon-button:focus-visible,
+.mdc-list-item:focus-visible {
+  outline: none;
+}
+
+// Screen-reader-only helper.
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Respect users who prefer reduced motion (WCAG 2.3.3).
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

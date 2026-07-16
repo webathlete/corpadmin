@@ -1,0 +1,120 @@
+<div>
+  <!-- Header -->
+  <app-page-layout [loading]="loading()" title="Job Manager"
+                   description="Monitor, start and cancel background jobs"
+                   [breadcrumbs]="[{ label: 'Home', link: '/dashboard' }, { label: 'Job Manager' }]">
+    <button pageActions mat-raised-button color="primary" (click)="startJob()">
+      <mat-icon>play_arrow</mat-icon> Start Job
+    </button>
+
+  <!-- Summary cards -->
+  <div class="stat-grid">
+    <mat-card class="stat-card">
+      <div class="stat-value running">{{ runningCount() }}</div>
+      <div class="stat-label">Running</div>
+    </mat-card>
+    <mat-card class="stat-card">
+      <div class="stat-value queued">{{ queuedCount() }}</div>
+      <div class="stat-label">Queued</div>
+    </mat-card>
+    <mat-card class="stat-card">
+      <div class="stat-value completed">{{ completedCount() }}</div>
+      <div class="stat-label">Completed</div>
+    </mat-card>
+    <mat-card class="stat-card">
+      <div class="stat-value failed">{{ failedCount() }}</div>
+      <div class="stat-label">Failed / Cancelled</div>
+    </mat-card>
+  </div>
+
+  <!-- Jobs table -->
+  <mat-card class="table-card">
+    <table mat-table [dataSource]="dataSource" matSort class="job-table">
+
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Job</th>
+        <td mat-cell *matCellDef="let job">
+          <div class="job-name">{{ job.name }}</div>
+          <div class="job-id">{{ job.id }}</div>
+        </td>
+      </ng-container>
+
+      <!-- Type -->
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+        <td mat-cell *matCellDef="let job">{{ job.type }}</td>
+      </ng-container>
+
+      <!-- Status -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+        <td mat-cell *matCellDef="let job">
+          <span class="status-pill"
+                [style.color]="statusColor(job.status)"
+                [style.background]="statusColor(job.status) + '1f'">
+            <mat-icon class="status-icon"
+                      [class.spin]="job.status === 'running'">{{ statusIcon(job.status) }}</mat-icon>
+            {{ job.status | titlecase }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Progress -->
+      <ng-container matColumnDef="progress">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Progress</th>
+        <td mat-cell *matCellDef="let job">
+          <div class="progress-cell">
+            <mat-progress-bar
+              class="progress-bar-flex"
+              [mode]="job.status === 'queued' ? 'buffer' : 'determinate'"
+              [value]="job.progress"
+              [color]="job.status === 'failed' ? 'warn' : 'primary'">
+            </mat-progress-bar>
+            <span class="progress-pct">{{ job.progress }}%</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Started -->
+      <ng-container matColumnDef="startedAt">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Started</th>
+        <td mat-cell *matCellDef="let job">{{ job.startedAt }}</td>
+      </ng-container>
+
+      <!-- Duration -->
+      <ng-container matColumnDef="duration">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Duration</th>
+        <td mat-cell *matCellDef="let job">{{ job.duration }}</td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let job">
+          <button mat-icon-button matTooltip="View details" aria-label="View job details" (click)="openJob(job); $event.stopPropagation()">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          @if (canCancel(job)) {
+            <button mat-icon-button color="warn" matTooltip="Cancel job" aria-label="Cancel job" (click)="cancelJob(job, $event)">
+              <mat-icon>stop_circle</mat-icon>
+            </button>
+          }
+          @if (canRetry(job)) {
+            <button mat-icon-button matTooltip="Retry job" aria-label="Retry job" (click)="retryJob(job, $event)">
+              <mat-icon>replay</mat-icon>
+            </button>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"
+          class="job-row" (click)="openJob(row)"></tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[10, 25, 50]" [pageSize]="25"
+                   showFirstLastButtons aria-label="Select page of jobs"></mat-paginator>
+  </mat-card>
+  </app-page-layout>
+</div>

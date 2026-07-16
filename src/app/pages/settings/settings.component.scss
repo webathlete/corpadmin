@@ -1,0 +1,108 @@
+/* Page layout — keep the tab bar and its content the same width so the
+   page reads as a single aligned column instead of a full-width tab bar
+   sitting above a narrow, left-shifted body. */
+.settings-page {
+  max-width: 860px;
+}
+
+.tab-content {
+  padding: 24px 0 8px;
+}
+
+/* Forms */
+.form-stack { display: flex; flex-direction: column; gap: 16px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.btn-row { display: flex; gap: 10px; }
+.step-body { padding-top: 16px; }
+
+.avatar-row { display: flex; align-items: center; gap: 20px; margin-bottom: 8px; }
+.avatar-xl {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--app-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 600; color: var(--on-primary);
+  flex-shrink: 0;
+}
+.field-note { margin: 6px 0 0; font-size: var(--fs-xs); color: var(--text-secondary); }
+.muted-note { font-size: var(--fs-sm); color: var(--text-secondary); margin: 0 0 16px; }
+
+/* Setting rows (title + description on the left, control on the right) */
+.setting-stack { display: flex; flex-direction: column; gap: 20px; }
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  &.top { align-items: flex-start; }
+}
+.setting-title { font-size: var(--fs-base); font-weight: 500; color: var(--text-primary); margin: 0 0 2px; }
+.setting-desc  { font-size: var(--fs-xs); color: var(--text-secondary); margin: 0; }
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.radio-row { display: flex; gap: 16px; flex-wrap: wrap; }
+
+@media (max-width: 599px) {
+  .form-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* Material indents the tab body content by default; pull it flush with the
+   tab labels and the page header so everything shares one left edge. */
+::ng-deep .mat-mdc-tab-body-content {
+  padding: 0;
+}
+
+/* Theme cards */
+.theme-card {
+  border: 2px solid var(--surface-border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+
+  &:hover { transform: translateY(-2px); border-color: var(--app-primary); }
+  &.active { border-color: var(--app-primary); box-shadow: 0 0 0 2px var(--app-primary); }
+}
+.theme-preview {
+  height: 64px;
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+}
+.theme-preview-sidebar {
+  width: 20px;
+  background: var(--overlay-dark);
+  border-radius: 4px;
+}
+.theme-preview-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 4px;
+}
+.theme-preview-bar {
+  height: 8px;
+  background: var(--on-primary-weak);
+  border-radius: 4px;
+  &.short { width: 60%; }
+}
+.theme-card-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--surface-bg);
+}
+.theme-check {
+  font-size: var(--fs-lg);
+  width: 16px;
+  height: 16px;
+  color: var(--app-primary);
+}
