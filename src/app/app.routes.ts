@@ -60,6 +60,18 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'job-executions',
+    data: { breadcrumb: 'Job Executions' },
+    loadComponent: () =>
+      import('./pages/job-executions/job-executions.component').then(m => m.JobExecutionsComponent),
+  },
+  {
+    path: 'parameters',
+    data: { breadcrumb: 'Parameter Configuration' },
+    loadComponent: () =>
+      import('./pages/parameter-config/parameter-config.component').then(m => m.ParameterConfigComponent),
+  },
+  {
     path: 'onboarding',
     data: { breadcrumb: 'Onboarding' },
     loadComponent: () =>

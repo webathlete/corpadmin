@@ -141,6 +141,8 @@ export const DEFAULT_NAV_GROUPS: NavGroup[] = [
       { label: 'Projects',    icon: 'folder_open',   route: '/projects' },
       { label: 'Components',  icon: 'table_chart',   route: '/components' },
       { label: 'Job Manager', icon: 'work_history',  route: '/jobs' },
+      { label: 'Job Executions', icon: 'account_tree', route: '/job-executions' },
+      { label: 'Parameter Configuration', icon: 'tune', route: '/parameters' },
       { label: 'Onboarding',  icon: 'person_add',    route: '/onboarding', badge: 'New' },
     ],
   },

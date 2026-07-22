@@ -13,8 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { DataColumn, TableState } from './data-table.types';
+import { SkeletonComponent } from '../skeleton/skeleton.component';
+import { DataColumn, RowAction, RowActionEvent, TableState } from './data-table.types';
 
 /**
  * Generic, reusable, theme-aware Material data table for analytics.
@@ -34,7 +34,8 @@ import { DataColumn, TableState } from './data-table.types';
     CommonModule, FormsModule,
     MatTableModule, MatSortModule, MatPaginatorModule,
     MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule,
-    MatMenuModule, MatCheckboxModule, MatTooltipModule, MatProgressBarModule,
+    MatMenuModule, MatCheckboxModule, MatTooltipModule,
+    SkeletonComponent,
   ],
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.scss',
@@ -50,9 +51,20 @@ export class DataTableComponent implements OnInit, AfterViewInit {
   readonly title = input<string>('');
   readonly pageSize = input<number>(10);
   readonly pageSizeOptions = input<number[]>([5, 10, 25, 50]);
+  /** Trailing icon-button column (view/edit/delete, …). Omit to skip it entirely. */
+  readonly rowActions = input<RowAction<any>[]>([]);
+  /** Label for the primary "add" button rendered in the table's own toolbar
+   *  (next to search/filter). Omit to skip it — the listing has no built-in
+   *  opinion on whether creating belongs to it or lives elsewhere. */
+  readonly addLabel = input<string>('');
+  /** Shows a refresh icon-button in the toolbar. Omit to skip it. */
+  readonly showRefresh = input<boolean>(false);
 
   // ---- Outputs ----
   readonly stateChange = output<TableState>();
+  readonly rowAction = output<RowActionEvent<any>>();
+  readonly add = output<void>();
+  readonly refresh = output<void>();
 
   // ---- Internal state ----
   readonly dataSource = new MatTableDataSource<any>([]);
@@ -71,9 +83,16 @@ export class DataTableComponent implements OnInit, AfterViewInit {
   readonly visibleColumns = computed(() =>
     this.columns().filter(c => !this.hiddenKeys().has(c.key)),
   );
-  readonly displayedColumns = computed(() => this.visibleColumns().map(c => c.key));
-  readonly filterColumns = computed(() => this.visibleColumns().map(c => c.key + '_f'));
+  readonly displayedColumns = computed(() =>
+    [...this.visibleColumns().map(c => c.key), ...(this.rowActions().length ? ['__actions'] : [])]);
+  readonly filterColumns = computed(() =>
+    [...this.visibleColumns().map(c => c.key + '_f'), ...(this.rowActions().length ? ['__actions_f'] : [])]);
   readonly hideableColumns = computed(() => this.columns().filter(c => c.hideable !== false));
+
+  // ---- Skeleton loading placeholder ----
+  readonly skeletonRows = [0, 1, 2, 3, 4, 5];
+  readonly skeletonColArray = computed(() =>
+    Array.from({ length: this.visibleColumns().length + (this.rowActions().length ? 1 : 0) }));
 
   constructor() {
     this.dataSource.filterPredicate = (row, raw) => this.matchesFilters(row, JSON.parse(raw));

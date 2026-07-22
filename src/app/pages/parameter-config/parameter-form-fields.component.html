@@ -1,0 +1,50 @@
+<div [formGroup]="form()" class="pff">
+  <div class="pff-grid">
+    <mat-form-field appearance="outline" class="pff-span2">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name">
+      <mat-error>Required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="pff-span2">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="2"></textarea>
+    </mat-form-field>
+
+    <app-lookup-picker label="Category" placeholder="Search categories…"
+                       [items]="categories" formControlName="categoryId">
+    </app-lookup-picker>
+
+    <app-lookup-picker label="Parameter Type" placeholder="Search parameter types…"
+                       [items]="parameterTypes" formControlName="parameterTypeId">
+    </app-lookup-picker>
+  </div>
+
+  <mat-divider class="pff-divider"></mat-divider>
+  <h3 class="pff-section-title">Criteria Set</h3>
+  <div class="pff-grid pff-grid-3">
+    <app-lookup-picker label="Condition 1" placeholder="Search conditions…"
+                       [items]="conditions" formControlName="condition1Id">
+    </app-lookup-picker>
+    <app-lookup-picker label="Condition 2" placeholder="Search conditions…"
+                       [items]="conditions" formControlName="condition2Id">
+    </app-lookup-picker>
+    <app-lookup-picker label="Condition 3" placeholder="Search conditions…"
+                       [items]="conditions" formControlName="condition3Id">
+    </app-lookup-picker>
+  </div>
+
+  <mat-divider class="pff-divider"></mat-divider>
+
+  <div class="pff-active-row">
+    <mat-slide-toggle formControlName="active" color="primary">Active</mat-slide-toggle>
+    <p class="pff-active-hint">Only one entry can be active per {{ typeLabel() }} at a time.</p>
+  </div>
+
+  @if (showActiveSiblingHint) {
+    <div class="pff-warn-box">
+      <mat-icon>info</mat-icon>
+      <span>Saving this as active will deactivate <strong>"{{ activeSiblingName() }}"</strong>, currently active for {{ typeLabel() }}.</span>
+    </div>
+  }
+</div>

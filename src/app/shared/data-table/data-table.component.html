@@ -8,6 +8,18 @@
     </div>
 
     <div class="dt-tools">
+      @if (addLabel()) {
+        <button mat-raised-button color="primary" class="dt-add" (click)="add.emit()">
+          <mat-icon>add</mat-icon> {{ addLabel() }}
+        </button>
+      }
+
+      @if (showRefresh()) {
+        <button mat-icon-button (click)="refresh.emit()" matTooltip="Refresh" aria-label="Refresh">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      }
+
       <div class="dt-search">
         <mat-icon>search</mat-icon>
         <input type="text" placeholder="Search…"
@@ -50,67 +62,94 @@
     </div>
   </div>
 
-  <!-- Loading bar (indeterminate) -->
-  <div class="dt-progress">
-    @if (loading()) {
-      <mat-progress-bar mode="indeterminate" aria-label="Loading"></mat-progress-bar>
-    }
-  </div>
-
   <!-- Table -->
   <div class="dt-scroll">
-    <table mat-table [dataSource]="dataSource" matSort class="dt-table">
-
-      @for (col of columns(); track col.key) {
-        <!-- Data column: header (sortable) + typed cell -->
-        <ng-container [matColumnDef]="col.key">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="col.sortable === false"
-              [class.align-right]="col.align === 'right'"
-              [class.align-center]="col.align === 'center'">
-            {{ col.header }}
-          </th>
-          <td mat-cell *matCellDef="let row"
-              [class.align-right]="col.align === 'right'"
-              [class.align-center]="col.align === 'center'">
-            @switch (col.type) {
-              @case ('badge') {
-                <span class="status-badge" [class]="col.badge ? col.badge(row) : 'neutral'">
-                  {{ cellText(col, row) }}
-                </span>
-              }
-              @case ('currency') { {{ row[col.key] | currency:'USD':'symbol':'1.0-0' }} }
-              @case ('number')   { {{ row[col.key] | number }} }
-              @case ('date')     { {{ row[col.key] | date:'mediumDate' }} }
-              @default           { {{ cellText(col, row) }} }
+    @if (loading()) {
+      <!-- Skeleton rows — same row height/rhythm as the real table, so there's
+           no layout jump when the data swaps in. -->
+      <div class="dt-skeleton" aria-hidden="true">
+        @for (r of skeletonRows; track r) {
+          <div class="dt-skeleton-row">
+            @for (c of skeletonColArray(); track $index) {
+              <app-skeleton variant="text" height="14px"></app-skeleton>
             }
-          </td>
-        </ng-container>
-
-        <!-- Filter column (second header row) -->
-        <ng-container [matColumnDef]="col.key + '_f'">
-          <th mat-header-cell *matHeaderCellDef class="dt-filter-cell">
-            @if (col.filterable !== false) {
-              <input class="dt-col-filter" placeholder="Filter…"
-                     [ngModel]="filters()[col.key] || ''"
-                     (ngModelChange)="setColumnFilter(col.key, $event)">
-            }
-          </th>
-        </ng-container>
-      }
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-      @if (showFilterRow()) {
-        <tr mat-header-row *matHeaderRowDef="filterColumns()" class="dt-filter-row"></tr>
-      }
-      <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
-    </table>
-
-    <!-- Empty state -->
-    @if (!loading() && dataSource.filteredData.length === 0) {
-      <div class="dt-empty">
-        <mat-icon>{{ hasActiveFilters ? 'search_off' : 'inbox' }}</mat-icon>
-        <span>{{ hasActiveFilters ? 'No rows match your filters.' : 'No data to display.' }}</span>
+          </div>
+        }
       </div>
+    } @else {
+      <table mat-table [dataSource]="dataSource" matSort class="dt-table">
+
+        @for (col of columns(); track col.key) {
+          <!-- Data column: header (sortable) + typed cell -->
+          <ng-container [matColumnDef]="col.key">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="col.sortable === false"
+                [class.align-right]="col.align === 'right'"
+                [class.align-center]="col.align === 'center'">
+              {{ col.header }}
+            </th>
+            <td mat-cell *matCellDef="let row"
+                [class.align-right]="col.align === 'right'"
+                [class.align-center]="col.align === 'center'">
+              @switch (col.type) {
+                @case ('badge') {
+                  <span class="status-badge" [class]="col.badge ? col.badge(row) : 'neutral'">
+                    {{ cellText(col, row) }}
+                  </span>
+                }
+                @case ('currency') { {{ row[col.key] | currency:'USD':'symbol':'1.0-0' }} }
+                @case ('number')   { {{ row[col.key] | number }} }
+                @case ('date')     { {{ row[col.key] | date:'mediumDate' }} }
+                @default           { {{ cellText(col, row) }} }
+              }
+            </td>
+          </ng-container>
+
+          <!-- Filter column (second header row) -->
+          <ng-container [matColumnDef]="col.key + '_f'">
+            <th mat-header-cell *matHeaderCellDef class="dt-filter-cell">
+              @if (col.filterable !== false) {
+                <input class="dt-col-filter" placeholder="Filter…"
+                       [ngModel]="filters()[col.key] || ''"
+                       (ngModelChange)="setColumnFilter(col.key, $event)">
+              }
+            </th>
+          </ng-container>
+        }
+
+        <!-- Trailing row-actions column (view/edit/delete, …) — only when configured -->
+        @if (rowActions().length) {
+          <ng-container matColumnDef="__actions">
+            <th mat-header-cell *matHeaderCellDef class="align-right">Actions</th>
+            <td mat-cell *matCellDef="let row" class="align-right dt-actions-cell">
+              @for (a of rowActions(); track a.action) {
+                @if (!a.show || a.show(row)) {
+                  <button mat-icon-button [color]="a.color" [matTooltip]="a.label" [attr.aria-label]="a.label"
+                          (click)="rowAction.emit({ action: a.action, row }); $event.stopPropagation()">
+                    <mat-icon>{{ a.icon }}</mat-icon>
+                  </button>
+                }
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="__actions_f">
+            <th mat-header-cell *matHeaderCellDef class="dt-filter-cell"></th>
+          </ng-container>
+        }
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+        @if (showFilterRow()) {
+          <tr mat-header-row *matHeaderRowDef="filterColumns()" class="dt-filter-row"></tr>
+        }
+        <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+      </table>
+
+      <!-- Empty state -->
+      @if (dataSource.filteredData.length === 0) {
+        <div class="dt-empty">
+          <mat-icon>{{ hasActiveFilters ? 'search_off' : 'inbox' }}</mat-icon>
+          <span>{{ hasActiveFilters ? 'No rows match your filters.' : 'No data to display.' }}</span>
+        </div>
+      }
     }
   </div>
 

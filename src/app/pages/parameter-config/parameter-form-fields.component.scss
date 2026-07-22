@@ -1,0 +1,52 @@
+.pff-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 12px;
+  align-items: start;
+}
+.pff-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.pff-span2 { grid-column: span 2; }
+
+.pff-divider { margin: 4px 0 16px; }
+
+.pff-section-title {
+  margin: 0 0 8px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pff-active-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 4px;
+}
+
+.pff-active-hint {
+  margin: 4px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.pff-warn-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--status-warning) 10%, transparent);
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--status-warning); flex-shrink: 0; }
+  strong { color: var(--text-primary); }
+}
+
+@media (max-width: 560px) {
+  .pff-grid, .pff-grid-3 { grid-template-columns: 1fr; }
+  .pff-span2 { grid-column: span 1; }
+}

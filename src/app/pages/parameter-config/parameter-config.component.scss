@@ -1,0 +1,21 @@
+.pc-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.pc-toolbar-label {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.pc-tabs {
+  ::ng-deep .mat-mdc-tab-body-wrapper {
+    margin-top: 4px;
+  }
+}
+
+.pc-tab-body {
+  padding-top: 16px;
+}

@@ -58,32 +58,7 @@
   font-weight: 500;
 }
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.status-icon {
-  font-size: var(--fs-lg);
-  width: 16px;
-  height: 16px;
-}
-
-.spin {
-  animation: job-spin 1.2s linear infinite;
-}
-
-@keyframes job-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+// .status-pill (used here with the .lg modifier) / .status-icon / .spin now live globally in styles.scss.
 
 .log-list {
   display: flex;

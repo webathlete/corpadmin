@@ -1,0 +1,17 @@
+<h2 mat-dialog-title class="cd-title">
+  <span class="cd-badge" [class.warn]="data.tone === 'warn'">
+    <mat-icon>{{ data.icon || 'help_outline' }}</mat-icon>
+  </span>
+  {{ data.title }}
+</h2>
+
+<mat-dialog-content>
+  <p class="cd-message">{{ data.message }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="ref.close(false)">{{ data.cancelLabel || 'Cancel' }}</button>
+  <button mat-raised-button [color]="data.tone === 'warn' ? 'warn' : 'primary'" (click)="ref.close(true)">
+    {{ data.confirmLabel || 'Confirm' }}
+  </button>
+</mat-dialog-actions>

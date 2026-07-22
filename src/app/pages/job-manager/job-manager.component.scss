@@ -57,29 +57,4 @@
   }
 }
 
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.status-icon {
-  font-size: var(--fs-md);
-  width: 15px;
-  height: 15px;
-}
-
-.spin {
-  animation: job-spin 1.2s linear infinite;
-}
-
-@keyframes job-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+// .status-pill / .status-icon / .spin now live globally in styles.scss.

@@ -1,0 +1,62 @@
+@if (entry(); as e) {
+  <h2 mat-dialog-title class="pv-title">
+    <span class="pv-avatar" [class.active]="e.active">
+      <mat-icon>tune</mat-icon>
+    </span>
+    <div class="pv-title-text">
+      <div class="pv-title-main">{{ e.name }}</div>
+      <div class="pv-title-sub">{{ e.id }} · {{ typeLabel() }}</div>
+    </div>
+    <span class="status-badge" [class]="e.active ? 'success' : 'neutral'">
+      {{ e.active ? 'Active' : 'Inactive' }}
+    </span>
+  </h2>
+
+  <mat-dialog-content>
+    @if (e.description) {
+      <p class="pv-desc">{{ e.description }}</p>
+    }
+
+    <div class="pv-meta-box">
+      <div class="pv-meta-grid">
+        <span class="pv-meta-key">Category</span>
+        <span class="pv-meta-val"><span class="lookup-id-tag pv-lookup-id">{{ e.categoryId }}</span>{{ categoryName(e.categoryId) }}</span>
+        <span class="pv-meta-key">Parameter Type</span>
+        <span class="pv-meta-val"><span class="lookup-id-tag pv-lookup-id">{{ e.parameterTypeId }}</span>{{ parameterTypeName(e.parameterTypeId) }}</span>
+        <span class="pv-meta-key">Created On</span><span class="pv-meta-val">{{ e.createdOn | date: 'mediumDate' }}</span>
+        <span class="pv-meta-key">Updated On</span><span class="pv-meta-val">{{ e.updatedOn | date: 'mediumDate' }}</span>
+      </div>
+    </div>
+
+    <mat-divider class="pv-divider"></mat-divider>
+    <h3 class="pv-section-title">Criteria Set</h3>
+    <div class="pv-criteria-row">
+      <div class="pv-criteria-chip">
+        <span class="pv-criteria-label">Condition 1</span>
+        <span class="pv-criteria-val"><span class="lookup-id-tag pv-lookup-id">{{ e.condition1Id }}</span>{{ conditionName(e.condition1Id) }}</span>
+      </div>
+      <div class="pv-criteria-chip">
+        <span class="pv-criteria-label">Condition 2</span>
+        <span class="pv-criteria-val"><span class="lookup-id-tag pv-lookup-id">{{ e.condition2Id }}</span>{{ conditionName(e.condition2Id) }}</span>
+      </div>
+      <div class="pv-criteria-chip">
+        <span class="pv-criteria-label">Condition 3</span>
+        <span class="pv-criteria-val"><span class="lookup-id-tag pv-lookup-id">{{ e.condition3Id }}</span>{{ conditionName(e.condition3Id) }}</span>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button (click)="edit()">
+      <mat-icon>edit</mat-icon> Edit
+    </button>
+    <button mat-button (click)="ref.close()">Close</button>
+  </mat-dialog-actions>
+} @else {
+  <mat-dialog-content>
+    <p>Parameter not found.</p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="ref.close()">Close</button>
+  </mat-dialog-actions>
+}

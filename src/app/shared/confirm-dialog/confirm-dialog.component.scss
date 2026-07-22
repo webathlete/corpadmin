@@ -1,0 +1,29 @@
+.cd-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cd-badge {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--app-primary) 12%, transparent);
+  color: var(--app-primary);
+
+  &.warn {
+    background: color-mix(in srgb, var(--status-error) 12%, transparent);
+    color: var(--status-error);
+  }
+}
+
+.cd-message {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}

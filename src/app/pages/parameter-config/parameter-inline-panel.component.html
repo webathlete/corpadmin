@@ -1,0 +1,108 @@
+<div class="ipp-shell">
+
+  <!-- Left: latest parameters — switch between entries without leaving the panel -->
+  <div class="ipp-list-card">
+    <div class="ipp-list-head">
+      <h4>Latest Parameters</h4>
+      <div class="ipp-list-head-actions">
+        <button mat-icon-button matTooltip="Refresh" aria-label="Refresh" (click)="refresh.emit()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="New parameter" aria-label="New parameter" (click)="startNew()">
+          <mat-icon>add_circle</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="ipp-search">
+      <mat-icon>search</mat-icon>
+      <input type="text" placeholder="Search…"
+             [ngModel]="searchTerm()" (ngModelChange)="setSearchTerm($event)">
+    </div>
+
+    <div class="ipp-list-scroll">
+      @if (loading()) {
+        @for (i of [0,1,2,3,4]; track i) {
+          <div class="ipp-item-skeleton">
+            <app-skeleton variant="text" width="70%" height="13px"></app-skeleton>
+            <app-skeleton variant="text" width="40%" height="11px"></app-skeleton>
+          </div>
+        }
+      } @else {
+        @for (e of visibleEntries(); track e.id) {
+          <button type="button" class="ipp-item" [class.selected]="!isCreating() && e.id === selectedId()"
+                  (click)="select(e)">
+            <div class="ipp-item-top">
+              <span class="ipp-item-name">{{ e.name }}</span>
+              <span class="ipp-item-dot" [class.active]="e.active"></span>
+            </div>
+            <span class="ipp-item-meta">Updated {{ e.updatedOn | date: 'MMM d' }}</span>
+          </button>
+        }
+        @if (!filteredEntries().length) {
+          <div class="ipp-empty">
+            <mat-icon>search_off</mat-icon>
+            <span>No parameters match.</span>
+          </div>
+        }
+        @if (remainingCount() > 0) {
+          <button type="button" class="ipp-show-more" (click)="showMore()">
+            Show {{ remainingCount() < 100 ? remainingCount() : 100 }} more
+            <span class="ipp-show-more-count">({{ remainingCount() }} remaining)</span>
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Right: inline detail / edit — always a form, never a dialog -->
+  <div class="ipp-detail-card">
+    @if (isCreating() || selectedEntry()) {
+      <div class="ipp-detail-head">
+        <span class="ipp-detail-avatar" [class.active]="!isCreating() && selectedEntry()?.active === true">
+          <mat-icon>tune</mat-icon>
+        </span>
+        <div class="ipp-detail-title">
+          <div class="ipp-detail-name">{{ isCreating() ? 'New Parameter' : selectedEntry()?.name }}</div>
+          <div class="ipp-detail-sub">
+            {{ isCreating() ? (typeLabel() + ' · not yet saved') : (selectedEntry()?.id + ' · ' + typeLabel()) }}
+          </div>
+        </div>
+        @if (!isCreating()) {
+          <span class="status-badge" [class]="selectedEntry()?.active ? 'success' : 'neutral'">
+            {{ selectedEntry()?.active ? 'Active' : 'Inactive' }}
+          </span>
+        }
+      </div>
+
+      <mat-divider class="ipp-detail-divider"></mat-divider>
+
+      <div class="ipp-detail-body">
+        <app-parameter-form-fields [form]="form()" [typeLabel]="typeLabel()"
+                                   [activeSiblingName]="activeSiblingName()">
+        </app-parameter-form-fields>
+      </div>
+
+      <div class="ipp-detail-actions">
+        @if (!isCreating()) {
+          <button mat-button color="warn" (click)="delete()">
+            <mat-icon>delete</mat-icon> Delete
+          </button>
+        }
+        <span class="ipp-spacer"></span>
+        <button mat-button (click)="discard()">Discard</button>
+        <button mat-raised-button color="primary" (click)="save()">
+          <mat-icon>save</mat-icon> {{ isCreating() ? 'Create Parameter' : 'Save Changes' }}
+        </button>
+      </div>
+    } @else {
+      <div class="ipp-blank-state">
+        <mat-icon>tune</mat-icon>
+        <p>Select a parameter from the list, or create a new one.</p>
+        <button mat-raised-button color="primary" (click)="startNew()">
+          <mat-icon>add</mat-icon> New Parameter
+        </button>
+      </div>
+    }
+  </div>
+</div>

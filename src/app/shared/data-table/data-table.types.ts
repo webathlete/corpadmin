@@ -35,3 +35,19 @@ export interface TableState {
   pageSize: number;
   filters: Record<string, string>;
 }
+
+/** A single icon-button in the trailing row-actions column. */
+export interface RowAction<T = Record<string, unknown>> {
+  action: string;
+  label: string;
+  icon: string;
+  color?: 'primary' | 'warn';
+  /** Show this action for a given row. Default: always shown. */
+  show?: (row: T) => boolean;
+}
+
+/** Emitted when a row-action button is clicked. */
+export interface RowActionEvent<T = Record<string, unknown>> {
+  action: string;
+  row: T;
+}

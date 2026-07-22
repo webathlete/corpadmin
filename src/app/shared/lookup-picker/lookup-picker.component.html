@@ -1,0 +1,36 @@
+<div class="lp" [class.disabled]="disabled()">
+  @if (label()) {
+    <label class="lp-label">{{ label() }}</label>
+  }
+
+  @if (selectedItem(); as item) {
+    <mat-chip-set class="lp-chip-set">
+      <mat-chip (removed)="clear()" [disabled]="disabled()">
+        <span class="lookup-id-tag lp-chip-id">{{ item.id }}</span>{{ item.name }}
+        <button matChipRemove [attr.aria-label]="'Remove ' + item.name">
+          <mat-icon>cancel</mat-icon>
+        </button>
+      </mat-chip>
+    </mat-chip-set>
+  } @else {
+    <div class="lp-search-box" [class.invalid]="showError">
+      <mat-icon class="lp-search-icon">search</mat-icon>
+      <input type="text" [placeholder]="placeholder()" [matAutocomplete]="auto"
+             [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)"
+             [disabled]="disabled()" (blur)="onBlur()">
+    </div>
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="select($event.option.value)">
+      @for (item of filteredItems(); track item.id) {
+        <mat-option [value]="item">
+          <span class="lookup-id-tag lp-opt-id">{{ item.id }}</span>{{ item.name }}
+        </mat-option>
+      }
+      @if (!filteredItems().length) {
+        <mat-option disabled>No matches</mat-option>
+      }
+    </mat-autocomplete>
+    @if (showError) {
+      <div class="lp-error">Required</div>
+    }
+  }
+</div>

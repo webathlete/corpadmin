@@ -2,7 +2,7 @@
   <app-page-layout [loading]="loading()" [title]="job.name" [description]="job.id + ' · ' + job.type"
                    [breadcrumbs]="[{ label: 'Home', link: '/dashboard' }, { label: 'Job Manager', link: '/jobs' }, { label: job.name }]">
     <div pageActions class="detail-actions">
-      <span class="status-pill"
+      <span class="status-pill lg"
             [style.color]="statusColor(job.status)"
             [style.background]="statusColor(job.status) + '1f'">
         <mat-icon class="status-icon" [class.spin]="job.status === 'running'">{{ statusIcon(job.status) }}</mat-icon>

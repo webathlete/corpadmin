@@ -27,6 +27,7 @@
 .dt-count { font-size: var(--fs-xs); color: var(--text-secondary); }
 
 .dt-tools { display: flex; align-items: center; gap: 4px; }
+.dt-add { margin-right: 8px; }
 
 .dt-search {
   display: flex;
@@ -56,8 +57,20 @@
 
 .dt-active { color: var(--app-primary); }
 
-/* Progress bar slot (fixed height so toggling doesn't shift layout) */
-.dt-progress { height: 3px; }
+/* Skeleton loading placeholder — same row rhythm as the real table */
+.dt-skeleton {
+  padding: 4px 16px;
+}
+.dt-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 44px;
+  border-bottom: 1px solid var(--surface-border);
+
+  app-skeleton { flex: 1; }
+  &:last-child { border-bottom: none; }
+}
 
 /* Table */
 .dt-scroll { overflow-x: auto; position: relative; }
@@ -80,6 +93,12 @@
 
   .align-right  { text-align: right; }
   .align-center { text-align: center; }
+}
+
+.dt-actions-cell {
+  white-space: nowrap;
+  button.mat-mdc-icon-button { width: 32px; height: 32px; padding: 4px; }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
 }
 
 /* Per-column filter row */
