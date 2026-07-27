@@ -1,6 +1,6 @@
 <div class="lp" [class.disabled]="disabled()">
   @if (label()) {
-    <label class="lp-label">{{ label() }}</label>
+    <label class="field-label lp-label">{{ label() }}</label>
   }
 
   @if (selectedItem(); as item) {
@@ -29,8 +29,13 @@
         <mat-option disabled>No matches</mat-option>
       }
     </mat-autocomplete>
-    @if (showError) {
-      <div class="lp-error">Required</div>
-    }
   }
+
+  <!-- Reserved even when empty — mirrors mat-form-field's subscript wrapper,
+       so a picker with an error never grows taller than its row sibling. -->
+  <div class="lp-hint-row">
+    @if (showError) {
+      <span class="lp-error">Required</span>
+    }
+  </div>
 </div>

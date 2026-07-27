@@ -4,7 +4,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { LookupPickerComponent } from '../../shared/lookup-picker/lookup-picker.component';
 import { CATEGORIES, CONDITIONS, PARAMETER_TYPES } from '../../core/services/parameter-config.service';
@@ -20,7 +19,7 @@ import { ParameterForm } from './parameter-form.util';
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule,
-    MatSlideToggleModule, MatDividerModule, MatIconModule, LookupPickerComponent,
+    MatSlideToggleModule, MatIconModule, LookupPickerComponent,
   ],
   templateUrl: './parameter-form-fields.component.html',
   styleUrl: './parameter-form-fields.component.scss',

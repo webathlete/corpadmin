@@ -767,6 +767,18 @@ body {
   margin-right: 6px;
 }
 
+// Small caption label above a custom (non-mat-form-field) control — e.g. the
+// lookup-picker's own label, and the Active toggle's label when it sits in a
+// grid row beside a lookup-picker. Same metrics everywhere so rows made of
+// mixed control types still line up without a magic-number offset.
+.field-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
 .trend-up   { color: var(--status-success); }
 .trend-down { color: var(--status-error); }
 

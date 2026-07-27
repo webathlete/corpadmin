@@ -18,27 +18,25 @@
     <app-lookup-picker label="Parameter Type" placeholder="Search parameter types…"
                        [items]="parameterTypes" formControlName="parameterTypeId">
     </app-lookup-picker>
-  </div>
 
-  <mat-divider class="pff-divider"></mat-divider>
-  <h3 class="pff-section-title">Criteria Set</h3>
-  <div class="pff-grid pff-grid-3">
     <app-lookup-picker label="Condition 1" placeholder="Search conditions…"
                        [items]="conditions" formControlName="condition1Id">
     </app-lookup-picker>
     <app-lookup-picker label="Condition 2" placeholder="Search conditions…"
                        [items]="conditions" formControlName="condition2Id">
     </app-lookup-picker>
+
     <app-lookup-picker label="Condition 3" placeholder="Search conditions…"
                        [items]="conditions" formControlName="condition3Id">
     </app-lookup-picker>
-  </div>
 
-  <mat-divider class="pff-divider"></mat-divider>
-
-  <div class="pff-active-row">
-    <mat-slide-toggle formControlName="active" color="primary">Active</mat-slide-toggle>
-    <p class="pff-active-hint">Only one entry can be active per {{ typeLabel() }} at a time.</p>
+    <div class="pff-active-row">
+      <span class="field-label">Active</span>
+      <div class="pff-active-control">
+        <mat-slide-toggle formControlName="active" color="primary" aria-label="Active"></mat-slide-toggle>
+      </div>
+      <p class="pff-active-hint">Only one entry can be active per {{ typeLabel() }} at a time.</p>
+    </div>
   </div>
 
   @if (showActiveSiblingHint) {

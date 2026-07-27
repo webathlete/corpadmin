@@ -1,27 +1,26 @@
+// One consistent 2-column grid for every field below Name/Description —
+// Category | Parameter Type, then Condition 1 | Condition 2, then
+// Condition 3 | Active, evenly split.
 .pff-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px 12px;
   align-items: start;
 }
-.pff-grid-3 {
-  grid-template-columns: repeat(3, 1fr);
-}
 .pff-span2 { grid-column: span 2; }
 
-.pff-divider { margin: 4px 0 16px; }
-
-.pff-section-title {
-  margin: 0 0 8px;
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
+// Mirrors the lookup-picker's own anatomy exactly (.field-label, then a
+// fixed-height control band matching .lp-search-box's 40px) so the two line
+// up in the same grid row without a padding guess.
 .pff-active-row {
   display: flex;
   flex-direction: column;
-  margin-bottom: 4px;
+}
+
+.pff-active-control {
+  display: flex;
+  align-items: center;
+  height: 40px;
 }
 
 .pff-active-hint {
@@ -47,6 +46,6 @@
 }
 
 @media (max-width: 560px) {
-  .pff-grid, .pff-grid-3 { grid-template-columns: 1fr; }
+  .pff-grid { grid-template-columns: 1fr; }
   .pff-span2 { grid-column: span 1; }
 }
