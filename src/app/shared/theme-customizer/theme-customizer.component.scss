@@ -50,7 +50,14 @@
   display: flex; align-items: center; gap: 10px;
   mat-icon { color: var(--app-primary); }
 }
-.dark-icon { font-size: 12px; width: 12px; height: 12px; color: var(--on-primary-medium); }
+// mat-icon.dark-icon (not .dark-icon) — a plain class selector ties in
+// specificity with Angular Material's own .mat-icon sizing rule and loses
+// because Material's rule is injected into the DOM after styles.css.
+mat-icon.dark-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; width: 12px; height: 12px; line-height: 12px;
+  color: var(--on-primary-medium);
+}
 
 .quick-block { margin-top: 12px; }
 .quick-label { font-size: var(--fs-2xs); color: var(--text-secondary); margin: 0 0 8px; }

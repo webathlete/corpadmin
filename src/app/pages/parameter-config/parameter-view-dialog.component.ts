@@ -9,6 +9,7 @@ import {
   ParameterConfigService, lookupName,
 } from '../../core/services/parameter-config.service';
 import { ParameterFormDialogComponent } from './parameter-form-dialog.component';
+import { ParameterExecutionsDialogComponent } from './parameter-executions-dialog.component';
 
 @Component({
   selector: 'app-parameter-view-dialog',
@@ -42,6 +43,16 @@ export class ParameterViewDialogComponent {
       width: '640px',
       maxWidth: '92vw',
       data: { type: e.type, entry: e },
+    });
+  }
+
+  viewExecutions(): void {
+    const e = this.entry();
+    if (!e) return;
+    this.dialog.open(ParameterExecutionsDialogComponent, {
+      width: '680px',
+      maxWidth: '92vw',
+      data: { parameterId: e.id, parameterName: e.name },
     });
   }
 }

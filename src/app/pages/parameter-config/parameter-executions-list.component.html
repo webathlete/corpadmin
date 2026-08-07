@@ -1,0 +1,96 @@
+@if (!executions().length) {
+  <div class="pel-empty">
+    <mat-icon class="pel-empty-icon">event_busy</mat-icon>
+    <span>No executions recorded for this parameter yet.</span>
+  </div>
+} @else {
+  <div class="pel-filters" role="group" aria-label="Filter by status">
+    <button type="button" class="pel-filter-chip" [class.active]="filterStatus() === 'all'"
+            (click)="setFilter('all')">
+      All <strong>{{ executions().length }}</strong>
+    </button>
+    @for (s of availableStatuses(); track s.status) {
+      <button type="button" class="pel-filter-chip" [class.active]="filterStatus() === s.status"
+              [style.--chip-color]="statusColor(s.status)" (click)="setFilter(s.status)">
+        {{ s.status | titlecase }} <strong>{{ s.count }}</strong>
+      </button>
+    }
+  </div>
+
+  <div class="pel-head" role="row">
+    <button type="button" class="pel-sort-btn" [class.active]="sortField() === 'status'" (click)="setSort('status')">
+      Status
+      <mat-icon class="pel-sort-icon" [class.visible]="sortField() === 'status'">
+        {{ sortDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+      </mat-icon>
+    </button>
+    <button type="button" class="pel-sort-btn" [class.active]="sortField() === 'runDate'" (click)="setSort('runDate')">
+      Run Date
+      <mat-icon class="pel-sort-icon" [class.visible]="sortField() === 'runDate'">
+        {{ sortDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+      </mat-icon>
+    </button>
+    <button type="button" class="pel-sort-btn" [class.active]="sortField() === 'duration'" (click)="setSort('duration')">
+      Duration
+      <mat-icon class="pel-sort-icon" [class.visible]="sortField() === 'duration'">
+        {{ sortDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+      </mat-icon>
+    </button>
+    <button type="button" class="pel-sort-btn pel-sort-end" [class.active]="sortField() === 'records'" (click)="setSort('records')">
+      Records
+      <mat-icon class="pel-sort-icon" [class.visible]="sortField() === 'records'">
+        {{ sortDir() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+      </mat-icon>
+    </button>
+    <span></span>
+  </div>
+
+  @if (!sortedExecutions().length) {
+    <div class="pel-empty">
+      <mat-icon class="pel-empty-icon">filter_alt_off</mat-icon>
+      <span>No executions match this filter.</span>
+    </div>
+  } @else {
+    <div class="pel-list">
+      @for (ex of sortedExecutions(); track ex.id) {
+        <div class="pel-row" [class.expanded]="expandedId() === ex.id">
+          <button type="button" class="pel-row-main" (click)="toggle(ex.id)"
+                  [attr.aria-expanded]="expandedId() === ex.id">
+            <span class="status-pill sm" [style.color]="statusColor(ex.status)"
+                  [style.background]="statusColor(ex.status) + '1f'">
+              <mat-icon class="status-icon" [class.spin]="ex.status === 'running'">{{ statusIcon(ex.status) }}</mat-icon>
+              {{ ex.status | titlecase }}
+            </span>
+            <span class="pel-date">{{ ex.runDate | date: 'MMM d, y · h:mm a' }}</span>
+            <span class="pel-duration">{{ ex.duration }}</span>
+            <span class="pel-records">{{ recordsLabel(ex) }}</span>
+            <mat-icon class="pel-chevron">{{ expandedId() === ex.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </button>
+
+          @if (expandedId() === ex.id) {
+            <div class="pel-detail">
+              <div class="pel-detail-item">
+                <span class="pel-detail-key">Execution ID</span>
+                <span class="pel-detail-val">{{ ex.id }}</span>
+              </div>
+              <div class="pel-detail-item">
+                <span class="pel-detail-key">Triggered By</span>
+                <span class="pel-detail-val">{{ ex.triggeredBy }}</span>
+              </div>
+              <div class="pel-detail-item">
+                <span class="pel-detail-key">Run Date</span>
+                <span class="pel-detail-val">{{ ex.runDate | date: 'medium' }}</span>
+              </div>
+              @if (ex.message) {
+                <div class="pel-detail-item pel-detail-full">
+                  <span class="pel-detail-key">Message</span>
+                  <span class="pel-detail-val pel-detail-msg">{{ ex.message }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+}

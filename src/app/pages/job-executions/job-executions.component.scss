@@ -43,11 +43,19 @@
   gap: 6px;
 }
 
-.legend-icon {
+// mat-icon.legend-icon (not .legend-icon) — Angular injects Material's own
+// .mat-icon sizing (24px, equal specificity) in a <style> tag that lands
+// after styles.css, so a plain class selector loses the tie. See the note
+// on mat-icon.status-icon in styles.scss for the full explanation.
+mat-icon.legend-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   align-self: center;
   font-size: 16px;
   width: 16px;
   height: 16px;
+  line-height: 16px;
 }
 
 .legend-label { font-size: var(--fs-xs); color: var(--text-secondary); }
@@ -176,15 +184,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: var(--radius-sm);
+  flex-shrink: 0;
 }
 
-.step-chip-icon {
-  font-size: var(--fs-md);
+// mat-icon.step-chip-icon (not .step-chip-icon) — see the specificity note
+// on mat-icon.status-icon in styles.scss.
+mat-icon.step-chip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
   width: 16px;
   height: 16px;
+  line-height: 16px;
+  flex-shrink: 0;
 }
 
 // .status-pill / .status-icon / .spin now live globally in styles.scss.

@@ -69,6 +69,20 @@
           </div>
         </div>
         @if (!isCreating()) {
+          <div class="ipp-view-switch" role="group" aria-label="Detail view">
+            <button type="button" class="ipp-view-btn" [class.active]="detailView() === 'details'"
+                    matTooltip="Details" aria-label="Show details" (click)="detailView.set('details')">
+              <mat-icon>tune</mat-icon>
+            </button>
+            <button type="button" class="ipp-view-btn" [class.active]="detailView() === 'executions'"
+                    [matTooltip]="'Executions (' + executions().length + ')'" aria-label="Show job executions"
+                    (click)="detailView.set('executions')">
+              <mat-icon>history</mat-icon>
+              @if (executions().length > 0) {
+                <span class="ipp-view-badge">{{ executions().length > 99 ? '99+' : executions().length }}</span>
+              }
+            </button>
+          </div>
           <span class="status-badge" [class]="selectedEntry()?.active ? 'success' : 'neutral'">
             {{ selectedEntry()?.active ? 'Active' : 'Inactive' }}
           </span>
@@ -78,23 +92,29 @@
       <mat-divider class="ipp-detail-divider"></mat-divider>
 
       <div class="ipp-detail-body">
-        <app-parameter-form-fields [form]="form()" [typeLabel]="typeLabel()"
-                                   [activeSiblingName]="activeSiblingName()">
-        </app-parameter-form-fields>
+        @if (isCreating() || detailView() === 'details') {
+          <app-parameter-form-fields [form]="form()" [typeLabel]="typeLabel()"
+                                     [activeSiblingName]="activeSiblingName()">
+          </app-parameter-form-fields>
+        } @else {
+          <app-parameter-executions-list [executions]="executions()"></app-parameter-executions-list>
+        }
       </div>
 
-      <div class="ipp-detail-actions">
-        @if (!isCreating()) {
-          <button mat-button color="warn" (click)="delete()">
-            <mat-icon>delete</mat-icon> Delete
+      @if (isCreating() || detailView() === 'details') {
+        <div class="ipp-detail-actions">
+          @if (!isCreating()) {
+            <button mat-button color="warn" (click)="delete()">
+              <mat-icon>delete</mat-icon> Delete
+            </button>
+          }
+          <span class="ipp-spacer"></span>
+          <button mat-button (click)="discard()">Discard</button>
+          <button mat-raised-button color="primary" (click)="save()">
+            <mat-icon>save</mat-icon> {{ isCreating() ? 'Create Parameter' : 'Save Changes' }}
           </button>
-        }
-        <span class="ipp-spacer"></span>
-        <button mat-button (click)="discard()">Discard</button>
-        <button mat-raised-button color="primary" (click)="save()">
-          <mat-icon>save</mat-icon> {{ isCreating() ? 'Create Parameter' : 'Save Changes' }}
-        </button>
-      </div>
+        </div>
+      }
     } @else {
       <div class="ipp-blank-state">
         <mat-icon>tune</mat-icon>

@@ -1,0 +1,179 @@
+.pel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+// mat-icon.pel-empty-icon (not .pel-empty-icon) — a plain class selector ties
+// in specificity with Angular Material's own .mat-icon sizing rule and loses;
+// see the note on mat-icon.status-icon in styles.scss.
+mat-icon.pel-empty-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  opacity: 0.5;
+}
+
+// ---- Filter chips — doubles as the summary line; click a status to isolate it ----
+.pel-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 0 10px;
+}
+
+.pel-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-bg);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+
+  strong { font-weight: 700; }
+
+  &:hover { background: var(--overlay-hover); }
+
+  &.active {
+    background: color-mix(in srgb, var(--chip-color, var(--app-primary)) 14%, transparent);
+    border-color: color-mix(in srgb, var(--chip-color, var(--app-primary)) 45%, transparent);
+    color: var(--chip-color, var(--app-primary));
+  }
+}
+
+// ---- Sortable column header — mirrors .pel-row-main's grid exactly ----
+.pel-head {
+  display: grid;
+  grid-template-columns: 96px 1fr 68px 100px 20px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px 6px;
+  border-bottom: 1px solid var(--surface-border);
+  margin-bottom: 6px;
+}
+
+.pel-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  justify-self: start;
+
+  &:hover { color: var(--text-secondary); }
+  &.active { color: var(--app-primary); }
+}
+.pel-sort-end { justify-self: end; }
+
+// mat-icon.pel-sort-icon (not .pel-sort-icon) — see the specificity note on
+// mat-icon.status-icon in styles.scss. Always rendered (opacity-toggled, not
+// *ngIf-removed) so clicking between columns doesn't reflow the header row.
+mat-icon.pel-sort-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+
+  &.visible { opacity: 1; }
+}
+
+.pel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pel-row {
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color var(--transition-fast);
+
+  &.expanded { border-color: color-mix(in srgb, var(--app-primary) 40%, var(--surface-border)); }
+}
+
+.pel-row-main {
+  display: grid;
+  grid-template-columns: 96px 1fr 68px 100px 20px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  background: var(--surface-bg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+
+  &:hover { background: var(--overlay-hover); }
+}
+
+.pel-date { font-size: var(--fs-sm); color: var(--text-primary); font-weight: 500; }
+.pel-duration { font-size: var(--fs-xs); color: var(--text-secondary); }
+.pel-records { font-size: var(--fs-xs); color: var(--text-secondary); text-align: right; }
+
+// mat-icon.pel-chevron (not .pel-chevron) — see the specificity note on
+// mat-icon.status-icon in styles.scss.
+mat-icon.pel-chevron {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  justify-self: end;
+}
+
+.pel-detail {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px 16px;
+  padding: 12px 16px 14px;
+  background: var(--overlay-hover);
+  border-top: 1px solid var(--surface-border);
+}
+
+.pel-detail-item { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pel-detail-full { grid-column: 1 / -1; }
+.pel-detail-key {
+  font-size: var(--fs-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+}
+.pel-detail-val {
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+  overflow-wrap: break-word;
+}
+.pel-detail-msg { font-weight: 400; color: var(--status-error); }
+
+@media (max-width: 560px) {
+  .pel-row-main { grid-template-columns: 96px 1fr 20px; }
+  .pel-duration, .pel-records { display: none; }
+  .pel-head { grid-template-columns: 96px 1fr 20px; }
+  .pel-head .pel-sort-btn:nth-child(3), .pel-head .pel-sort-btn:nth-child(4) { display: none; }
+  .pel-detail { grid-template-columns: 1fr; }
+}

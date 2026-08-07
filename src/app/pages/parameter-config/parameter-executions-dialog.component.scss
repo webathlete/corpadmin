@@ -1,0 +1,33 @@
+.ped-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ped-badge {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--app-primary) 12%, transparent);
+  color: var(--app-primary);
+}
+
+.ped-title-main { font-size: var(--fs-lg); line-height: 1.3; }
+.ped-title-sub { font-size: var(--fs-xs); color: var(--text-secondary); font-weight: 400; }
+
+// Fixed (not max-) height — the row list scrolls internally instead of the
+// dialog growing/shrinking with the number of executions, so it stays a
+// consistent size whether a parameter has 3 runs or 24.
+.ped-content {
+  height: 60vh;
+  min-width: 480px;
+  overflow-y: auto;
+}
+
+@media (max-width: 560px) {
+  .ped-content { min-width: 0; height: 70vh; }
+}

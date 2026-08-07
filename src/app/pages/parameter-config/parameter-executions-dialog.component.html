@@ -1,0 +1,15 @@
+<h2 mat-dialog-title class="ped-title">
+  <span class="ped-badge"><mat-icon>history</mat-icon></span>
+  <div class="ped-title-text">
+    <div class="ped-title-main">Job Executions</div>
+    <div class="ped-title-sub">{{ data.parameterName }} · {{ data.parameterId }}</div>
+  </div>
+</h2>
+
+<mat-dialog-content class="ped-content">
+  <app-parameter-executions-list [executions]="executions()"></app-parameter-executions-list>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="ref.close()">Close</button>
+</mat-dialog-actions>

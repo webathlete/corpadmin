@@ -17,6 +17,7 @@ import {
 import { ParameterFormDialogComponent } from './parameter-form-dialog.component';
 import { ParameterViewDialogComponent } from './parameter-view-dialog.component';
 import { ParameterInlinePanelComponent } from './parameter-inline-panel.component';
+import { ParameterExecutionsDialogComponent } from './parameter-executions-dialog.component';
 
 export type CrudStyle = 'dialog' | 'inline';
 
@@ -61,6 +62,7 @@ export class ParameterConfigComponent {
 
   readonly rowActions: RowAction<ParameterEntry>[] = [
     { action: 'view', label: 'View details', icon: 'visibility' },
+    { action: 'executions', label: 'View job executions', icon: 'history' },
     { action: 'edit', label: 'Edit', icon: 'edit' },
     { action: 'delete', label: 'Delete', icon: 'delete', color: 'warn' },
   ];
@@ -101,6 +103,12 @@ export class ParameterConfigComponent {
       case 'view':
         this.dialog.open(ParameterViewDialogComponent, {
           width: '560px', maxWidth: '92vw', data: { id: row.id },
+        });
+        break;
+      case 'executions':
+        this.dialog.open(ParameterExecutionsDialogComponent, {
+          width: '680px', maxWidth: '92vw',
+          data: { parameterId: row.id, parameterName: row.name },
         });
         break;
       case 'edit':

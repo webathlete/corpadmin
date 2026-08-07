@@ -9,8 +9,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SkeletonComponent } from '../../shared/skeleton/skeleton.component';
 import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog.service';
 import { ParamGroupType, ParameterConfigService, ParameterEntry } from '../../core/services/parameter-config.service';
+import { ParameterExecutionService } from '../../core/services/parameter-execution.service';
 import { createParameterForm, toParameterDraft } from './parameter-form.util';
 import { ParameterFormFieldsComponent } from './parameter-form-fields.component';
+import { ParameterExecutionsListComponent } from './parameter-executions-list.component';
+
+export type InlineDetailView = 'details' | 'executions';
 
 const PAGE_INCREMENT = 100;
 
@@ -27,6 +31,7 @@ const PAGE_INCREMENT = 100;
   imports: [
     CommonModule, FormsModule, MatButtonModule, MatIconModule, MatTooltipModule,
     MatDividerModule, MatSnackBarModule, SkeletonComponent, ParameterFormFieldsComponent,
+    ParameterExecutionsListComponent,
   ],
   templateUrl: './parameter-inline-panel.component.html',
   styleUrl: './parameter-inline-panel.component.scss',
@@ -40,6 +45,7 @@ export class ParameterInlinePanelComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly service = inject(ParameterConfigService);
+  private readonly execService = inject(ParameterExecutionService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly confirmDialog = inject(ConfirmDialogService);
 
@@ -47,6 +53,9 @@ export class ParameterInlinePanelComponent implements OnInit {
   readonly selectedId = signal<string | null>(null);
   readonly isCreating = signal(false);
   readonly form = signal(createParameterForm(this.fb));
+  /** "Details" (the edit form) vs "Executions" (job-run history) — an
+   *  explicit opt-in tab so the history list only builds when asked for. */
+  readonly detailView = signal<InlineDetailView>('details');
   /** How many of the (search-)filtered entries are currently rendered in the
    *  list — grows via "Show more" instead of rendering everything at once. */
   readonly visibleCount = signal(PAGE_INCREMENT);
@@ -80,6 +89,13 @@ export class ParameterInlinePanelComponent implements OnInit {
   readonly activeSiblingName = computed(() =>
     this.service.activeSibling(this.type(), this.selectedId() ?? undefined)?.name ?? null);
 
+  /** Job-run history for the selected entry — generated lazily on first
+   *  access via the service's cache, not eagerly for every row in the list. */
+  readonly executions = computed(() => {
+    const id = this.selectedId();
+    return id ? this.execService.getExecutions(id) : [];
+  });
+
   ngOnInit(): void {
     const latest = this.entries()[0];
     if (latest) this.select(latest);
@@ -89,12 +105,14 @@ export class ParameterInlinePanelComponent implements OnInit {
     this.isCreating.set(false);
     this.selectedId.set(entry.id);
     this.form.set(createParameterForm(this.fb, entry));
+    this.detailView.set('details');
   }
 
   startNew(): void {
     this.isCreating.set(true);
     this.selectedId.set(null);
     this.form.set(createParameterForm(this.fb));
+    this.detailView.set('details');
   }
 
   discard(): void {

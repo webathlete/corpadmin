@@ -194,6 +194,63 @@
 .ipp-detail-name { font-size: var(--fs-lg); font-weight: 600; color: var(--text-primary); line-height: 1.3; }
 .ipp-detail-sub { font-size: var(--fs-xs); color: var(--text-secondary); }
 
+// Compact Details/Executions switch — sits inline in the header, right of the
+// title, instead of a full-width toggle row (which was pushing the divider
+// and form down and eating vertical space in the panel).
+.ipp-view-switch {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--page-bg);
+  border: 1px solid var(--surface-border);
+}
+
+.ipp-view-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+
+  &:hover { background: var(--overlay-hover); }
+  &.active {
+    background: color-mix(in srgb, var(--app-primary) 14%, transparent);
+    color: var(--app-primary);
+  }
+}
+// mat-icon inside .ipp-view-btn (class+element = 0,1,1) already beats
+// .mat-icon (0,1,0) — see the specificity note on mat-icon.status-icon in
+// styles.scss for why a bare `.classname` alone would not.
+.ipp-view-btn mat-icon { font-size: 17px; width: 17px; height: 17px; }
+
+.ipp-view-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--app-primary);
+  color: var(--on-primary);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .ipp-detail-divider { flex-shrink: 0; }
 
 .ipp-detail-body {

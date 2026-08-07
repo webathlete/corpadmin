@@ -736,7 +736,7 @@ body {
 .status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
   font-size: var(--fs-xs);
@@ -747,16 +747,28 @@ body {
   &.lg { padding: 6px 12px; font-size: var(--fs-sm); }
 }
 
-.status-icon {
-  font-size: var(--fs-md);
-  width: 15px;
-  height: 15px;
+// `mat-icon.status-icon` (element+class, specificity 0,1,1) is required here —
+// Angular injects Material's own `.mat-icon { height:24px; width:24px;
+// display:inline-block }` (specificity 0,1,0) into a runtime <style> tag that
+// lands AFTER styles.css in the DOM. At equal specificity the later rule wins
+// regardless of our source order, silently overriding a plain `.status-icon`
+// class rule. Qualifying with the element bumps specificity so we always win.
+mat-icon.status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
 
-  .status-pill.lg & { font-size: var(--fs-lg); width: 16px; height: 16px; }
+  .status-pill.sm & { font-size: 14px; width: 14px; height: 14px; line-height: 14px; }
+  .status-pill.lg & { font-size: 18px; width: 18px; height: 18px; line-height: 18px; }
 }
 
-.spin { animation: status-spin 1.2s linear infinite; }
-@keyframes status-spin { to { transform: rotate(360deg); } }
+.spin { animation: status-spin 1.2s linear infinite; transform-origin: 50% 50%; }
+@keyframes status-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 // Small bold "ID" prefix shown before a lookup's display name (lookup-picker
 // chips/options, parameter detail views). Color is left to the caller since
