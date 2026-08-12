@@ -1,0 +1,288 @@
+:host { display: block; }
+
+.ms-count {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  color: var(--app-primary);
+  background: color-mix(in srgb, var(--app-primary) 14%, transparent);
+  border-radius: var(--radius-pill);
+  padding: 2px 9px;
+  flex-shrink: 0;
+}
+
+/* ================= mode: list ================= */
+.ms-list-card {
+  width: 100%;
+  max-width: 320px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-bg);
+  overflow: hidden;
+}
+.ms-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--surface-border);
+  background: var(--page-bg);
+  ::ng-deep .mdc-label { font-weight: 600; }
+}
+.ms-list-body {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+}
+.ms-list-row {
+  padding: 4px;
+  border-radius: 6px;
+  transition: background var(--transition-fast);
+  &:hover { background: var(--page-bg); }
+  ::ng-deep .mdc-form-field { width: 100%; }
+}
+.ms-list-foot {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 10px;
+  border-top: 1px solid var(--surface-border);
+}
+
+/* ================= mode: dropdown ================= */
+.ms-dropdown { position: relative; width: 100%; max-width: 280px; }
+.ms-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  background: var(--surface-bg);
+  border: 1.5px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+
+  &:hover { border-color: var(--text-muted); }
+  &.open { border-color: var(--app-primary); }
+}
+mat-icon.ms-chevron {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  transition: transform var(--transition-fast);
+}
+.ms-trigger.open mat-icon.ms-chevron { transform: rotate(180deg); }
+
+.ms-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 280px;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--elevation-3);
+  z-index: 20;
+}
+.ms-search { padding: 10px 10px 6px; }
+.ms-search input {
+  width: 100%;
+  font: inherit;
+  font-size: var(--fs-sm);
+  padding: 7px 10px;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  background: var(--page-bg);
+  color: var(--text-primary);
+
+  &::placeholder { color: var(--text-muted); }
+  &:focus { outline: none; border-color: var(--app-primary); }
+}
+.ms-select-all {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px 8px;
+  border-bottom: 1px solid var(--surface-border);
+}
+.ms-panel-list {
+  max-height: 190px;
+  overflow-y: auto;
+  padding: 4px 8px;
+  display: flex;
+  flex-direction: column;
+
+  mat-checkbox {
+    padding: 4px;
+    border-radius: 6px;
+    transition: background var(--transition-fast);
+    &:hover { background: var(--page-bg); }
+  }
+}
+.ms-empty {
+  padding: 14px 8px;
+  text-align: center;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+.ms-panel-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--surface-border);
+}
+
+/* ================= mode: chips ================= */
+/* Native checkbox box hidden; the projected .ms-chip-body becomes the
+   visible pill — same technique already used for .radio-cards/.radio-pills
+   in showcase.component.scss, applied here to mat-checkbox instead of
+   mat-radio-button. */
+.ms-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  ::ng-deep {
+    .mdc-checkbox { display: none !important; }
+    .mat-mdc-checkbox-touch-target { display: none !important; }
+    .mat-mdc-checkbox .mat-ripple { display: none !important; }
+    .mdc-form-field { width: auto; }
+    .mdc-label { padding: 0 !important; margin: 0; cursor: pointer; }
+  }
+}
+.ms-chip-body {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 12px;
+  border: 1.5px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-bg);
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+
+  &:hover { border-color: var(--text-muted); }
+  &.active {
+    background: color-mix(in srgb, var(--app-primary) 14%, transparent);
+    border-color: var(--app-primary);
+    color: var(--app-primary);
+  }
+}
+mat-icon.ms-chip-tick {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+.ms-chip-body.active mat-icon.ms-chip-tick { opacity: 1; transform: scale(1); }
+
+/* ================= mode: tiles ================= */
+.ms-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  width: 100%;
+
+  ::ng-deep {
+    .mdc-checkbox { display: none !important; }
+    .mat-mdc-checkbox-touch-target { display: none !important; }
+    .mat-mdc-checkbox .mat-ripple { display: none !important; }
+    .mdc-form-field { width: 100%; }
+    .mdc-label { padding: 0 !important; margin: 0; cursor: pointer; width: 100%; }
+  }
+}
+.ms-tile-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 10px 9px;
+  border: 1.5px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-bg);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+
+  &:hover { border-color: var(--text-muted); }
+  &.active {
+    border-color: var(--app-primary);
+    background: color-mix(in srgb, var(--app-primary) 7%, var(--surface-bg));
+  }
+}
+.ms-tile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-content: center;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  background: var(--page-bg);
+  color: var(--text-secondary);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.ms-tile-body.active .ms-tile-avatar {
+  background: var(--app-primary);
+  color: var(--on-primary);
+}
+.ms-tile-name { font-size: var(--fs-xs); font-weight: 600; color: var(--text-primary); line-height: 1.25; }
+mat-icon.ms-tile-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--app-primary);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+.ms-tile-body.active mat-icon.ms-tile-check { opacity: 1; transform: scale(1); }
+
+/* ================= mode: horizontal ================= */
+/* Fixed 4-column grid — 4 checkboxes per row regardless of label length,
+   rather than flex-wrap (which packs a variable count per row depending on
+   how long each label happens to be). */
+.ms-horizontal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.ms-h-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ms-h-label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.ms-h-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px 16px;
+  width: 100%;
+}
+.ms-clear-btn { flex-shrink: 0; }
+
+@media (max-width: 640px) {
+  .ms-h-list { grid-template-columns: repeat(2, 1fr); }
+}

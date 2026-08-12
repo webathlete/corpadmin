@@ -13,6 +13,7 @@ import { PageLayoutComponent } from '../../shared/page-layout/page-layout.compon
 import { FooterRichComponent } from '../../shared/footer-rich/footer-rich.component';
 import { DataTableComponent } from '../../shared/data-table/data-table.component';
 import { DataColumn } from '../../shared/data-table/data-table.types';
+import { MultiSelectComponent, MultiSelectOption } from '../../shared/multi-select/multi-select.component';
 import { AnalyticsApiService, Transaction } from '../../core/services/analytics-api.service';
 
 @Component({
@@ -22,7 +23,7 @@ import { AnalyticsApiService, Transaction } from '../../core/services/analytics-
     CommonModule, FormsModule,
     MatTabsModule, MatButtonToggleModule, MatRadioModule, MatButtonModule, MatIconModule,
     MatBadgeModule, MatTooltipModule, MatChipsModule,
-    PageLayoutComponent, DataTableComponent, FooterRichComponent,
+    PageLayoutComponent, DataTableComponent, FooterRichComponent, MultiSelectComponent,
   ],
   templateUrl: './showcase.component.html',
   styleUrl: './showcase.component.scss',
@@ -118,4 +119,27 @@ export class ShowcaseComponent {
   readonly swatches = ['#1565C0', '#02A7DF', '#74BA58', '#FF6A1C', '#7B1FA2', '#E91E63'];
 
   readonly plainSize = signal('m');
+
+  // ---- Multi-select checkboxes (one component, five `mode`s) ----
+  readonly departments: MultiSelectOption[] = [
+    { id: 'finance',     name: 'Finance',             initials: 'FI' },
+    { id: 'operations',  name: 'Operations',          initials: 'OP' },
+    { id: 'compliance',  name: 'Compliance',          initials: 'CO' },
+    { id: 'cx',          name: 'Customer Experience', initials: 'CX' },
+    { id: 'engineering', name: 'Engineering',         initials: 'EN' },
+    { id: 'marketing',   name: 'Marketing',           initials: 'MA' },
+    { id: 'sales',       name: 'Sales',               initials: 'SA' },
+    { id: 'hr',          name: 'Human Resources',     initials: 'HR' },
+    { id: 'legal',       name: 'Legal',               initials: 'LE' },
+    { id: 'itsec',       name: 'IT Security',         initials: 'IT' },
+    { id: 'product',     name: 'Product',             initials: 'PR' },
+    { id: 'datasci',     name: 'Data Science',        initials: 'DS' },
+  ];
+
+  private readonly defaultDeptSelection = ['finance', 'operations', 'engineering'];
+  readonly msListSelected = signal<string[]>([...this.defaultDeptSelection]);
+  readonly msDropdownSelected = signal<string[]>([...this.defaultDeptSelection]);
+  readonly msChipsSelected = signal<string[]>([...this.defaultDeptSelection]);
+  readonly msTilesSelected = signal<string[]>([...this.defaultDeptSelection]);
+  readonly msHorizontalSelected = signal<string[]>([...this.defaultDeptSelection]);
 }

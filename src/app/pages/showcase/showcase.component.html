@@ -279,6 +279,63 @@
     </div>
   </section>
 
+  <!-- ============ Multi-select checkboxes ============ -->
+  <section class="showcase-section">
+    <h2>Multi-select checkboxes</h2>
+    <p class="showcase-note">
+      Reusable <code>&lt;app-multi-select&gt;</code> — one component, five layouts via the
+      <code>mode</code> input. All five bind to the same 12-department list.
+    </p>
+
+    <div class="toggle-grid">
+      <div class="section-card">
+        <div class="section-card-header"><h3>1 · Inline checklist</h3></div>
+        <div class="section-card-body">
+          <app-multi-select mode="list" label="Departments" [options]="departments"
+                            [selected]="msListSelected()" (selectedChange)="msListSelected.set($event)">
+          </app-multi-select>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header"><h3>2 · Compact dropdown</h3></div>
+        <div class="section-card-body">
+          <app-multi-select mode="dropdown" label="Departments" placeholder="Select departments"
+                            [options]="departments"
+                            [selected]="msDropdownSelected()" (selectedChange)="msDropdownSelected.set($event)">
+          </app-multi-select>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header"><h3>3 · Toggle chips</h3></div>
+        <div class="section-card-body">
+          <app-multi-select mode="chips" label="Departments" [options]="departments"
+                            [selected]="msChipsSelected()" (selectedChange)="msChipsSelected.set($event)">
+          </app-multi-select>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header"><h3>4 · Selectable tiles</h3></div>
+        <div class="section-card-body">
+          <app-multi-select mode="tiles" label="Departments" [options]="departments"
+                            [selected]="msTilesSelected()" (selectedChange)="msTilesSelected.set($event)">
+          </app-multi-select>
+        </div>
+      </div>
+
+      <div class="section-card section-card-wide">
+        <div class="section-card-header"><h3>5 · Horizontal checklist (4 columns)</h3></div>
+        <div class="section-card-body">
+          <app-multi-select mode="horizontal" label="Departments" [options]="departments"
+                            [selected]="msHorizontalSelected()" (selectedChange)="msHorizontalSelected.set($event)">
+          </app-multi-select>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ Rich footer ============ -->
   <section class="showcase-section">
     <div class="showcase-head">

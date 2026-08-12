@@ -1,0 +1,118 @@
+@switch (mode()) {
+
+  @case ('dropdown') {
+    <div class="ms-dropdown">
+      <button type="button" class="ms-trigger" [class.open]="panelOpen()"
+              [attr.aria-expanded]="panelOpen()" aria-haspopup="listbox"
+              (click)="panelOpen() ? closePanel() : openPanel()">
+        <span>{{ triggerLabel() }}</span>
+        <mat-icon class="ms-chevron">expand_more</mat-icon>
+      </button>
+
+      @if (panelOpen()) {
+        <div class="ms-panel" role="listbox" [attr.aria-label]="label()">
+          <div class="ms-search">
+            <input type="text" [placeholder]="'Search ' + label().toLowerCase() + '…'"
+                   [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)"
+                   [attr.aria-label]="'Search ' + label().toLowerCase()">
+          </div>
+          <div class="ms-select-all">
+            <mat-checkbox [checked]="allSelected()" [indeterminate]="someSelected()"
+                          (change)="toggleAll()" color="primary">
+              Select all
+            </mat-checkbox>
+            <span class="ms-count">{{ selected().length }}/{{ options().length }}</span>
+          </div>
+          <div class="ms-panel-list">
+            @for (opt of filteredOptions(); track opt.id) {
+              <mat-checkbox [checked]="isSelected(opt.id)" (change)="toggle(opt.id)" color="primary">
+                {{ opt.name }}
+              </mat-checkbox>
+            }
+            @if (!filteredOptions().length) {
+              <div class="ms-empty">No matches.</div>
+            }
+          </div>
+          <div class="ms-panel-foot">
+            <button mat-button type="button" (click)="cancelPanel()">Cancel</button>
+            <button mat-raised-button color="primary" type="button" (click)="closePanel()">Apply</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @case ('chips') {
+    <div class="ms-chips" role="group" [attr.aria-label]="label()">
+      @for (opt of options(); track opt.id) {
+        <mat-checkbox [checked]="isSelected(opt.id)" (change)="toggle(opt.id)" color="primary">
+          <span class="ms-chip-body" [class.active]="isSelected(opt.id)">
+            <mat-icon class="ms-chip-tick">check</mat-icon>
+            {{ opt.name }}
+          </span>
+        </mat-checkbox>
+      }
+    </div>
+  }
+
+  @case ('tiles') {
+    <div class="ms-tiles" role="group" [attr.aria-label]="label()">
+      @for (opt of options(); track opt.id) {
+        <mat-checkbox [checked]="isSelected(opt.id)" (change)="toggle(opt.id)" color="primary">
+          <span class="ms-tile-body" [class.active]="isSelected(opt.id)">
+            <span class="ms-tile-avatar">{{ initialsFor(opt) }}</span>
+            <span class="ms-tile-name">{{ opt.name }}</span>
+            <mat-icon class="ms-tile-check">check_circle</mat-icon>
+          </span>
+        </mat-checkbox>
+      }
+    </div>
+  }
+
+  @case ('horizontal') {
+    <div class="ms-horizontal" role="group" [attr.aria-label]="label()">
+      @if (label() || selected().length > 0) {
+        <div class="ms-h-head">
+          @if (label()) {
+            <span class="ms-h-label">{{ label() }}</span>
+          }
+          @if (selected().length > 0) {
+            <button mat-button type="button" class="ms-clear-btn" (click)="clear()">Clear</button>
+          }
+        </div>
+      }
+      <div class="ms-h-list">
+        @for (opt of options(); track opt.id) {
+          <mat-checkbox [checked]="isSelected(opt.id)" (change)="toggle(opt.id)" color="primary">
+            {{ opt.name }}
+          </mat-checkbox>
+        }
+      </div>
+    </div>
+  }
+
+  @default {
+    <div class="ms-list-card">
+      <div class="ms-list-head">
+        <mat-checkbox [checked]="allSelected()" [indeterminate]="someSelected()"
+                      (change)="toggleAll()" color="primary">
+          {{ label() }}
+        </mat-checkbox>
+        <span class="ms-count">{{ selected().length }}/{{ options().length }}</span>
+      </div>
+      <div class="ms-list-body">
+        @for (opt of options(); track opt.id) {
+          <mat-checkbox class="ms-list-row" [checked]="isSelected(opt.id)"
+                        (change)="toggle(opt.id)" color="primary">
+            {{ opt.name }}
+          </mat-checkbox>
+        }
+      </div>
+      @if (selected().length > 0) {
+        <div class="ms-list-foot">
+          <button mat-button type="button" (click)="clear()">Clear</button>
+        </div>
+      }
+    </div>
+  }
+}

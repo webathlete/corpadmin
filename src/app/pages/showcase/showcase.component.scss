@@ -35,6 +35,9 @@
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 16px;
 }
+/* Lets one card span the full grid row — used by the horizontal multi-select
+   demo, which needs real width for its 4-column checkbox layout. */
+.section-card-wide { grid-column: 1 / -1; }
 
 .tab-body {
   padding: 20px 4px;
