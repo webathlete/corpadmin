@@ -25,6 +25,26 @@
     </app-data-table>
   </section>
 
+  <!-- ============ Editable parameter table (responsive columns) ============ -->
+  <section class="showcase-section">
+    <h2>Editable parameter table</h2>
+    <p class="showcase-note">
+      Reusable <code>&lt;app-param-table&gt;</code> — inline edit with save/cancel, columns
+      sized by proportion (30% / 45% / 15% / 10%) via <code>table-layout: fixed</code> so they
+      scale together at any screen width instead of overflowing on laptop screens.
+    </p>
+
+    <div class="section-card section-card-wide">
+      <div class="section-card-header">
+        <h3>Parameters</h3>
+        <span>Name · Values (editable number series) · Data type · Save/Cancel</span>
+      </div>
+      <div class="section-card-body">
+        <app-param-table [rows]="paramRows()" (rowsChange)="onParamRowsChange($event)"></app-param-table>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ Tab varieties ============ -->
   <section class="showcase-section">
     <h2>Tabs</h2>
@@ -335,6 +355,151 @@
       </div>
     </div>
   </section>
+
+  <!-- ============ Async notification queue ============ -->
+  <section class="showcase-section">
+    <div class="showcase-head">
+      <h2>Notifications</h2>
+      <app-notification-bell></app-notification-bell>
+    </div>
+    <p class="showcase-note">
+      Reusable <code>NotificationService</code> (<code>core/services/notification.service.ts</code>) —
+      async, app-wide toasts on top of <code>MatSnackBar</code>. Calls queue instead of clobbering
+      each other, so a burst of notifications plays one at a time. The bell (top right) is
+      <code>&lt;app-notification-bell&gt;</code> — opens a slide-in notification center for the same feed:
+      All/Unread tabs, grouped by Today/Earlier, a "Read" button per item, and Mark all read / Clear all.
+    </p>
+
+    <div class="section-card mb-4">
+      <div class="section-card-header">
+        <h3>Queue demo</h3>
+        <span>{{ notifyQueueLength() }} pending</span>
+      </div>
+      <div class="section-card-body notify-demo-body">
+        <button mat-stroked-button (click)="fireSuccess()">
+          <mat-icon>check_circle</mat-icon> Success
+        </button>
+        <button mat-stroked-button (click)="fireWarning()">
+          <mat-icon>warning</mat-icon> Warning
+        </button>
+        <button mat-stroked-button (click)="fireError()">
+          <mat-icon>error</mat-icon> Error
+        </button>
+        <button mat-stroked-button (click)="fireInfo()">
+          <mat-icon>info</mat-icon> Info
+        </button>
+        <button mat-raised-button color="primary" (click)="fireBurst()">
+          <mat-icon>queue</mat-icon> Fire 5 in a burst
+        </button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>Simulated real-time feed</h3>
+        <span>Random events land on their own — watch the bell</span>
+      </div>
+      <div class="section-card-body notify-demo-body">
+        <button mat-raised-button [color]="simulating() ? 'warn' : 'primary'" (click)="toggleSimulation()">
+          <mat-icon>{{ simulating() ? 'stop_circle' : 'sensors' }}</mat-icon>
+          {{ simulating() ? 'Stop simulation' : 'Start simulation' }}
+        </button>
+        @if (simulating()) {
+          <span class="sim-live-tag"><span class="sim-live-dot"></span> Live — a new event every 6–14s</span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Generic dialog shell ============ -->
+  <section class="showcase-section">
+    <h2>Dialogs</h2>
+    <p class="showcase-note">
+      Generic <code>&lt;app-dialog&gt;</code> shell — header (icon + title + subtitle + close),
+      scrollable projected body and a projected action bar. The body is pure content projection,
+      so it takes a message, a form, a table or anything else. Open it with
+      <code>DialogService.open(Component | TemplateRef, &#123; size &#125;)</code>, which applies the
+      standard width variants. Styling is a single small SCSS file whose tokens resolve
+      against the host app first (<code>--app-*</code>) and fall back to M3
+      <code>--mat-sys-*</code>, so it themes here and drops into a plain Material app.
+    </p>
+
+    <div class="section-card mb-4">
+      <div class="section-card-header">
+        <h3>Content variants</h3>
+        <span>Same shell, different projected body</span>
+      </div>
+      <div class="section-card-body notify-demo-body">
+        <button mat-stroked-button (click)="openMessageDialog()">
+          <mat-icon>chat_bubble_outline</mat-icon> Message
+        </button>
+        <button mat-stroked-button (click)="openFormDialog()">
+          <mat-icon>edit_note</mat-icon> Form
+        </button>
+        <button mat-stroked-button (click)="openTableDialog()">
+          <mat-icon>table_chart</mat-icon> Table (flush, xl)
+        </button>
+        <button mat-stroked-button (click)="openTemplateDialog(inlineDialog)">
+          <mat-icon>code</mat-icon> Inline template
+        </button>
+        @if (dialogResult()) {
+          <span class="sim-live-tag">Last result: {{ dialogResult() }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="section-card mb-4">
+      <div class="section-card-header">
+        <h3>Size variants</h3>
+        <span>Pick a size, then open the form dialog</span>
+      </div>
+      <div class="section-card-body notify-demo-body">
+        <mat-button-toggle-group [(ngModel)]="dialogSizeValue" hideSingleSelectionIndicator>
+          @for (s of dialogSizes; track s.value) {
+            <mat-button-toggle [value]="s.value" [matTooltip]="s.width">{{ s.label }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+        <button mat-raised-button color="primary" (click)="openFormDialog()">
+          <mat-icon>open_in_new</mat-icon> Open at "{{ dialogSize() }}"
+        </button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>Rendered inline</h3>
+        <span>The shell works outside MatDialog too — no ref required</span>
+      </div>
+      <div class="section-card-body">
+        <app-dialog title="Inline usage" subtitle="Same component, embedded in a page"
+                    icon="dashboard" tone="accent" [closable]="false">
+          <p class="showcase-note" style="margin: 0">
+            <code>MatDialogRef</code> is injected optionally, so the shell renders as a plain
+            panel when it isn't inside a dialog. Useful for previewing a dialog's layout, or for
+            reusing one body in both a drawer and a modal.
+          </p>
+          <ng-container dialogActions>
+            <button mat-button>Secondary</button>
+            <button mat-flat-button color="primary">Primary</button>
+          </ng-container>
+        </app-dialog>
+      </div>
+    </div>
+  </section>
+
+  <!-- Body supplied as an inline template rather than a component. -->
+  <ng-template #inlineDialog>
+    <app-dialog title="Inline template body" subtitle="Opened from an ng-template" icon="code">
+      <p class="showcase-note" style="margin: 0">
+        <code>DialogService.open()</code> accepts a <code>TemplateRef</code>, so a one-off dialog
+        needs no separate component — the template keeps access to this page's state.
+      </p>
+      <ng-container dialogActions>
+        <button mat-button mat-dialog-close>Close</button>
+        <button mat-flat-button color="primary" [mat-dialog-close]="'confirmed'">Confirm</button>
+      </ng-container>
+    </app-dialog>
+  </ng-template>
 
   <!-- ============ Rich footer ============ -->
   <section class="showcase-section">

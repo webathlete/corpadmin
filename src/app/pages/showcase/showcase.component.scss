@@ -58,6 +58,36 @@
 }
 .people-chips { width: 100%; }
 
+.notify-demo-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+
+  button mat-icon { margin-right: 4px; }
+}
+
+.sim-live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.sim-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-success);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--status-success) 60%, transparent);
+  animation: sim-live-pulse 1.6s ease-out infinite;
+}
+@keyframes sim-live-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--status-success) 50%, transparent); }
+  70%  { box-shadow: 0 0 0 7px color-mix(in srgb, var(--status-success) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--status-success) 0%, transparent); }
+}
+
 /* Active-tab highlight for the tab groups on this page: fill the selected tab
    with a brand-tinted BACKGROUND (full-width rectangle, not a pill) and keep
    the underline indicator. */

@@ -14,13 +14,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { DialogService } from '../../shared/dialog/dialog.service';
 import { simulatedLoading } from '../../core/loading.util';
 import { PageLayoutComponent } from '../../shared/page-layout/page-layout.component';
-import { DateRangeFilter, JobExecution, JobExecutionService } from '../../core/services/job-execution.service';
+import { DateRangeFilter, ExecutionStep, JobExecution, JobExecutionService } from '../../core/services/job-execution.service';
 import { JobExecutionDetailDialogComponent } from './job-execution-detail-dialog.component';
+import { JobStatusDialogComponent } from './job-status-dialog.component';
 import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog.service';
 
 @Component({
@@ -40,7 +42,7 @@ import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog
 export class JobExecutionsComponent {
   readonly loading = simulatedLoading();
   readonly executionService = inject(JobExecutionService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogs = inject(DialogService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly confirmDialog = inject(ConfirmDialogService);
 
@@ -90,8 +92,8 @@ export class JobExecutionsComponent {
     const s = this.summary();
     const total = s.total || 1;
     const defs: { key: JobExecution['status']; label: string; value: number; color: string }[] = [
-      { key: 'running',   label: 'Running',   value: s.running,   color: 'var(--app-primary)' },
-      { key: 'queued',    label: 'Queued',    value: s.queued,    color: 'var(--text-muted)' },
+      { key: 'running',   label: 'In progress', value: s.running,   color: 'var(--app-primary)' },
+      { key: 'queued',    label: 'Pending',     value: s.queued,    color: 'var(--text-muted)' },
       { key: 'completed', label: 'Completed', value: s.completed, color: 'var(--status-success)' },
       { key: 'failed',    label: 'Failed',    value: s.failed,    color: 'var(--status-error)' },
       { key: 'cancelled', label: 'Cancelled', value: s.cancelled, color: 'var(--status-warning)' },
@@ -207,11 +209,33 @@ export class JobExecutionsComponent {
   }
 
   openDetails(exec: JobExecution): void {
-    this.dialog.open(JobExecutionDetailDialogComponent, {
-      width: '560px',
-      maxWidth: '92vw',
+    this.dialogs.open(JobExecutionDetailDialogComponent, {
+      size: 'md',
       data: { id: exec.id },
     });
+  }
+
+  /** Opens the job popup on one job. Stops propagation so the row's own
+   *  details dialog doesn't also open. */
+  openJob(exec: JobExecution, job: ExecutionStep, event: MouseEvent): void {
+    event.stopPropagation();
+    this.dialogs.open(JobStatusDialogComponent, {
+      size: 'sm',
+      data: { executionId: exec.id, jobId: job.id },
+    });
+  }
+
+  /** Opens the job popup on the full list of jobs for this execution. */
+  openAllJobs(exec: JobExecution, event: MouseEvent): void {
+    event.stopPropagation();
+    this.dialogs.open(JobStatusDialogComponent, {
+      size: 'lg',
+      data: { executionId: exec.id },
+    });
+  }
+
+  statusLabel(status: JobExecution['status']): string {
+    return this.executionService.statusLabel(status);
   }
 
   statusColor(status: JobExecution['status']): string {

@@ -1,0 +1,115 @@
+// Tokens resolve against the host app first, then M3 system tokens, then a
+// literal — so the shell themes correctly in this app and in a plain M3 one.
+:host {
+  --dlg-accent: var(--app-primary, var(--mat-sys-primary, #1565c0));
+  --dlg-muted: var(--text-secondary, var(--mat-sys-on-surface-variant, #5f6368));
+  --dlg-line: var(--surface-border, var(--mat-sys-outline-variant, rgb(0 0 0 / 12%)));
+
+  // Flex column so the body scrolls between a pinned header and action bar.
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dlg-head.dlg-head {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  margin: 0;
+
+  &.bordered { border-bottom: 1px solid var(--dlg-line); }
+}
+
+.dlg-icon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--dlg-accent);
+
+  &[data-tone='accent']  { color: var(--app-accent, var(--mat-sys-tertiary, #02a7df)); }
+  &[data-tone='success'] { color: var(--status-success, #27ae60); }
+  &[data-tone='warn']   { color: var(--status-error, var(--mat-sys-error, #d32f2f)); }
+  &[data-tone='none']   { color: var(--dlg-muted); }
+}
+
+// Tinted square behind the icon — `currentColor` means the tone rules above
+// drive both the glyph and the tint from one declaration.
+.dlg-badge {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm, 8px);
+  background: color-mix(in srgb, currentColor 14%, transparent);
+
+  &[data-tone='accent']  { color: var(--app-accent, var(--mat-sys-tertiary, #02a7df)); }
+  &[data-tone='success'] { color: var(--status-success, #27ae60); }
+  &[data-tone='warn']    { color: var(--status-error, var(--mat-sys-error, #d32f2f)); }
+  &[data-tone='none']    { color: var(--text-muted, #8e8e93); }
+  &[data-tone='primary'] { color: var(--app-primary, var(--mat-sys-primary, #1565c0)); }
+
+  .dlg-icon { color: inherit; }
+}
+
+.dlg-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.dlg-title {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: normal;
+  color: var(--text-primary, var(--mat-sys-on-surface, inherit));
+}
+
+.dlg-subtitle {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--dlg-muted);
+}
+
+.dlg-close {
+  flex: none;
+  margin: -6px -8px 0 0;
+  color: var(--dlg-muted);
+}
+
+.dlg-body.dlg-body {
+  padding: 20px 24px;
+
+  // Take the leftover height rather than a fixed cap — a fixed max-height
+  // can exceed what's left after the header/actions and push them off-screen.
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+
+  &.flush { padding: 0; }
+  &.no-head { padding-top: 24px; }
+  > :first-child { margin-top: 0; }
+  > :last-child { margin-bottom: 0; }
+}
+
+.dlg-actions.dlg-actions {
+  flex: none;
+  gap: 8px;
+  padding: 12px 24px 16px;
+  min-height: 0;
+
+  &.bordered { border-top: 1px solid var(--dlg-line); }
+  &[data-align='start']   { justify-content: flex-start; }
+  &[data-align='center']  { justify-content: center; }
+  &[data-align='end']     { justify-content: flex-end; }
+  &[data-align='between'] { justify-content: space-between; }
+}
+
+.dlg-actions-hidden { display: none; }

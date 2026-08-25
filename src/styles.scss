@@ -838,6 +838,22 @@ mat-icon.status-icon {
   color-scheme: dark;
 }
 
+// NotificationService (core/services/notification.service.ts) toast colors.
+// The snackbar overlay renders at the document root, outside any component's
+// style scope, so these have to be global rather than component-scoped.
+.notify-success, .notify-error, .notify-warning, .notify-info {
+  // Pushes the toast below the app's fixed header bar instead of
+  // overlapping it — verticalPosition:'top' otherwise lands at viewport top:0.
+  margin-top: calc(var(--header-height) + 12px) !important;
+
+  .mdc-snackbar__label { color: #fff; }
+  .mat-mdc-snack-bar-action { color: #fff; opacity: 0.85; }
+}
+.notify-success .mdc-snackbar__surface { background: var(--status-success) !important; }
+.notify-error   .mdc-snackbar__surface { background: var(--status-error) !important; }
+.notify-warning .mdc-snackbar__surface { background: var(--status-warning) !important; }
+.notify-info    .mdc-snackbar__surface { background: var(--app-primary) !important; }
+
 // ------------------------------------------------------------
 // 7. ACCESSIBILITY
 // ------------------------------------------------------------
@@ -878,4 +894,12 @@ mat-icon.status-icon {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+// Dialog shell (<app-dialog>): the surface must be a flex column so the
+// scrollable body sits between a pinned header and action bar. Material
+// leaves it `display: block`, which lets tall content push the footer out.
+.app-dialog-panel .mat-mdc-dialog-surface {
+  display: flex;
+  flex-direction: column;
 }

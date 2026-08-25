@@ -151,32 +151,6 @@
   }
 }
 
-/* Notification menu */
-.notif-header {
-  padding: 8px 16px;
-  display: flex; align-items: center; justify-content: space-between;
-  font-weight: 600; font-size: var(--fs-md);
-}
-.notif-item {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 10px 16px;
-  cursor: pointer;
-  transition: background var(--transition-fast);
-  &:hover { background: var(--overlay-hover); }
-  &.unread { background: rgba(var(--app-primary-rgb, 21,101,192), 0.05); }
-}
-.notif-icon {
-  width: 36px; height: 36px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  mat-icon { font-size: 18px; }
-}
-.notif-content { flex: 1; min-width: 0; }
-.notif-mark-read { font-size: var(--fs-xs); }
-.notif-view-all { justify-content: center; color: var(--app-primary); }
-.notif-title { margin: 0 0 2px; font-size: var(--fs-sm); font-weight: 500; }
-.notif-time { margin: 0; font-size: var(--fs-2xs); color: var(--text-secondary); }
-
 /* User menu header */
 .user-menu-header {
   display: flex; align-items: center; gap: 12px;

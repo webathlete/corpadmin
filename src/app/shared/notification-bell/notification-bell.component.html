@@ -1,0 +1,75 @@
+<button mat-icon-button matTooltip="Notifications"
+        [attr.aria-label]="'Notifications, ' + unreadCount() + ' unread'"
+        class="nb-trigger" [class.nb-ring]="ringing()" [style.color]="iconColor() || null"
+        (click)="toggleDrawer()">
+  <mat-icon [matBadge]="badgeLabel()" [matBadgeHidden]="unreadCount() === 0"
+            matBadgeColor="warn" matBadgeSize="small">
+    notifications
+  </mat-icon>
+</button>
+
+@if (drawerOpen()) {
+  <div class="nd-backdrop" (click)="closeDrawer()"></div>
+}
+
+<div class="nd-panel" [class.open]="drawerOpen()">
+  <div class="nd-header">
+    <h3>Notifications</h3>
+    <button mat-icon-button (click)="closeDrawer()" matTooltip="Close" aria-label="Close notifications">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="nd-tabs">
+    <mat-button-toggle-group [value]="activeTab()" (change)="setTab($event)"
+                              hideSingleSelectionIndicator aria-label="Filter notifications">
+      <mat-button-toggle value="all">All ({{ history().length }})</mat-button-toggle>
+      <mat-button-toggle value="unread">Unread ({{ unreadCount() }})</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <div class="nd-body">
+    @if (groupedHistory().length === 0) {
+      <div class="nd-empty">
+        <mat-icon>notifications_none</mat-icon>
+        <span>{{ activeTab() === 'unread' ? 'No unread notifications' : 'No notifications yet' }}</span>
+      </div>
+    } @else {
+      @for (group of groupedHistory(); track group.label) {
+        <div class="nd-group-label">{{ group.label }}</div>
+        @for (n of group.items; track n.id) {
+          <div class="nd-item" [class.unread]="!n.read" [style.border-left-color]="colorFor(n.type)">
+            <div class="nd-icon" [style.background]="colorFor(n.type) + '20'" [style.color]="colorFor(n.type)">
+              <mat-icon>{{ iconFor(n.type) }}</mat-icon>
+            </div>
+            <div class="nd-content">
+              <p class="nd-message">{{ n.message }}</p>
+              <div class="nd-meta">
+                <span class="nd-time">{{ relativeTime(n.timestamp) }}</span>
+                <span class="nd-item-actions">
+                  @if (!n.read) {
+                    <button type="button" class="nd-action nd-mark-read" (click)="read(n.id)">
+                      <mat-icon>done</mat-icon> Read
+                    </button>
+                  }
+                  <button type="button" class="nd-action nd-remove" matTooltip="Remove"
+                          aria-label="Remove notification" (click)="remove(n.id, $event)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    }
+  </div>
+
+  @if (history().length > 0) {
+    <div class="nd-footer">
+      <button mat-button color="primary" (click)="markAllRead()">Mark all read</button>
+      <span class="nd-footer-sep">·</span>
+      <button mat-button (click)="clear()">Clear all</button>
+    </div>
+  }
+</div>

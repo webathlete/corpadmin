@@ -177,6 +177,10 @@ mat-icon.legend-icon {
 
 .steps-row {
   display: flex;
+  // Without this the row defaults to `stretch`: the taller icon button sets
+  // the row height and centres itself, while the fixed-height chips pin to
+  // the top — leaving the two visually off by a few pixels.
+  align-items: center;
   gap: 6px;
 }
 
@@ -187,6 +191,12 @@ mat-icon.legend-icon {
   width: 28px;
   height: 28px;
   border-radius: var(--radius-sm);
+  // Now a <button> so each job status is keyboard-reachable.
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+
+  &:hover, &:focus-visible { filter: brightness(0.92); }
   flex-shrink: 0;
 }
 
@@ -219,4 +229,23 @@ mat-icon.step-chip-icon {
 
 @media (max-width: 599px) {
   .table-card { height: 520px; }
+}
+
+// Trailing "all job statuses" affordance in the Jobs column. Sized to the
+// 28px chip rhythm so it reads as part of the same group, with the glyph
+// matched to the chip icons rather than mat-icon's default 24px.
+.steps-all.mat-mdc-icon-button {
+  --mdc-icon-button-state-layer-size: 28px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin-left: 2px;
+  color: var(--text-muted);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+  }
 }

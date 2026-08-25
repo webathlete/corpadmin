@@ -1,0 +1,81 @@
+<div class="pt-shell">
+  <table mat-table [dataSource]="rows()" [trackBy]="trackByRowId" class="pt-table" aria-label="Parameter values table">
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Parameter Name</th>
+      <td mat-cell *matCellDef="let row">
+        @if (isEditing(row)) {
+          <input class="pt-input" [(ngModel)]="draft()!.name" placeholder="Parameter name">
+        } @else {
+          <span class="pt-name">{{ row.name }}</span>
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="values">
+      <th mat-header-cell *matHeaderCellDef>Parameter Values</th>
+      <td mat-cell *matCellDef="let row">
+        @if (isEditing(row)) {
+          <mat-chip-grid #valueGrid class="pt-chip-grid" aria-label="Parameter values">
+            @for (v of draft()!.values; track $index) {
+              <mat-chip-row (removed)="removeValue($index)">
+                {{ v }}
+                <button matChipRemove aria-label="Remove value">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip-row>
+            }
+            <input class="pt-chip-input" placeholder="Add number…"
+                   [matChipInputFor]="valueGrid"
+                   [matChipInputSeparatorKeyCodes]="separatorKeys"
+                   (matChipInputTokenEnd)="addValue($event)">
+          </mat-chip-grid>
+        } @else {
+          <div class="pt-values">
+            @for (v of row.values; track $index) {
+              <span class="pt-value-chip">{{ v }}</span>
+            }
+          </div>
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>Data Type</th>
+      <td mat-cell *matCellDef="let row">
+        @if (isEditing(row)) {
+          <select class="pt-select" [(ngModel)]="draft()!.dataType">
+            @for (t of dataTypes(); track t) {
+              <option [value]="t">{{ t }}</option>
+            }
+          </select>
+        } @else {
+          <span class="pt-type-pill">{{ row.dataType }}</span>
+        }
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let row">
+        <div class="pt-actions">
+          @if (isEditing(row)) {
+            <button type="button" class="pt-icon-btn pt-save" matTooltip="Save" (click)="save()">
+              <mat-icon>check</mat-icon>
+            </button>
+            <button type="button" class="pt-icon-btn" matTooltip="Cancel" (click)="cancel()">
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else {
+            <button type="button" class="pt-icon-btn" matTooltip="Edit" (click)="startEdit(row)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          }
+        </div>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns" [class.pt-row-editing]="isEditing(row)"></tr>
+  </table>
+</div>

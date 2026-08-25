@@ -1,15 +1,12 @@
-<h2 mat-dialog-title class="ped-title">
-  <span class="ped-badge"><mat-icon>history</mat-icon></span>
-  <div class="ped-title-text">
-    <div class="ped-title-main">Job Executions</div>
-    <div class="ped-title-sub">{{ data.parameterName }} · {{ data.parameterId }}</div>
-  </div>
-</h2>
+<app-dialog title="Job Executions"
+            [subtitle]="data.parameterName + ' · ' + data.parameterId"
+            icon="history" badge>
+  <!-- Fixed (not max-) height so the list scrolls internally and the dialog
+       stays a consistent size whether a parameter has 3 runs or 24. -->
+  <app-parameter-executions-list class="ped-list" [executions]="executions()">
+  </app-parameter-executions-list>
 
-<mat-dialog-content class="ped-content">
-  <app-parameter-executions-list [executions]="executions()"></app-parameter-executions-list>
-</mat-dialog-content>
-
-<mat-dialog-actions align="end">
-  <button mat-button (click)="ref.close()">Close</button>
-</mat-dialog-actions>
+  <ng-container dialogActions>
+    <button mat-button (click)="ref.close()">Close</button>
+  </ng-container>
+</app-dialog>

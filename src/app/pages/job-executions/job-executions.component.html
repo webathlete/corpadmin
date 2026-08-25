@@ -110,19 +110,28 @@
           </td>
         </ng-container>
 
-        <!-- Steps (4 fixed job types) -->
+        <!-- Jobs: one status indicator per job (5 fixed job types).
+             Each indicator opens that job's details; the trailing button
+             opens the full list. -->
         <ng-container matColumnDef="steps">
-          <th mat-header-cell *matHeaderCellDef>Steps</th>
+          <th mat-header-cell *matHeaderCellDef>Jobs</th>
           <td mat-cell *matCellDef="let exec">
             <div class="steps-row">
-              @for (step of exec.steps; track step.type) {
-                <span class="step-chip"
-                      [style.color]="statusColor(step.status)"
-                      [style.background]="statusColor(step.status) + '1f'"
-                      [matTooltip]="step.type + ': ' + (step.status | titlecase)">
+              @for (step of exec.steps; track step.id; let i = $index) {
+                <button type="button" class="step-chip"
+                        [style.color]="statusColor(step.status)"
+                        [style.background]="statusColor(step.status) + '1f'"
+                        [matTooltip]="'Job ' + (i + 1) + ' · ' + step.type + ': ' + statusLabel(step.status)"
+                        [attr.aria-label]="step.type + ' job, ' + statusLabel(step.status) + '. View details'"
+                        (click)="openJob(exec, step, $event)">
                   <mat-icon class="step-chip-icon" [class.spin]="step.status === 'running'">{{ statusIcon(step.status) }}</mat-icon>
-                </span>
+                </button>
               }
+              <button mat-icon-button class="steps-all" matTooltip="View all job statuses"
+                      [attr.aria-label]="'View all job statuses for ' + exec.name"
+                      (click)="openAllJobs(exec, $event)">
+                <mat-icon>checklist</mat-icon>
+              </button>
             </div>
           </td>
         </ng-container>
@@ -135,7 +144,7 @@
                   [style.color]="statusColor(exec.status)"
                   [style.background]="statusColor(exec.status) + '1f'">
               <mat-icon class="status-icon" [class.spin]="exec.status === 'running'">{{ statusIcon(exec.status) }}</mat-icon>
-              {{ exec.status | titlecase }}
+              {{ statusLabel(exec.status) }}
             </span>
           </td>
         </ng-container>

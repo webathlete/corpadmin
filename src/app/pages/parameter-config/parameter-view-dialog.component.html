@@ -1,18 +1,10 @@
 @if (entry(); as e) {
-  <h2 mat-dialog-title class="pv-title">
-    <span class="pv-avatar" [class.active]="e.active">
-      <mat-icon>tune</mat-icon>
-    </span>
-    <div class="pv-title-text">
-      <div class="pv-title-main">{{ e.name }}</div>
-      <div class="pv-title-sub">{{ e.id }} · {{ typeLabel() }}</div>
-    </div>
-    <span class="status-badge" [class]="e.active ? 'success' : 'neutral'">
+  <app-dialog [title]="e.name" [subtitle]="e.id + ' · ' + typeLabel()"
+              icon="tune" badge [tone]="e.active ? 'success' : 'none'">
+    <span dialogHeader class="status-badge" [class]="e.active ? 'success' : 'neutral'">
       {{ e.active ? 'Active' : 'Inactive' }}
     </span>
-  </h2>
 
-  <mat-dialog-content>
     @if (e.description) {
       <p class="pv-desc">{{ e.description }}</p>
     }
@@ -44,23 +36,22 @@
         <span class="pv-criteria-val"><span class="lookup-id-tag pv-lookup-id">{{ e.condition3Id }}</span>{{ conditionName(e.condition3Id) }}</span>
       </div>
     </div>
-  </mat-dialog-content>
-
-  <mat-dialog-actions align="end">
-    <button mat-stroked-button (click)="viewExecutions()">
-      <mat-icon>history</mat-icon> View Executions
-    </button>
-    <span class="pv-actions-spacer"></span>
-    <button mat-stroked-button (click)="edit()">
-      <mat-icon>edit</mat-icon> Edit
-    </button>
-    <button mat-button (click)="ref.close()">Close</button>
-  </mat-dialog-actions>
+    <ng-container dialogActions>
+      <button mat-stroked-button (click)="viewExecutions()">
+        <mat-icon>history</mat-icon> View Executions
+      </button>
+      <span class="pv-actions-spacer"></span>
+      <button mat-stroked-button (click)="edit()">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
+      <button mat-button (click)="ref.close()">Close</button>
+    </ng-container>
+  </app-dialog>
 } @else {
-  <mat-dialog-content>
-    <p>Parameter not found.</p>
-  </mat-dialog-content>
-  <mat-dialog-actions align="end">
-    <button mat-button (click)="ref.close()">Close</button>
-  </mat-dialog-actions>
+  <app-dialog title="Parameter not found" icon="search_off" badge tone="none">
+    <p>No parameter exists with this id.</p>
+    <ng-container dialogActions>
+      <button mat-button (click)="ref.close()">Close</button>
+    </ng-container>
+  </app-dialog>
 }

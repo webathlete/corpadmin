@@ -1,0 +1,143 @@
+// Safety net only — the fixed-ratio columns below scale down together and
+// stay within 100% at any laptop/desktop width; this only kicks in once
+// they hit their min-width floor on a very narrow viewport.
+.pt-shell {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.pt-table {
+  width: 100%;
+  // Below this, columns stop shrinking as a block and .pt-shell's
+  // overflow-x takes over — a real scrollbar instead of crushed content.
+  // (min-width on individual td/th is ignored once table-layout is fixed,
+  // per the CSS table sizing spec, so the floor has to live on the table.)
+  min-width: 560px;
+  table-layout: fixed; // overrides Material's default `table-layout: auto`,
+                       // making the widths below authoritative instead of hints
+  background: var(--surface-bg);
+
+  // 30 / 45 / 15 / 10 — same ratio at any container width, so laptop and
+  // ultrawide screens both fill exactly 100% without truncating a column.
+  .mat-column-name    { width: 30%; }
+  .mat-column-values  { width: 45%; }
+  .mat-column-type    { width: 15%; }
+  .mat-column-actions { width: 10%; text-align: right; }
+
+  th.mat-mdc-header-cell {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-secondary);
+  }
+
+  td.mat-mdc-cell {
+    padding: 8px 12px;
+    vertical-align: middle;
+  }
+}
+
+.pt-row-editing td.mat-mdc-cell {
+  background: color-mix(in srgb, var(--app-primary) 5%, var(--surface-bg));
+}
+
+.pt-name {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pt-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pt-value-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+  color: var(--app-primary);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pt-type-pill {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--overlay-hover);
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.pt-input, .pt-select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  font-size: var(--fs-sm);
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: var(--app-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-primary) 20%, transparent);
+  }
+}
+
+.pt-chip-grid {
+  width: 100%;
+}
+.pt-chip-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  min-width: 90px;
+  flex: 1;
+}
+
+.pt-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+}
+
+.pt-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; line-height: 18px; }
+
+  &:hover { background: var(--overlay-hover); color: var(--text-primary); }
+}
+
+.pt-save {
+  color: var(--status-success);
+  &:hover {
+    background: color-mix(in srgb, var(--status-success) 12%, transparent);
+    color: var(--status-success);
+  }
+}

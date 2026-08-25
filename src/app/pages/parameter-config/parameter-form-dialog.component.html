@@ -1,20 +1,13 @@
-<h2 mat-dialog-title class="pf-title">
-  <span class="pf-badge"><mat-icon>{{ isEdit ? 'edit' : 'add_circle' }}</mat-icon></span>
-  <div class="pf-title-text">
-    <div class="pf-title-main">{{ isEdit ? 'Edit Parameter' : 'New Parameter' }}</div>
-    <div class="pf-title-sub">{{ typeLabel }}</div>
-  </div>
-</h2>
-
-<mat-dialog-content>
+<app-dialog [title]="isEdit ? 'Edit Parameter' : 'New Parameter'" [subtitle]="typeLabel"
+            [icon]="isEdit ? 'edit' : 'add_circle'" badge>
   <app-parameter-form-fields [form]="form" [typeLabel]="typeLabel"
                              [activeSiblingName]="activeSiblingName()">
   </app-parameter-form-fields>
-</mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  <button mat-button (click)="ref.close(false)">Cancel</button>
-  <button mat-raised-button color="primary" (click)="save()">
-    <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon> {{ isEdit ? 'Save Changes' : 'Create Parameter' }}
-  </button>
-</mat-dialog-actions>
+  <ng-container dialogActions>
+    <button mat-button (click)="ref.close(false)">Cancel</button>
+    <button mat-raised-button color="primary" (click)="save()">
+      <mat-icon>{{ isEdit ? 'save' : 'add' }}</mat-icon> {{ isEdit ? 'Save Changes' : 'Create Parameter' }}
+    </button>
+  </ng-container>
+</app-dialog>

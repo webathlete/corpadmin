@@ -5,7 +5,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { JobExecutionService } from '../../core/services/job-execution.service';
+import { JobExecutionService, StepStatus } from '../../core/services/job-execution.service';
+import { DialogComponent } from '../../shared/dialog/dialog.component';
+import { DialogActionsDirective } from '../../shared/dialog/dialog-actions.directive';
 import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog.service';
 
 @Component({
@@ -13,7 +15,7 @@ import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog
   standalone: true,
   imports: [
     CommonModule, MatDialogModule, MatButtonModule, MatIconModule,
-    MatProgressBarModule, MatDividerModule,
+    MatProgressBarModule, MatDividerModule, DialogComponent, DialogActionsDirective,
   ],
   templateUrl: './job-execution-detail-dialog.component.html',
   styleUrl: './job-execution-detail-dialog.component.scss',
@@ -70,6 +72,10 @@ export class JobExecutionDetailDialogComponent {
     const e = this.execution();
     if (!e || this.actionsEnabled()) return false;
     return this.service.canCancel(e) || this.service.canUndo(e);
+  }
+
+  statusLabel(status: StepStatus): string {
+    return this.service.statusLabel(status);
   }
 
   statusColor(status: string): string {

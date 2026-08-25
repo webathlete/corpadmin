@@ -43,7 +43,7 @@ export class ParameterExecutionsListComponent {
       this.executions();
       this.filterStatus.set('all');
       this.expandedId.set(null);
-    });
+    }, { allowSignalWrites: true });
   }
 
   readonly statusCounts = computed(() => {

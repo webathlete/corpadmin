@@ -15,6 +15,9 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.scss',
+  // `title` is also a global HTML attribute; drop it so the browser doesn't
+  // show a native tooltip over the whole component.
+  host: { '[attr.title]': 'null' },
 })
 export class PageHeaderComponent {
   readonly title = input.required<string>();

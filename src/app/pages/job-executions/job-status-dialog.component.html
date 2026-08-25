@@ -1,0 +1,109 @@
+@let exec = execution();
+@let job = selectedJob();
+
+<app-dialog
+  [title]="job ? job.type : 'Job statuses'"
+  [subtitle]="job
+    ? 'Job ' + jobIndex(job) + ' of ' + jobs().length + ' · ' + (exec?.name ?? '')
+    : (exec?.name ?? '') + ' · ' + jobs().length + ' jobs'"
+  [icon]="job ? service.stepTypeIcon(job.type) : 'checklist'"
+  [flush]="!job">
+
+  @if (!exec) {
+    <p class="jsd-empty">This execution is no longer available.</p>
+  } @else if (job) {
+
+    <!-- Single job -->
+    <div class="status-pill lg" [style.color]="service.statusColor(job.status)"
+         [style.background]="service.statusColor(job.status) + '1f'">
+      <mat-icon class="status-icon" [class.spin]="job.status === 'running'">{{ service.statusIcon(job.status) }}</mat-icon>
+      {{ service.statusLabel(job.status) }}
+    </div>
+
+    <dl class="jsd-facts">
+      <dt>Job name</dt>
+      <dd>{{ job.type }}</dd>
+
+      <dt>Job ID</dt>
+      <dd class="mono">{{ job.id }}</dd>
+
+      <dt>Execution</dt>
+      <dd class="mono">{{ exec.id }}</dd>
+
+      <dt>Started</dt>
+      <dd>{{ job.startedAt ? (job.startedAt | date: 'MMM d, y · h:mm:ss a') : 'Not started' }}</dd>
+
+      <dt>Ended</dt>
+      <dd>
+        @if (job.endedAt) {
+          {{ job.endedAt | date: 'MMM d, y · h:mm:ss a' }}
+        } @else if (job.status === 'running') {
+          Still running
+        } @else {
+          —
+        }
+      </dd>
+
+      <dt>Duration</dt>
+      <dd>{{ job.duration }}</dd>
+    </dl>
+
+  } @else {
+
+    <!-- All jobs -->
+    <table mat-table [dataSource]="jobs()" class="jsd-table">
+      <ng-container matColumnDef="job">
+        <th mat-header-cell *matHeaderCellDef>Job</th>
+        <td mat-cell *matCellDef="let j; let i = index">
+          <div class="jsd-job-cell">
+            <mat-icon class="jsd-type-icon">{{ service.stepTypeIcon(j.type) }}</mat-icon>
+            <div>
+              <div class="jsd-type">{{ j.type }}</div>
+              <div class="jsd-seq">Job {{ i + 1 }}</div>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let j">
+          <span class="status-pill sm" [style.color]="service.statusColor(j.status)"
+                [style.background]="service.statusColor(j.status) + '1f'">
+            <mat-icon class="status-icon" [class.spin]="j.status === 'running'">{{ service.statusIcon(j.status) }}</mat-icon>
+            {{ service.statusLabel(j.status) }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="started">
+        <th mat-header-cell *matHeaderCellDef>Started</th>
+        <td mat-cell *matCellDef="let j">{{ j.startedAt ? (j.startedAt | date: 'MMM d, h:mm a') : '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="ended">
+        <th mat-header-cell *matHeaderCellDef>Ended</th>
+        <td mat-cell *matCellDef="let j">{{ j.endedAt ? (j.endedAt | date: 'MMM d, h:mm a') : '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="duration">
+        <th mat-header-cell *matHeaderCellDef>Duration</th>
+        <td mat-cell *matCellDef="let j">{{ j.duration }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns" class="jsd-row"
+          tabindex="0" role="button" [attr.aria-label]="'View details for ' + row.type"
+          (click)="select(row)" (keydown.enter)="select(row)" (keydown.space)="select(row)"></tr>
+    </table>
+  }
+
+  <ng-container dialogActions>
+    @if (job && openedOnList) {
+      <button mat-button (click)="backToList()">
+        <mat-icon>arrow_back</mat-icon> All jobs
+      </button>
+    }
+    <button mat-button mat-dialog-close>Close</button>
+  </ng-container>
+</app-dialog>

@@ -1,0 +1,58 @@
+.jsd-empty { margin: 0; color: var(--text-secondary); }
+
+// Single-job view
+.jsd-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px 24px;
+  margin: 20px 0 0;
+
+  dt {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+  }
+
+  dd {
+    margin: 0;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+  }
+}
+
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+// All-jobs table
+.jsd-table { width: 100%; }
+
+.jsd-row {
+  cursor: pointer;
+
+  &:hover, &:focus-visible { background: var(--overlay-hover); }
+}
+
+.jsd-job-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// mat-icon.<class> — see the specificity note on mat-icon.status-icon in styles.scss.
+mat-icon.jsd-type-icon {
+  flex: none;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  color: var(--text-muted);
+}
+
+.jsd-type { font-weight: 500; }
+
+.jsd-seq {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+// Numeric/time columns read better with the timestamps top-aligned to the
+// two-line job cell rather than floating in the middle of the row.
+.jsd-table .mat-mdc-cell { vertical-align: middle; }

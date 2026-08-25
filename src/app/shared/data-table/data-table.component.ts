@@ -39,6 +39,9 @@ import { DataColumn, RowAction, RowActionEvent, TableState } from './data-table.
   ],
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.scss',
+  // `title` is also a global HTML attribute; drop it so the browser doesn't
+  // show a native tooltip over the whole component.
+  host: { '[attr.title]': 'null' },
 })
 export class DataTableComponent implements OnInit, AfterViewInit {
   // ---- Inputs ---- (row type is intentionally permissive so any typed

@@ -24,6 +24,9 @@ import { LoadingBarComponent } from '../loading-bar/loading-bar.component';
   imports: [CommonModule, PageHeaderComponent, BreadcrumbComponent, LoadingBarComponent],
   templateUrl: './page-layout.component.html',
   styleUrl: './page-layout.component.scss',
+  // `title` is also a global HTML attribute; drop it so the browser doesn't
+  // show a native tooltip over the whole component.
+  host: { '[attr.title]': 'null' },
 })
 export class PageLayoutComponent {
   /** Page title (required). */

@@ -14,6 +14,7 @@ import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog
 import {
   PARAM_GROUP_TYPES, ParamGroupType, ParameterConfigService, ParameterEntry,
 } from '../../core/services/parameter-config.service';
+import { DialogService } from '../../shared/dialog/dialog.service';
 import { ParameterFormDialogComponent } from './parameter-form-dialog.component';
 import { ParameterViewDialogComponent } from './parameter-view-dialog.component';
 import { ParameterInlinePanelComponent } from './parameter-inline-panel.component';
@@ -35,7 +36,7 @@ export type CrudStyle = 'dialog' | 'inline';
 export class ParameterConfigComponent {
   readonly loading = simulatedLoading();
   private readonly service = inject(ParameterConfigService);
-  private readonly dialog = inject(MatDialog);
+  private readonly dialogs = inject(DialogService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly confirmDialog = inject(ConfirmDialogService);
 
@@ -88,9 +89,8 @@ export class ParameterConfigComponent {
   }
 
   addNew(): void {
-    this.dialog.open(ParameterFormDialogComponent, {
-      width: '640px',
-      maxWidth: '92vw',
+    this.dialogs.open(ParameterFormDialogComponent, {
+      size: 'lg',
       data: { type: this.currentType() },
     }).afterClosed().subscribe(saved => {
       if (saved) this.snackBar.open('Parameter created', 'Dismiss', { duration: 3000 });
@@ -101,19 +101,19 @@ export class ParameterConfigComponent {
     const row = event.row;
     switch (event.action) {
       case 'view':
-        this.dialog.open(ParameterViewDialogComponent, {
-          width: '560px', maxWidth: '92vw', data: { id: row.id },
+        this.dialogs.open(ParameterViewDialogComponent, {
+          size: 'md', data: { id: row.id },
         });
         break;
       case 'executions':
-        this.dialog.open(ParameterExecutionsDialogComponent, {
-          width: '680px', maxWidth: '92vw',
+        this.dialogs.open(ParameterExecutionsDialogComponent, {
+          size: 'lg',
           data: { parameterId: row.id, parameterName: row.name },
         });
         break;
       case 'edit':
-        this.dialog.open(ParameterFormDialogComponent, {
-          width: '640px', maxWidth: '92vw', data: { type: row.type, entry: row },
+        this.dialogs.open(ParameterFormDialogComponent, {
+          size: 'lg', data: { type: row.type, entry: row },
         }).afterClosed().subscribe(saved => {
           if (saved) this.snackBar.open('Parameter updated', 'Dismiss', { duration: 3000 });
         });

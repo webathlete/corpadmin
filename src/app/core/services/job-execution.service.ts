@@ -1,16 +1,32 @@
 import { Injectable, signal } from '@angular/core';
 
 export type StepStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
-export type StepType = 'Extract' | 'Transform' | 'Load' | 'Validate';
+export type StepType = 'Extract' | 'Transform' | 'Load' | 'Validate' | 'Publish';
 export type DateRangeFilter = 'day' | 'week' | 'month' | '2months';
 
-export const STEP_TYPES: StepType[] = ['Extract', 'Transform', 'Load', 'Validate'];
+export const STEP_TYPES: StepType[] = ['Extract', 'Transform', 'Load', 'Validate', 'Publish'];
+
+/** UI wording for the internal status union. `cancelled` has no user-facing
+ *  synonym but is kept because cancel/undo depends on it. */
+const STATUS_LABELS: Record<StepStatus, string> = {
+  queued: 'Pending',
+  running: 'In progress',
+  completed: 'Completed',
+  failed: 'Failed',
+  cancelled: 'Cancelled',
+};
 
 export interface ExecutionStep {
+  /** Stable per-execution job id, e.g. "exec-2001-job2". */
+  id: string;
   type: StepType;
   status: StepStatus;
   progress: number;
   duration: string;
+  /** Unset while the job is still pending. */
+  startedAt?: Date;
+  /** Set only once the job reached a terminal state. */
+  endedAt?: Date;
 }
 
 export interface JobExecution {
@@ -51,32 +67,57 @@ function deriveStatus(steps: ExecutionStep[]): StepStatus {
   return 'completed';
 }
 
-/** Builds the 4 fixed-order steps (Extract → Transform → Load → Validate)
- *  consistent with a target overall status. */
-function makeSteps(overall: StepStatus): ExecutionStep[] {
-  if (overall === 'completed') {
-    return STEP_TYPES.map(type => ({ type, status: 'completed', progress: 100, duration: randomDuration() }));
-  }
-  if (overall === 'queued') {
-    return STEP_TYPES.map(type => ({ type, status: 'queued', progress: 0, duration: '—' }));
-  }
-  if (overall === 'running') {
-    const activeIdx = randInt(0, 3);
-    return STEP_TYPES.map((type, i) => ({
-      type,
-      status: i < activeIdx ? 'completed' : i === activeIdx ? 'running' : 'queued',
-      progress: i < activeIdx ? 100 : i === activeIdx ? randInt(5, 90) : 0,
-      duration: i < activeIdx ? randomDuration() : i === activeIdx ? 'In progress' : '—',
-    }));
-  }
-  // failed / cancelled: stops partway through a random step.
-  const stopIdx = randInt(0, 3);
-  return STEP_TYPES.map((type, i) => ({
-    type,
-    status: i < stopIdx ? 'completed' : i === stopIdx ? overall : 'queued',
-    progress: i < stopIdx ? 100 : i === stopIdx ? randInt(10, 80) : 0,
-    duration: i <= stopIdx ? randomDuration() : '—',
-  }));
+/** Formats a span between two instants the same way `randomDuration()` reads. */
+function spanDuration(from: Date, to: Date): string {
+  const secs = Math.max(1, Math.round((to.getTime() - from.getTime()) / 1000));
+  return `${Math.floor(secs / 60)}m ${(secs % 60).toString().padStart(2, '0')}s`;
+}
+
+/** Builds the 5 fixed-order jobs (Extract → Transform → Load → Validate →
+ *  Publish) consistent with a target overall status. Jobs run back to back,
+ *  so each one starts where the previous finished. */
+function makeSteps(overall: StepStatus, execId: string, triggeredAt: Date): ExecutionStep[] {
+  // How far through the pipeline this execution got, and what happened there.
+  const activeIdx =
+    overall === 'completed' ? STEP_TYPES.length :
+    overall === 'queued' ? -1 :
+    randInt(0, STEP_TYPES.length - 1);
+
+  let cursor = new Date(triggeredAt);
+
+  return STEP_TYPES.map((type, i) => {
+    const id = `${execId}-job${i + 1}`;
+    const base = { id, type };
+
+    // Not reached yet.
+    if (i > activeIdx) {
+      return { ...base, status: 'queued' as StepStatus, progress: 0, duration: '—' };
+    }
+
+    const startedAt = new Date(cursor);
+
+    // Finished cleanly.
+    if (i < activeIdx) {
+      const endedAt = new Date(startedAt.getTime() + randInt(30, 900) * 1000);
+      cursor = endedAt;
+      return {
+        ...base, status: 'completed' as StepStatus, progress: 100,
+        duration: spanDuration(startedAt, endedAt), startedAt, endedAt,
+      };
+    }
+
+    // The job the execution is sitting on right now.
+    if (overall === 'running') {
+      return { ...base, status: 'running' as StepStatus, progress: randInt(5, 90), duration: 'In progress', startedAt };
+    }
+
+    // failed / cancelled stop here.
+    const endedAt = new Date(startedAt.getTime() + randInt(20, 600) * 1000);
+    return {
+      ...base, status: overall, progress: randInt(10, 80),
+      duration: spanDuration(startedAt, endedAt), startedAt, endedAt,
+    };
+  });
 }
 
 function seedExecutions(): JobExecution[] {
@@ -91,7 +132,7 @@ function seedExecutions(): JobExecution[] {
     triggeredAt.setDate(triggeredAt.getDate() - daysAgo);
     triggeredAt.setHours(randInt(0, 23), randInt(0, 59), 0, 0);
     const overall = pick(historicalStatuses, randInt(0, historicalStatuses.length - 1));
-    const steps = makeSteps(overall);
+    const steps = makeSteps(overall, `exec-${2000 + i}`, triggeredAt);
     list.push({
       id: `exec-${2000 + i}`,
       name: `${pick(PIPELINE_NAMES, i)} #${100 - i}`,
@@ -111,7 +152,7 @@ function seedExecutions(): JobExecution[] {
     const triggeredAt = new Date(now);
     triggeredAt.setHours(now.getHours(), Math.max(0, now.getMinutes() - i * 12), 0, 0);
     const overall = liveStatuses[i];
-    const steps = makeSteps(overall);
+    const steps = makeSteps(overall, `exec-${3000 + i}`, triggeredAt);
     list.push({
       id: `exec-${3000 + i}`,
       name: `${pick(PIPELINE_NAMES, i + 2)} #${201 + i}`,
@@ -161,10 +202,13 @@ export class JobExecutionService {
     if (!exec || !this.canCancel(exec)) return false;
     this.stash.set(id, { ...exec, steps: exec.steps.map(s => ({ ...s })) });
     this.patch(id, e => {
-      const steps = e.steps.map(s =>
-        (s.status === 'running' || s.status === 'queued')
-          ? { ...s, status: 'cancelled' as StepStatus }
-          : s);
+      const now = new Date();
+      const steps = e.steps.map(s => {
+        if (s.status !== 'running' && s.status !== 'queued') return s;
+        // A job that never started has no span to report.
+        const ended = s.startedAt ? { endedAt: now, duration: spanDuration(s.startedAt, now) } : {};
+        return { ...s, status: 'cancelled' as StepStatus, ...ended };
+      });
       return { ...e, steps, status: deriveStatus(steps), duration: 'Cancelled' };
     });
     return true;
@@ -210,6 +254,11 @@ export class JobExecutionService {
     }
   }
 
+  /** User-facing wording: Pending / In progress / Completed / Failed. */
+  statusLabel(status: StepStatus): string {
+    return STATUS_LABELS[status];
+  }
+
   statusIcon(status: StepStatus): string {
     switch (status) {
       case 'running':   return 'autorenew';
@@ -226,6 +275,7 @@ export class JobExecutionService {
       case 'Transform':  return 'sync_alt';
       case 'Load':       return 'upload';
       case 'Validate':   return 'fact_check';
+      case 'Publish':    return 'publish';
     }
   }
 
@@ -240,7 +290,7 @@ export class JobExecutionService {
 
       if (e.status === 'queued') {
         if (Math.random() < 0.3) {
-          const steps = e.steps.map((s, i) => (i === 0 ? { ...s, status: 'running' as StepStatus, progress: 2 } : s));
+          const steps = e.steps.map((s, i) => (i === 0 ? { ...s, status: 'running' as StepStatus, progress: 2, startedAt: new Date() } : s));
           return { ...e, steps, status: 'running', duration: 'In progress' };
         }
         return e;
@@ -251,17 +301,27 @@ export class JobExecutionService {
       if (activeIdx === -1) return e;
 
       if (Math.random() < 0.015) {
-        const steps = e.steps.map((s, i) => (i === activeIdx ? { ...s, status: 'failed' as StepStatus } : s));
+        const steps = e.steps.map((s, i) => {
+          if (i !== activeIdx) return s;
+          const endedAt = new Date();
+          const startedAt = s.startedAt ?? endedAt;
+          return { ...s, status: 'failed' as StepStatus, endedAt, duration: spanDuration(startedAt, endedAt) };
+        });
         return { ...e, steps, status: 'failed', duration: randomDuration(), isLive: false };
       }
 
       const progress = Math.min(100, e.steps[activeIdx].progress + randInt(3, 10));
       const done = progress >= 100;
-      let steps = e.steps.map((s, i) =>
-        i === activeIdx ? { ...s, progress, status: (done ? 'completed' : 'running') as StepStatus, duration: done ? randomDuration() : s.duration } : s);
+      const now = new Date();
+      let steps = e.steps.map((s, i) => {
+        if (i !== activeIdx) return s;
+        if (!done) return { ...s, progress, status: 'running' as StepStatus };
+        const startedAt = s.startedAt ?? now;
+        return { ...s, progress, status: 'completed' as StepStatus, endedAt: now, duration: spanDuration(startedAt, now) };
+      });
 
       if (done && activeIdx < steps.length - 1) {
-        steps = steps.map((s, i) => (i === activeIdx + 1 ? { ...s, status: 'running' as StepStatus, progress: 2 } : s));
+        steps = steps.map((s, i) => (i === activeIdx + 1 ? { ...s, status: 'running' as StepStatus, progress: 2, startedAt: now } : s));
       }
 
       const status = deriveStatus(steps);

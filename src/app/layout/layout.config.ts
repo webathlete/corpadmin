@@ -49,16 +49,6 @@ export interface NavGroup {
   items: NavItem[];
 }
 
-export interface HeaderNotification {
-  id: number;
-  title: string;
-  time: string;
-  icon: string;
-  /** Accent color (hex) for the notification icon chip. */
-  color: string;
-  unread: boolean;
-}
-
 export interface UserRole {
   name: string;
   /** Where the role applies, e.g. "Finance". Shown as a tooltip. */
@@ -153,13 +143,6 @@ export const DEFAULT_NAV_GROUPS: NavGroup[] = [
       { label: 'Settings',    icon: 'settings',      route: '/settings' },
     ],
   },
-];
-
-export const DEFAULT_NOTIFICATIONS: HeaderNotification[] = [
-  { id: 1, title: 'Q3 report is ready to review',      time: '2 min ago',  icon: 'description', color: '#1565C0', unread: true },
-  { id: 2, title: 'New team member joined: Sarah K.',  time: '1 hour ago', icon: 'person_add',  color: '#22c55e', unread: true },
-  { id: 3, title: 'Server alert: CPU usage at 89%',    time: '3 hours ago',icon: 'warning',     color: '#f59e0b', unread: true },
-  { id: 4, title: 'Monthly budget report exported',    time: 'Yesterday',  icon: 'download',    color: '#8b5cf6', unread: false },
 ];
 
 export const DEFAULT_ROLES: UserRole[] = [

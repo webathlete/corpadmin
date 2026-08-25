@@ -5,6 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ParameterExecutionService } from '../../core/services/parameter-execution.service';
 import { ParameterExecutionsListComponent } from './parameter-executions-list.component';
+import { DialogComponent } from '../../shared/dialog/dialog.component';
+import { DialogActionsDirective } from '../../shared/dialog/dialog-actions.directive';
 
 export interface ParameterExecutionsDialogData {
   parameterId: string;
@@ -14,7 +16,7 @@ export interface ParameterExecutionsDialogData {
 @Component({
   selector: 'app-parameter-executions-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, ParameterExecutionsListComponent],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, ParameterExecutionsListComponent, DialogComponent, DialogActionsDirective],
   templateUrl: './parameter-executions-dialog.component.html',
   styleUrl: './parameter-executions-dialog.component.scss',
 })

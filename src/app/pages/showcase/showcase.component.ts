@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, TemplateRef, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -9,12 +9,21 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule } from '@angular/material/dialog';
 import { PageLayoutComponent } from '../../shared/page-layout/page-layout.component';
 import { FooterRichComponent } from '../../shared/footer-rich/footer-rich.component';
 import { DataTableComponent } from '../../shared/data-table/data-table.component';
 import { DataColumn } from '../../shared/data-table/data-table.types';
 import { MultiSelectComponent, MultiSelectOption } from '../../shared/multi-select/multi-select.component';
+import { ParamTableComponent, ParamTableRow } from '../../shared/param-table/param-table.component';
+import { NotificationBellComponent } from '../../shared/notification-bell/notification-bell.component';
 import { AnalyticsApiService, Transaction } from '../../core/services/analytics-api.service';
+import { NotificationService } from '../../core/services/notification.service';
+import { DialogComponent } from '../../shared/dialog/dialog.component';
+import { DialogActionsDirective } from '../../shared/dialog/dialog-actions.directive';
+import { DialogService } from '../../shared/dialog/dialog.service';
+import { DialogSize } from '../../shared/dialog/dialog.types';
+import { MessageDialogDemo, FormDialogDemo, TableDialogDemo } from './demo-dialogs';
 
 @Component({
   selector: 'app-showcase',
@@ -22,14 +31,17 @@ import { AnalyticsApiService, Transaction } from '../../core/services/analytics-
   imports: [
     CommonModule, FormsModule,
     MatTabsModule, MatButtonToggleModule, MatRadioModule, MatButtonModule, MatIconModule,
-    MatBadgeModule, MatTooltipModule, MatChipsModule,
-    PageLayoutComponent, DataTableComponent, FooterRichComponent, MultiSelectComponent,
+    MatBadgeModule, MatTooltipModule, MatChipsModule, MatDialogModule,
+    PageLayoutComponent, DataTableComponent, FooterRichComponent, MultiSelectComponent, ParamTableComponent,
+    NotificationBellComponent, DialogComponent, DialogActionsDirective,
   ],
   templateUrl: './showcase.component.html',
   styleUrl: './showcase.component.scss',
 })
 export class ShowcaseComponent {
   private readonly api = inject(AnalyticsApiService);
+  private readonly notify = inject(NotificationService);
+  private readonly dialogs = inject(DialogService);
 
   // ---- Data table (async) ----
   readonly rows = signal<Transaction[]>([]);
@@ -142,4 +154,91 @@ export class ShowcaseComponent {
   readonly msChipsSelected = signal<string[]>([...this.defaultDeptSelection]);
   readonly msTilesSelected = signal<string[]>([...this.defaultDeptSelection]);
   readonly msHorizontalSelected = signal<string[]>([...this.defaultDeptSelection]);
+
+  // ---- Editable parameter table (30% / 45% / 15% / 10% responsive columns) ----
+  readonly paramRows = signal<ParamTableRow[]>([
+    { id: 'p1', name: 'Retry Thresholds', values: [3, 5, 8, 13], dataType: 'Integer' },
+    { id: 'p2', name: 'Batch Size Tiers', values: [100, 250, 500, 1000, 2500], dataType: 'Integer' },
+    { id: 'p3', name: 'Latency SLA (ms)', values: [50, 120, 250], dataType: 'Decimal' },
+    { id: 'p4', name: 'Discount Bands', values: [5, 10, 15, 20], dataType: 'Percentage' },
+  ]);
+
+  onParamRowsChange(rows: ParamTableRow[]): void {
+    this.paramRows.set(rows);
+  }
+
+  // ---- Async queued notifications (NotificationService) ----
+  readonly notifyQueueLength = this.notify.queueLength;
+  readonly simulating = this.notify.simulating;
+
+  // notify() enqueues eagerly — the toast fires whether or not the returned
+  // Observable is subscribed, so these fire-and-forget calls don't need to.
+  fireSuccess(): void { this.notify.success('Report exported successfully'); }
+  fireWarning(): void { this.notify.warning('Storage is at 85% capacity'); }
+  fireError(): void { this.notify.error('Failed to sync with the server'); }
+  fireInfo(): void { this.notify.info('New version available — refresh to update'); }
+
+  toggleSimulation(): void {
+    if (this.notify.simulating()) this.notify.stopSimulation();
+    else this.notify.startSimulation();
+  }
+
+  /** Fires 5 notifications back-to-back with no gap between them — proves
+   *  they queue and play one at a time instead of clobbering each other,
+   *  which is what plain MatSnackBar.open() would do. */
+  fireBurst(): void {
+    const steps = [
+      'Step 1 of 5: Validating input…',
+      'Step 2 of 5: Uploading file…',
+      'Step 3 of 5: Processing data…',
+      'Step 4 of 5: Generating report…',
+      'Step 5 of 5: Done!',
+    ];
+    steps.forEach(message => this.notify.info(message, { duration: 1600 }));
+  }
+
+  // ---- Generic dialog shell (<app-dialog> + DialogService) ----
+  readonly dialogSize = signal<DialogSize>('lg');
+  readonly dialogResult = signal<string>('');
+
+  readonly dialogSizes: { value: DialogSize; label: string; width: string }[] = [
+    { value: 'sm',   label: 'sm',   width: '400px' },
+    { value: 'md',   label: 'md',   width: '560px' },
+    { value: 'lg',   label: 'lg',   width: '760px' },
+    { value: 'xl',   label: 'xl',   width: '1040px' },
+    { value: 'full', label: 'full', width: '96vw' },
+  ];
+
+  get dialogSizeValue() { return this.dialogSize(); }
+  set dialogSizeValue(v: DialogSize) { this.dialogSize.set(v); }
+
+  private record(label: string, result: unknown): void {
+    this.dialogResult.set(
+      result === undefined ? `${label} — dismissed` : `${label} — ${JSON.stringify(result)}`,
+    );
+  }
+
+  async openMessageDialog(): Promise<void> {
+    const r = await this.dialogs.openAsync(MessageDialogDemo, { size: 'sm' });
+    this.record('Message', r);
+  }
+
+  async openFormDialog(): Promise<void> {
+    const r = await this.dialogs.openAsync(FormDialogDemo, { size: this.dialogSize() });
+    this.record('Form', r);
+  }
+
+  async openTableDialog(): Promise<void> {
+    const r = await this.dialogs.openAsync(TableDialogDemo, {
+      size: 'xl',
+      data: { title: 'Recent job runs' },
+    });
+    this.record('Table', r);
+  }
+
+  /** Opens an inline <ng-template> instead of a component. */
+  async openTemplateDialog(tpl: TemplateRef<unknown>): Promise<void> {
+    const r = await this.dialogs.openAsync(tpl, { size: 'md' });
+    this.record('Template', r);
+  }
 }

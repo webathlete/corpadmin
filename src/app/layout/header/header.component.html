@@ -67,38 +67,10 @@
       </button>
     </mat-menu>
 
-    <!-- Notifications -->
-    <button mat-icon-button [matMenuTriggerFor]="notifMenu"
-            matTooltip="Notifications" [attr.aria-label]="'Notifications, ' + unreadCount() + ' unread'"
-            class="header-icon-btn">
-      <mat-icon [matBadge]="unreadCount()" [matBadgeHidden]="unreadCount() === 0"
-                matBadgeColor="warn" matBadgeSize="small">
-        notifications
-      </mat-icon>
-    </button>
-    <mat-menu #notifMenu="matMenu" class="notif-menu">
-      <div class="notif-header">
-        <span>Notifications</span>
-        <button mat-button color="primary" class="notif-mark-read">Mark all read</button>
-      </div>
-      <mat-divider></mat-divider>
-      @for (n of notifications(); track n.id) {
-        <div class="notif-item" [class.unread]="n.unread">
-          <div class="notif-icon" [style.background]="n.color + '20'"
-               [style.color]="n.color">
-            <mat-icon>{{ n.icon }}</mat-icon>
-          </div>
-          <div class="notif-content">
-            <p class="notif-title">{{ n.title }}</p>
-            <p class="notif-time">{{ n.time }}</p>
-          </div>
-        </div>
-      }
-      <mat-divider></mat-divider>
-      <button mat-menu-item class="notif-view-all">
-        View all notifications
-      </button>
-    </mat-menu>
+    <!-- Notifications — real-time feed from NotificationService: every
+         toast fired anywhere in the app lands here too (list, count,
+         read/clear), not just a static placeholder list. -->
+    <app-notification-bell iconColor="var(--header-icon)"></app-notification-bell>
 
     <!-- User Menu -->
     <button mat-button [matMenuTriggerFor]="userMenu" class="user-btn"

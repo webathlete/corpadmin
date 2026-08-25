@@ -9,6 +9,8 @@ import {
 } from '../../core/services/parameter-config.service';
 import { createParameterForm, toParameterDraft } from './parameter-form.util';
 import { ParameterFormFieldsComponent } from './parameter-form-fields.component';
+import { DialogComponent } from '../../shared/dialog/dialog.component';
+import { DialogActionsDirective } from '../../shared/dialog/dialog-actions.directive';
 
 export interface ParameterFormDialogData {
   type: ParamGroupType;
@@ -18,9 +20,8 @@ export interface ParameterFormDialogData {
 @Component({
   selector: 'app-parameter-form-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, ParameterFormFieldsComponent],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, ParameterFormFieldsComponent, DialogComponent, DialogActionsDirective],
   templateUrl: './parameter-form-dialog.component.html',
-  styleUrl: './parameter-form-dialog.component.scss',
 })
 export class ParameterFormDialogComponent {
   readonly ref = inject(MatDialogRef<ParameterFormDialogComponent, boolean>);
