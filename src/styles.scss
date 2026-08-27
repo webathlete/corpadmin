@@ -895,11 +895,3 @@ mat-icon.status-icon {
     scroll-behavior: auto !important;
   }
 }
-
-// Dialog shell (<app-dialog>): the surface must be a flex column so the
-// scrollable body sits between a pinned header and action bar. Material
-// leaves it `display: block`, which lets tall content push the footer out.
-.app-dialog-panel .mat-mdc-dialog-surface {
-  display: flex;
-  flex-direction: column;
-}

@@ -501,6 +501,53 @@
     </app-dialog>
   </ng-template>
 
+  <!-- ============ Job panel ============ -->
+  <section class="showcase-section">
+    <div class="showcase-head">
+      <h2>Job panel</h2>
+      <button mat-stroked-button (click)="resetJobs()">
+        <mat-icon>restart_alt</mat-icon> Reset demo data
+      </button>
+    </div>
+    <p class="showcase-note">
+      Self-contained <code>&lt;app-job-panel&gt;</code> — a master–detail browser that shows a
+      compact job list and swaps in place for one job's details (ID, name, start/end, log,
+      status pill) with status-appropriate actions and a way back. It holds no services and
+      reads no global styles, so it drops into any Angular Material project alongside
+      <code>shared/dialog</code>. Actions here really mutate the list: start or re-run a job and
+      it runs, clean one up and it disappears.
+    </p>
+
+    <div class="section-card mb-4">
+      <div class="section-card-header">
+        <h3>Open in a dialog</h3>
+        <span>{{ jobs().length }} jobs · pick a list variant</span>
+      </div>
+      <div class="section-card-body notify-demo-body">
+        <mat-button-toggle-group [(ngModel)]="jobVariantValue" hideSingleSelectionIndicator>
+          @for (v of jobVariants; track v.value) {
+            <mat-button-toggle [value]="v.value" [matTooltip]="v.hint">{{ v.label }}</mat-button-toggle>
+          }
+        </mat-button-toggle-group>
+        <button mat-raised-button color="primary" (click)="openJobPanel()">
+          <mat-icon>open_in_new</mat-icon> Open job panel
+        </button>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3>Rendered inline</h3>
+        <span>Same component outside a dialog — pick a job to see the detail view</span>
+      </div>
+      <div class="section-card-body">
+        <app-job-panel [jobs]="jobs()" [variant]="jobVariant()" [busyJobId]="busyJobId()"
+                       title="Pipeline jobs">
+        </app-job-panel>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ Rich footer ============ -->
   <section class="showcase-section">
     <div class="showcase-head">

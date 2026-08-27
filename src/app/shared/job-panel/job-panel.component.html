@@ -1,0 +1,142 @@
+@let job = selected();
+
+<app-dialog
+  [title]="job ? job.name : headerTitle()"
+  [subtitle]="job ? job.id : jobs().length + ' jobs'"
+  [icon]="job ? 'work_outline' : 'list_alt'"
+  badge [tone]="job ? 'none' : 'primary'"
+  [flush]="!job && view() === 'table'">
+
+  @if (!job) {
+    <!-- Status summary, doubling as the legend for the list's colour coding. -->
+    <div class="jp-summary" dialogHeader>
+      @for (s of summary(); track s.status) {
+        <span class="jp-pill jp-sm" [attr.data-status]="s.status">
+          <mat-icon>{{ statusIcon(s.status) }}</mat-icon>{{ s.count }}
+        </span>
+      }
+    </div>
+  }
+
+  @if (job) {
+
+    <!-- ---------- Detail ---------- -->
+    <div class="jp-detail-head">
+      <span class="jp-pill" [attr.data-status]="job.status">
+        <mat-icon [class.jp-spin]="job.status === 'running'">{{ statusIcon(job.status) }}</mat-icon>
+        {{ statusLabel(job.status) }}
+      </span>
+    </div>
+
+    <dl class="jp-facts">
+      <dt>Job ID</dt>      <dd class="jp-mono">{{ job.id }}</dd>
+      <dt>Job name</dt>    <dd>{{ job.name }}</dd>
+      <dt>Started</dt>     <dd>{{ job.startedAt ? (job.startedAt | date: 'MMM d, y · h:mm:ss a') : 'Not started' }}</dd>
+      <dt>Ended</dt>
+      <dd>
+        @if (job.endedAt) { {{ job.endedAt | date: 'MMM d, y · h:mm:ss a' }} }
+        @else if (job.status === 'running') { Still running }
+        @else { — }
+      </dd>
+      <dt>Duration</dt>    <dd>{{ duration(job) }}</dd>
+    </dl>
+
+    <div class="jp-log-head">Messages</div>
+    @if (job.messages?.length) {
+      <pre class="jp-log" tabindex="0">{{ logText(job) }}</pre>
+    } @else {
+      <p class="jp-empty jp-log-empty">No messages logged for this job.</p>
+    }
+
+    @if (busyJobId() === job.id) {
+      <mat-progress-bar mode="indeterminate" class="jp-busy"></mat-progress-bar>
+    }
+
+  } @else if (view() === 'table') {
+
+    <!-- ---------- List: table ---------- -->
+    <table mat-table [dataSource]="jobs()" class="jp-table">
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let j">
+          <span class="jp-pill jp-sm" [attr.data-status]="j.status">
+            <mat-icon [class.jp-spin]="j.status === 'running'">{{ statusIcon(j.status) }}</mat-icon>
+            {{ statusLabel(j.status) }}
+          </span>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef>Job ID</th>
+        <td mat-cell *matCellDef="let j" class="jp-mono">{{ j.id }}</td>
+      </ng-container>
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Job name</th>
+        <td mat-cell *matCellDef="let j">{{ j.name }}</td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: tableColumns" class="jp-table-row"
+          tabindex="0" role="button" [attr.aria-label]="'Open ' + row.name"
+          (click)="select(row)" (keydown.enter)="select(row)"></tr>
+    </table>
+
+  } @else {
+
+    <!-- ---------- List: grid / rows ---------- -->
+    <div class="jp-list" [attr.data-variant]="view()">
+      @for (j of jobs(); track j.id) {
+        <button type="button" class="jp-item" [attr.data-status]="j.status"
+                [attr.aria-label]="j.name + ', ' + statusLabel(j.status)"
+                [matTooltip]="j.name + ' · ' + statusLabel(j.status)" matTooltipShowDelay="600"
+                (click)="select(j)">
+          <mat-icon class="jp-item-icon" [class.jp-spin]="j.status === 'running'">
+            {{ statusIcon(j.status) }}
+          </mat-icon>
+          <span class="jp-item-text">
+            <span class="jp-item-name">{{ j.name }}</span>
+            <span class="jp-item-meta">
+              <span class="jp-item-id jp-mono">{{ j.id }}</span>
+              <!-- Grid cells are too narrow for a pill beside the name, so the
+                   status shares the second line with the id. -->
+              @if (view() === 'grid') {
+                <span class="jp-pill jp-xs" [attr.data-status]="j.status">{{ statusLabel(j.status) }}</span>
+              }
+            </span>
+          </span>
+          @if (view() === 'rows') {
+            <span class="jp-pill jp-sm" [attr.data-status]="j.status">{{ statusLabel(j.status) }}</span>
+          }
+          <mat-icon class="jp-item-chevron">chevron_right</mat-icon>
+        </button>
+      } @empty {
+        <p class="jp-empty">No jobs to show.</p>
+      }
+    </div>
+  }
+
+  <ng-container dialogActions>
+    @if (job) {
+      <button mat-button (click)="backToList()">
+        <mat-icon>arrow_back</mat-icon> All jobs
+      </button>
+      <span class="jp-spacer"></span>
+      @for (a of detailActions(); track a) {
+        <!-- Clean up is destructive, so it recedes to an outline and lets the
+             primary action stay the obvious one. -->
+        @if (a === 'cleanup') {
+          <button mat-stroked-button class="jp-danger" [disabled]="busyJobId() === job.id" (click)="run(a)">
+            <mat-icon>{{ actionIcon(a) }}</mat-icon> {{ actionLabel(a) }}
+          </button>
+        } @else {
+          <button mat-flat-button color="primary" [disabled]="busyJobId() === job.id" (click)="run(a)">
+            <mat-icon>{{ actionIcon(a) }}</mat-icon> {{ actionLabel(a) }}
+          </button>
+        }
+      } @empty {
+        <span class="jp-note">This job is running — no actions available.</span>
+      }
+    }
+    @if (inDialog) {
+      <button mat-button mat-dialog-close>Close</button>
+    }
+  </ng-container>
+</app-dialog>

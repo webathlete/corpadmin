@@ -24,6 +24,9 @@ import { DialogActionsDirective } from '../../shared/dialog/dialog-actions.direc
 import { DialogService } from '../../shared/dialog/dialog.service';
 import { DialogSize } from '../../shared/dialog/dialog.types';
 import { MessageDialogDemo, FormDialogDemo, TableDialogDemo } from './demo-dialogs';
+import { JobPanelComponent } from '../../shared/job-panel/job-panel.component';
+import { JobActionEvent, JobItem, JobPanelVariant } from '../../shared/job-panel/job-panel.types';
+import { makeDemoJobs } from './demo-jobs';
 
 @Component({
   selector: 'app-showcase',
@@ -33,7 +36,7 @@ import { MessageDialogDemo, FormDialogDemo, TableDialogDemo } from './demo-dialo
     MatTabsModule, MatButtonToggleModule, MatRadioModule, MatButtonModule, MatIconModule,
     MatBadgeModule, MatTooltipModule, MatChipsModule, MatDialogModule,
     PageLayoutComponent, DataTableComponent, FooterRichComponent, MultiSelectComponent, ParamTableComponent,
-    NotificationBellComponent, DialogComponent, DialogActionsDirective,
+    NotificationBellComponent, DialogComponent, DialogActionsDirective, JobPanelComponent,
   ],
   templateUrl: './showcase.component.html',
   styleUrl: './showcase.component.scss',
@@ -240,5 +243,74 @@ export class ShowcaseComponent {
   async openTemplateDialog(tpl: TemplateRef<unknown>): Promise<void> {
     const r = await this.dialogs.openAsync(tpl, { size: 'md' });
     this.record('Template', r);
+  }
+
+  // ---- Job panel (master–detail list + actions in one dialog) ----
+  readonly jobs = signal<JobItem[]>(makeDemoJobs());
+  readonly jobVariant = signal<JobPanelVariant>('grid');
+  readonly busyJobId = signal<string | null>(null);
+
+  readonly jobVariants: { value: JobPanelVariant; label: string; hint: string }[] = [
+    { value: 'grid',  label: 'Grid',  hint: 'Multi-column — 20 jobs with no scrolling' },
+    { value: 'rows',  label: 'Rows',  hint: 'One per line with a status pill' },
+    { value: 'table', label: 'Table', hint: 'mat-table, edge to edge' },
+  ];
+
+  get jobVariantValue() { return this.jobVariant(); }
+  set jobVariantValue(v: JobPanelVariant) { this.jobVariant.set(v); }
+
+  openJobPanel(variant: JobPanelVariant = this.jobVariant()): void {
+    const ref = this.dialogs.open<JobPanelComponent>(JobPanelComponent, {
+      size: variant === 'grid' ? 'lg' : 'md',
+      data: { jobs: this.jobs(), title: 'Pipeline jobs', variant },
+    });
+
+    // Keep the open dialog in sync as actions mutate the list.
+    // `jobs` and `busyJobId` are models, so the open dialog is updated by
+    // writing to its signals.
+    const sync = () => {
+      ref.componentInstance.jobs.set(this.jobs());
+      ref.componentInstance.busyJobId.set(this.busyJobId());
+    };
+    ref.componentInstance.action.subscribe((e: JobActionEvent) => this.runJobAction(e, sync));
+  }
+
+  /** Applies an action optimistically, then settles the job after a beat so
+   *  the busy state and the resulting status are both visible. */
+  private runJobAction(event: JobActionEvent, sync: () => void): void {
+    const { job, action } = event;
+
+    if (action === 'cleanup') {
+      this.jobs.update(list => list.filter(j => j.id !== job.id));
+      sync();
+      this.notify.success(`${job.name} cleaned up`);
+      return;
+    }
+
+    this.busyJobId.set(job.id);
+    this.patchJob(job.id, j => ({
+      ...j, status: 'running', startedAt: new Date(), endedAt: null,
+      messages: [...(j.messages ?? []), `[now] ${action === 'start' ? 'Started' : 'Re-run triggered'} by user`],
+    }));
+    sync();
+
+    setTimeout(() => {
+      this.busyJobId.set(null);
+      this.patchJob(job.id, j => ({
+        ...j, status: 'completed', endedAt: new Date(),
+        messages: [...(j.messages ?? []), '[now] Job completed successfully'],
+      }));
+      sync();
+      this.notify.success(`${job.name} finished`);
+    }, 1800);
+  }
+
+  private patchJob(id: string, fn: (j: JobItem) => JobItem): void {
+    this.jobs.update(list => list.map(j => (j.id === id ? fn(j) : j)));
+  }
+
+  resetJobs(): void {
+    this.jobs.set(makeDemoJobs());
+    this.busyJobId.set(null);
   }
 }

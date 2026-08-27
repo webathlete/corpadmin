@@ -1,5 +1,6 @@
 import {
-  Component, ContentChild, Input, Output, EventEmitter, inject, booleanAttribute,
+  AfterViewInit, Component, ElementRef, Renderer2, booleanAttribute, contentChild,
+  inject, input, output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -21,6 +22,9 @@ import { DialogActionsDirective } from './dialog-actions.directive';
  *       <button mat-flat-button color="primary">Save</button>
  *     </ng-container>
  *   </app-dialog>
+ *
+ * Self-contained: no global stylesheet or service is required, so the folder
+ * can be copied into any Angular Material project as-is.
  */
 @Component({
   selector: 'app-dialog',
@@ -32,36 +36,50 @@ import { DialogActionsDirective } from './dialog-actions.directive';
   // show a native tooltip over the whole dialog.
   host: { '[attr.title]': 'null' },
 })
-export class DialogComponent {
+export class DialogComponent implements AfterViewInit {
   /** Header title. */
-  @Input() title?: string;
+  readonly title = input<string>();
   /** Secondary line under the title. */
-  @Input() subtitle?: string;
+  readonly subtitle = input<string>();
   /** Material icon name rendered before the title. */
-  @Input() icon?: string;
+  readonly icon = input<string>();
   /** Tints the header icon (and its badge). */
-  @Input() tone: 'primary' | 'accent' | 'success' | 'warn' | 'none' = 'primary';
+  readonly tone = input<'primary' | 'accent' | 'success' | 'warn' | 'none'>('primary');
   /** Render the icon in a tinted rounded square instead of bare. */
-  @Input({ transform: booleanAttribute }) badge = false;
+  readonly badge = input(false, { transform: booleanAttribute });
   /** Show the header close button. */
-  @Input({ transform: booleanAttribute }) closable = true;
+  readonly closable = input(true, { transform: booleanAttribute });
   /** Remove body padding — for edge-to-edge tables. */
-  @Input({ transform: booleanAttribute }) flush = false;
+  readonly flush = input(false, { transform: booleanAttribute });
   /** Draw the separator lines under the header and above the actions. */
-  @Input({ transform: booleanAttribute }) dividers = true;
+  readonly dividers = input(true, { transform: booleanAttribute });
   /** Alignment of the projected actions. */
-  @Input() actionsAlign: 'start' | 'center' | 'end' | 'between' = 'end';
+  readonly actionsAlign = input<'start' | 'center' | 'end' | 'between'>('end');
 
   /** Emitted when the header close button is pressed. */
-  @Output() closed = new EventEmitter<void>();
+  readonly closed = output<void>();
 
   /** Present only when the caller projected an action bar. */
-  @ContentChild(DialogActionsDirective) private readonly actions?: DialogActionsDirective;
+  private readonly actions = contentChild(DialogActionsDirective);
 
   private readonly ref = inject(MatDialogRef, { optional: true });
+  private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly renderer = inject(Renderer2);
 
-  get hasHeader(): boolean { return !!(this.title || this.icon || this.subtitle); }
-  get hasActions(): boolean { return !!this.actions; }
+  readonly hasHeader = () => !!(this.title() || this.icon() || this.subtitle());
+  readonly hasActions = () => !!this.actions();
+
+  ngAfterViewInit(): void {
+    // Material leaves the dialog surface as `display: block`, which lets tall
+    // content push the action bar off the bottom. Making it a flex column
+    // here — rather than in a global stylesheet — keeps the pinned
+    // header/footer working wherever this component is copied to.
+    const surface = this.host.nativeElement.closest('.mat-mdc-dialog-surface');
+    if (surface) {
+      this.renderer.setStyle(surface, 'display', 'flex');
+      this.renderer.setStyle(surface, 'flex-direction', 'column');
+    }
+  }
 
   close(): void {
     this.closed.emit();

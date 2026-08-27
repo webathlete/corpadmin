@@ -1,20 +1,20 @@
-@if (hasHeader) {
-  <div mat-dialog-title class="dlg-head" [class.bordered]="dividers">
-    @if (icon) {
-      @if (badge) {
-        <span class="dlg-badge" [attr.data-tone]="tone">
-          <mat-icon class="dlg-icon">{{ icon }}</mat-icon>
+@if (hasHeader()) {
+  <div mat-dialog-title class="dlg-head" [class.bordered]="dividers()">
+    @if (icon()) {
+      @if (badge()) {
+        <span class="dlg-badge" [attr.data-tone]="tone()">
+          <mat-icon class="dlg-icon">{{ icon() }}</mat-icon>
         </span>
       } @else {
-        <mat-icon class="dlg-icon" [attr.data-tone]="tone">{{ icon }}</mat-icon>
+        <mat-icon class="dlg-icon" [attr.data-tone]="tone()">{{ icon() }}</mat-icon>
       }
     }
     <div class="dlg-heading">
-      @if (title) { <span class="dlg-title">{{ title }}</span> }
-      @if (subtitle) { <span class="dlg-subtitle">{{ subtitle }}</span> }
+      @if (title()) { <span class="dlg-title">{{ title() }}</span> }
+      @if (subtitle()) { <span class="dlg-subtitle">{{ subtitle() }}</span> }
     </div>
     <ng-content select="[dialogHeader]"></ng-content>
-    @if (closable) {
+    @if (closable()) {
       <button mat-icon-button class="dlg-close" aria-label="Close dialog" (click)="close()">
         <mat-icon>close</mat-icon>
       </button>
@@ -22,11 +22,11 @@
   </div>
 }
 
-<mat-dialog-content class="dlg-body" [class.flush]="flush" [class.no-head]="!hasHeader">
+<mat-dialog-content class="dlg-body" [class.flush]="flush()" [class.no-head]="!hasHeader()">
   <ng-content></ng-content>
 </mat-dialog-content>
 
-<mat-dialog-actions class="dlg-actions" [attr.data-align]="actionsAlign"
-                    [class.bordered]="dividers" [class.dlg-actions-hidden]="!hasActions">
+<mat-dialog-actions class="dlg-actions" [attr.data-align]="actionsAlign()"
+                    [class.bordered]="dividers()" [class.dlg-actions-hidden]="!hasActions()">
   <ng-content select="[dialogActions]"></ng-content>
 </mat-dialog-actions>
