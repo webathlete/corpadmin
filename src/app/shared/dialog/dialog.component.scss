@@ -84,7 +84,11 @@
   color: var(--dlg-muted);
 }
 
-.dlg-body.dlg-body {
+// `mat-dialog-content.dlg-body.dlg-body` (element + 2 classes) is required:
+// Material ships `.mdc-dialog__title + .mdc-dialog__content { padding-top: 0 }`
+// at equal specificity from a runtime <style> tag that lands after ours, so a
+// plain class rule loses the tie and the body sits flush against the header.
+mat-dialog-content.dlg-body.dlg-body {
   padding: 20px 24px;
 
   // Take the leftover height rather than a fixed cap — a fixed max-height

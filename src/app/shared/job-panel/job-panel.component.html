@@ -8,11 +8,14 @@
   [flush]="!job && view() === 'table'">
 
   @if (!job) {
-    <!-- Status summary, doubling as the legend for the list's colour coding. -->
-    <div class="jp-summary" dialogHeader>
+    <!-- Status breakdown: label + count, doubling as the legend for the
+         list's colour coding. Flush variants pad it themselves. -->
+    <div class="jp-summary" [class.jp-summary-flush]="view() === 'table'">
       @for (s of summary(); track s.status) {
-        <span class="jp-pill jp-sm" [attr.data-status]="s.status">
-          <mat-icon>{{ statusIcon(s.status) }}</mat-icon>{{ s.count }}
+        <span class="jp-stat" [attr.data-status]="s.status">
+          <mat-icon [class.jp-spin]="s.status === 'running'">{{ statusIcon(s.status) }}</mat-icon>
+          <span class="jp-stat-label">{{ statusLabel(s.status) }}</span>
+          <span class="jp-stat-count">{{ s.count }}</span>
         </span>
       }
     </div>

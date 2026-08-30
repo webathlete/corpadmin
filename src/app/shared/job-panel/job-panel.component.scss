@@ -184,5 +184,187 @@
   --mdc-outlined-button-outline-color: color-mix(in srgb, var(--status-error, #c0392b) 45%, transparent);
 }
 
-// The summary chips sit in the dialog header slot.
-.jp-summary { display: flex; gap: 6px; }
+// ---- Status breakdown (top-right of the list) ----
+// Plain text, not chips: the cards below already carry tinted pills, so a
+// second set of enclosed shapes competes with them. Colour stays on the icon
+// and the count, which is what's being scanned.
+.jp-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 20px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--surface-border, rgb(0 0 0 / 12%));
+
+  // The table variant renders flush, so the row supplies its own gutter.
+  &.jp-summary-flush {
+    margin-bottom: 0;
+    padding: 16px 24px 12px;
+  }
+}
+
+.jp-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  mat-icon {
+    color: var(--jp-c);
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    line-height: 15px;
+  }
+}
+
+.jp-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #5f6368);
+}
+
+// The number is the thing being scanned, so it carries the weight and colour.
+.jp-stat-count {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--jp-c);
+  font-variant-numeric: tabular-nums;
+}
+
+// ---- List (grid / rows) ----
+.jp-list {
+  display: grid;
+  gap: 6px;
+
+  // Fits ~20 jobs without scrolling: the columns reflow to the dialog width.
+  &[data-variant='grid'] { grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); }
+  &[data-variant='rows'] { grid-template-columns: 1fr; }
+}
+
+.jp-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid var(--surface-border, rgb(0 0 0 / 12%));
+  border-left: 3px solid var(--jp-c);
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover, &:focus-visible { background: color-mix(in srgb, var(--jp-c) 8%, transparent); }
+}
+
+.jp-item-icon {
+  flex: none;
+  color: var(--jp-c);
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+  line-height: 17px;
+}
+
+// min-width:0 lets the long name ellipsize instead of stretching the cell.
+.jp-item-text { flex: 1; min-width: 0; }
+
+.jp-item-name,
+.jp-item-id {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jp-item-name { font-size: 0.8125rem; font-weight: 500; line-height: 1.3; }
+.jp-item-id   { font-size: 0.6875rem; color: var(--text-muted, #8e8e93); }
+
+// Second line of a grid cell: id and status side by side.
+.jp-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+
+  .jp-item-id { flex: none; }
+}
+
+// One line per job in the `rows` variant — stacking name over id doubles the
+// row height for no gain when there's a full-width line to use.
+[data-variant='rows'] .jp-item {
+  padding: 5px 8px;
+
+  .jp-item-text {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .jp-item-meta { flex: none; order: -1; width: 68px; }
+  .jp-item-name { flex: 1; min-width: 0; }
+}
+
+.jp-item-chevron {
+  flex: none;
+  color: var(--text-muted, #8e8e93);
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+
+// ---- List (table) ----
+.jp-table { width: 100%; }
+.jp-table-row {
+  cursor: pointer;
+  &:hover, &:focus-visible { background: var(--overlay-hover, rgb(0 0 0 / 4%)); }
+}
+
+// ---- Detail ----
+.jp-detail-head { margin-bottom: 16px; }
+
+.jp-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 20px;
+  margin: 0 0 18px;
+  font-size: 0.8125rem;
+
+  dt { color: var(--text-secondary, #5f6368); }
+  dd { margin: 0; font-weight: 500; }
+}
+
+.jp-log-head {
+  margin-bottom: 6px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted, #8e8e93);
+}
+
+.jp-log {
+  margin: 0;
+  padding: 10px 12px;
+  max-height: 170px;
+  overflow: auto;
+  border-radius: 6px;
+  background: var(--overlay-hover, rgb(0 0 0 / 4%));
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.jp-log-empty { padding: 10px 12px; }
+.jp-busy { margin-top: 14px; }
+.jp-note { font-size: 0.75rem; color: var(--text-muted, #8e8e93); }
+
+// Destructive action: Material's palettes don't guarantee a warn colour here,
+// so drive it from the token directly.
+.jp-danger {
+  --mdc-outlined-button-label-text-color: var(--status-error, #c0392b);
+  --mdc-outlined-button-outline-color: color-mix(in srgb, var(--status-error, #c0392b) 45%, transparent);
+}
