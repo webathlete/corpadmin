@@ -61,3 +61,45 @@ admin-job.service.ts, all signal-based, with simulated async execution (setTimeo
 - Tests: adminGuard (admin passes, user redirected), AdminJobService action matrix (cancel only while queued/running; remove only terminal), audit filtering.
 - Deliver: guard + service + page + subcomponents (manual-run-form, adhoc-form, batch-input, audit-table) each in its own file pair, wired route, sidebar entry. Build must pass with ng build.
 
+
+
+You are working in an Angular 18.2 standalone-components codebase (no NgModules) using Angular Material 18 (M3), Angular signals, and SCSS. Build a complete, access-driven Admin Console. Follow every convention below exactly; do not introduce new patterns where an existing one is named.
+
+## Layout (decided): Option B — split workspace
+A left operations rail (~290px, sticky) with one entry per admin function; the selected operation's form renders in a card on the right; a compact "Recent activity" card sits beneath every form. "Audit trail" is itself a first-class rail entry that swaps the workspace to the full filterable table. New admin functions added later = one new rail entry + one form component; nothing else changes. Stack the rail above the workspace below 900px.
+
+## Project conventions you MUST reuse (all already exist)
+- Design tokens in src/styles.scss: --app-primary (#1565C0), --status-success/-warning/-error/-info, --text-primary/-secondary/-muted, --surface-bg, --surface-border, --overlay-hover, --radius-sm/md/lg/pill, --fs-* type ramp. Never hardcode a colour that has a token; never add global CSS.
+- Page shell: <app-page-layout title="Admin Console" description="..." [breadcrumbs]="...">.
+- Confirmations: ConfirmDialogService.confirm({ title, message, icon, tone: 'warn'|'primary', confirmLabel }) -> Observable<boolean>. Every destructive action (cancel run, delete audit record) goes through it.
+- Toasts: NotificationService (core/services) — .success/.error/.info/.warning; it queues, fire-and-forget is fine.
+- Status pills: global .status-pill (sm/lg) + mat-icon.status-icon; colour via [style.color]="c" and [style.background]="c + '1f'"; .spin animates running states.
+- Dialogs (if any are needed): the shared <app-dialog> shell via DialogService.open(Component, { size, data }); never raw MatDialog.open, never hand-rolled mat-dialog-title/content/actions.
+- Component style: standalone: true; signal()/computed(); input()/output()/model() signal APIs — no @Input/@Output decorators; inject() only, no constructor-param DI. Inputs named `title` add host: { '[attr.title]': 'null' }.
+- SCSS: one small file per component; shared form layout may live in one shared partial (admin-forms.scss) used as styleUrl by the form components.
+
+## Access control (simulated, swappable)
+1. core/services/auth-role.service.ts: AuthRoleService { readonly role = signal<'admin'|'user'>('admin'); currentUser = computed(() => ({ name, initials, role })); hasRole(r) }. One commented SWAP SEAM: replace the signal's value with the role claim from your OIDC/JWT token; guard and consumers stay unchanged.
+2. core/guards/admin.guard.ts: functional CanMatchFn returning hasRole('admin') || router.createUrlTree(['/dashboard']). Use canMatch (NOT canActivate) so the /admin route never matches for non-admins and its lazy chunk is never downloaded — verify in DevTools that no admin chunk request occurs as a non-admin.
+3. app.routes.ts: { path: 'admin', canMatch: [adminGuard], data: { breadcrumb: 'Admin Console' }, loadComponent: ... }.
+4. Sidebar: add `adminOnly?: boolean` to the NavItem interface; add { label: 'Admin Console', icon: 'admin_panel_settings', route: '/admin', adminOnly: true } under the Management group; SidebarComponent computes visibleGroups = navGroups with adminOnly items filtered out for non-admins (empty groups vanish) and the template iterates visibleGroups().
+
+## Domain model + service — core/services/admin-job.service.ts (signals, simulated async)
+- ManualJobDef { id, name }; constants MANUAL_JOBS, ENVIRONMENTS, REGIONS, BATCH_JOBS.
+- AdhocInputDef { key, label, type: 'text'|'number'|'select'|'date', required, options?, hint? }; AdhocJobDef { id, name, description, inputs: AdhocInputDef[] }; ADHOC_JOBS with 3 sample jobs. The adhoc form is GENERATED from these descriptors — adding an adhoc job is a data change only.
+- AdminAuditEntry { id, kind: 'manual'|'adhoc'|'batch-file'|'batch-text', label, paramsSummary, triggeredBy: { name, initials }, triggeredAt: Date, status: 'queued'|'running'|'completed'|'failed'|'cancelled' }.
+- API: audit = signal<AdminAuditEntry[]> (newest first, seeded with ~5 rows); triggerManual(cfg), triggerAdhoc(id, values), submitBatch({ jobId, mode: 'file'|'text', label, records }); canCancel(e) (queued|running), canRemove(e) (terminal); cancel(id) -> 'cancelled'; remove(id) deletes the record. triggeredBy comes from AuthRoleService.currentUser(). Simulate: queued -> running (~0.9s) -> completed (85%) or failed (~2–4s). statusColor/statusIcon/statusLabel/kindIcon helper maps.
+
+## Feature components (pages/admin/)
+1. admin-console.component: the Option B shell. Rail entries: Manual run, Adhoc job, Batch input, Audit trail — icon in a tinted square, label + one-line sub, active state = primary-tinted border/background. Audit entry shows an "N live" badge computed from in-flight entries. Below the rail, a lock note: "Visible to the admin role only. All actions are attributed and kept in the audit trail." Workspace: @switch on the selected signal; when not on audit, a second card renders <app-admin-audit-table preview> with a "Full audit trail →" button that selects the audit entry.
+2. manual-run-form: typed reactive FormGroup — Job (select, required), Environment, Region, Run date (matDatepicker), Run name (required, pattern ^[A-Za-z0-9-_]+$ with mat-error). Reset + "Run job" (disabled while submitting — double-submit guard). On success: NotificationService.success + form reset to defaults.
+3. adhoc-form: job mat-select; on selection rebuild a FormGroup<Record<string, FormControl<unknown>>> from the descriptors inside an effect(); render with @switch on input.type. IMPORTANT: give the 'date' type its own mat-form-field branch via @if — a mat-datepicker-toggle inside a @case with sibling nodes misses the [matIconSuffix] slot (NG8011). Show mat-hint from descriptor hints.
+4. batch-input: batch-job select + a mat-button-toggle-group File | Text. File mode: a dropzone (dashed border, drag-over highlight, click or Enter opens a hidden <input type="file" accept=".csv,.txt">; role="button", tabindex="0", aria-label). Validate extension .csv/.txt and size ≤ 5 MB (toast errors); read the file with FileReader and count non-empty lines; show a picked-file card (name, size, row count, remove button). Text mode: textarea with live non-empty line count in mat-hint. Submit disabled until a job is chosen AND (file present | lines > 0); on submit toast "N records submitted" and clear.
+5. audit-table (selector app-admin-audit-table): input preview (booleanAttribute transform; preview = latest 5, no toolbar). Full mode toolbar: clickable status chips styled as .status-pill sm with counts (zero-count statuses hidden, click toggles filter, non-active chips dimmed, aria-pressed), plus an outlined search field (subscriptSizing="dynamic") over label/params/user/id. mat-table columns: Operation (kind icon in tinted square + label + params summary, both ellipsized), Triggered by (initials avatar + name), Timestamp (date:'MMM d, h:mm a'), Status (status-pill, .spin while running), Actions (stop_circle "Cancel run" while canCancel, else delete_outline "Delete record" — each behind ConfirmDialogService, success/info toast after). trackBy on id. Empty state: history icon + "No audit entries match."
+
+## Quality bar
+- No `any`. Typed reactive forms. trackBy/track on every loop. aria-labels on all icon-only buttons.
+- Tests: adminGuard (admin matches; non-admin gets UrlTree to /dashboard), AdminJobService action matrix (cancel only queued/running; remove only terminal), audit filter/search.
+- `ng build` must pass with zero errors and zero template warnings.
+
+
