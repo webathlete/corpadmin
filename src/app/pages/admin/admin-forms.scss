@@ -1,0 +1,24 @@
+// Shared by the three admin operation forms — layout only, theme from tokens.
+.af-form { display: block; padding-top: 6px; }
+
+.af-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 16px;
+
+  mat-form-field { min-width: 160px; }
+  .af-grow { flex: 1 1 220px; }
+}
+
+.af-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.af-hint {
+  margin: 0 0 16px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}

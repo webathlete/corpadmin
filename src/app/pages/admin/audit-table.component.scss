@@ -1,0 +1,82 @@
+.at-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+// Filter chips reuse the global .status-pill; button reset + dim when not active.
+.at-chip {
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+
+  &.at-chip-off { opacity: 0.45; }
+}
+
+.at-spacer { flex: 1 1 auto; }
+.at-search { width: 240px; }
+
+.at-table { width: 100%; }
+
+.at-op { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.at-op-icon {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+  color: var(--app-primary);
+
+  mat-icon { font-size: 17px; width: 17px; height: 17px; }
+}
+.at-op-text { min-width: 0; }
+.at-op-label {
+  display: block;
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.at-op-sub {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.at-user { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); }
+.at-avatar {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--app-primary);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+}
+
+.at-ts { color: var(--text-secondary); font-size: var(--fs-sm); }
+.at-actions { text-align: right; }
+
+.at-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 36px 0;
+  color: var(--text-muted);
+
+  mat-icon { font-size: 36px; width: 36px; height: 36px; }
+}

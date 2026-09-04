@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +14,7 @@ import {
   DEFAULT_USER,
   DEFAULT_NAV_GROUPS,
 } from '../layout.config';
+import { AuthRoleService } from '../../core/services/auth-role.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -41,4 +42,14 @@ export class SidebarComponent {
   readonly brand = input<BrandConfig>(DEFAULT_BRAND);
   readonly user = input<AppUser>(DEFAULT_USER);
   readonly navGroups = input<NavGroup[]>(DEFAULT_NAV_GROUPS);
+
+  private readonly auth = inject(AuthRoleService);
+
+  /** Nav with admin-only items stripped for non-admins (groups left empty vanish). */
+  readonly visibleGroups = computed<NavGroup[]>(() => {
+    const isAdmin = this.auth.hasRole('admin');
+    return this.navGroups()
+      .map(g => ({ ...g, items: g.items.filter(i => !i.adminOnly || isAdmin) }))
+      .filter(g => g.items.length > 0);
+  });
 }

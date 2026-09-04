@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -17,6 +18,13 @@ export const routes: Routes = [
     data: { breadcrumb: 'Analytics' },
     loadComponent: () =>
       import('./pages/analytics/analytics.component').then(m => m.AnalyticsComponent),
+  },
+  {
+    path: 'admin',
+    canMatch: [adminGuard],
+    data: { breadcrumb: 'Admin Console' },
+    loadComponent: () =>
+      import('./pages/admin/admin-console.component').then(m => m.AdminConsoleComponent),
   },
   {
     path: 'team',

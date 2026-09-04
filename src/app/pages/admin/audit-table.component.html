@@ -1,0 +1,84 @@
+@if (!preview()) {
+  <div class="at-toolbar">
+    @for (chip of statusChips(); track chip.status) {
+      <button type="button" class="status-pill sm at-chip"
+              [class.at-chip-off]="statusFilter() !== 'all' && statusFilter() !== chip.status"
+              [style.color]="service.statusColor(chip.status)"
+              [style.background]="service.statusColor(chip.status) + '1f'"
+              [attr.aria-pressed]="statusFilter() === chip.status"
+              (click)="toggleStatus(chip.status)">
+        <mat-icon class="status-icon" [class.spin]="chip.status === 'running'">{{ service.statusIcon(chip.status) }}</mat-icon>
+        {{ service.statusLabel(chip.status) }} {{ chip.count }}
+      </button>
+    }
+    <span class="at-spacer"></span>
+    <mat-form-field appearance="outline" class="at-search" subscriptSizing="dynamic">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput placeholder="Search runs, users, ids…"
+             [ngModel]="search()" (ngModelChange)="search.set($event)" />
+    </mat-form-field>
+  </div>
+}
+
+<table mat-table [dataSource]="filtered()" [trackBy]="trackById" class="at-table">
+  <ng-container matColumnDef="operation">
+    <th mat-header-cell *matHeaderCellDef>Operation</th>
+    <td mat-cell *matCellDef="let e">
+      <div class="at-op">
+        <span class="at-op-icon"><mat-icon>{{ service.kindIcon(e.kind) }}</mat-icon></span>
+        <span class="at-op-text">
+          <span class="at-op-label">{{ e.label }}</span>
+          <span class="at-op-sub">{{ e.paramsSummary }}</span>
+        </span>
+      </div>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="triggeredBy">
+    <th mat-header-cell *matHeaderCellDef>Triggered by</th>
+    <td mat-cell *matCellDef="let e">
+      <div class="at-user">
+        <span class="at-avatar">{{ e.triggeredBy.initials }}</span>{{ e.triggeredBy.name }}
+      </div>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="timestamp">
+    <th mat-header-cell *matHeaderCellDef>Timestamp</th>
+    <td mat-cell *matCellDef="let e" class="at-ts">{{ e.triggeredAt | date: 'MMM d, h:mm a' }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="status">
+    <th mat-header-cell *matHeaderCellDef>Status</th>
+    <td mat-cell *matCellDef="let e">
+      <span class="status-pill sm" [style.color]="service.statusColor(e.status)"
+            [style.background]="service.statusColor(e.status) + '1f'">
+        <mat-icon class="status-icon" [class.spin]="e.status === 'running'">{{ service.statusIcon(e.status) }}</mat-icon>
+        {{ service.statusLabel(e.status) }}
+      </span>
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let e" class="at-actions">
+      @if (service.canCancel(e)) {
+        <button mat-icon-button matTooltip="Cancel run" [attr.aria-label]="'Cancel ' + e.label"
+                (click)="cancel(e)"><mat-icon>stop_circle</mat-icon></button>
+      } @else {
+        <button mat-icon-button matTooltip="Delete record" [attr.aria-label]="'Delete record for ' + e.label"
+                (click)="remove(e)"><mat-icon>delete_outline</mat-icon></button>
+      }
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columns"></tr>
+  <tr mat-row *matRowDef="let row; columns: columns"></tr>
+</table>
+
+@if (filtered().length === 0) {
+  <div class="at-empty">
+    <mat-icon>history</mat-icon>
+    <span>No audit entries match.</span>
+  </div>
+}

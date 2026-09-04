@@ -1,0 +1,53 @@
+<div class="bi-head">
+  <mat-form-field appearance="outline" class="bi-job">
+    <mat-label>Batch job</mat-label>
+    <mat-select [value]="jobId()" (valueChange)="jobId.set($event)">
+      @for (j of jobs; track j.id) { <mat-option [value]="j.id">{{ j.name }}</mat-option> }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-button-toggle-group [value]="mode()" (change)="mode.set($event.value)"
+                           hideSingleSelectionIndicator aria-label="Input mode">
+    <mat-button-toggle value="file"><mat-icon>upload_file</mat-icon> File</mat-button-toggle>
+    <mat-button-toggle value="text"><mat-icon>notes</mat-icon> Text</mat-button-toggle>
+  </mat-button-toggle-group>
+</div>
+
+@if (mode() === 'file') {
+  @if (file(); as f) {
+    <div class="bi-file">
+      <mat-icon class="bi-file-icon">description</mat-icon>
+      <div class="bi-file-meta">
+        <span class="bi-file-name">{{ f.name }}</span>
+        <span class="bi-file-sub">{{ formatSize(f.size) }} · {{ f.lines.toLocaleString() }} rows</span>
+      </div>
+      <button mat-icon-button aria-label="Remove file" (click)="clearFile()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  } @else {
+    <div class="bi-dropzone" [class.dragging]="dragging()"
+         role="button" tabindex="0" aria-label="Upload a CSV or TXT file"
+         (click)="picker.click()" (keydown.enter)="picker.click()"
+         (dragover)="$event.preventDefault(); dragging.set(true)"
+         (dragleave)="dragging.set(false)" (drop)="onDrop($event)">
+      <mat-icon>cloud_upload</mat-icon>
+      <span class="bi-drop-title">Drop a CSV here, or click to browse</span>
+      <span class="bi-drop-sub">.csv or .txt · up to 5 MB</span>
+    </div>
+    <input type="file" hidden #picker accept=".csv,.txt" (change)="onPicked($event)" />
+  }
+} @else {
+  <mat-form-field appearance="outline" class="bi-text">
+    <mat-label>Records (one per line)</mat-label>
+    <textarea matInput rows="7" [ngModel]="text()" (ngModelChange)="text.set($event)"
+              placeholder="ACC-1001,2500.00,EUR&#10;ACC-1002,1875.50,USD"></textarea>
+    <mat-hint>{{ textLines().toLocaleString() }} line{{ textLines() === 1 ? '' : 's' }}</mat-hint>
+  </mat-form-field>
+}
+
+<div class="bi-actions">
+  <button mat-flat-button color="primary" [disabled]="!canSubmit()" (click)="submit()">
+    <mat-icon>send</mat-icon> Submit batch
+  </button>
+</div>

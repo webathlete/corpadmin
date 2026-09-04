@@ -1,0 +1,52 @@
+<div class="af-form">
+  <mat-form-field appearance="outline" class="af-grow" style="width: 100%">
+    <mat-label>Adhoc job</mat-label>
+    <mat-select [value]="selectedId()" (valueChange)="selectedId.set($event)">
+      @for (j of jobs; track j.id) { <mat-option [value]="j.id">{{ j.name }}</mat-option> }
+    </mat-select>
+  </mat-form-field>
+
+  @if (selected(); as job) {
+    <p class="af-hint">{{ job.description }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="run()">
+      <div class="af-row">
+        @for (input of job.inputs; track input.key) {
+          <!-- Date gets its own form-field: a datepicker toggle inside a
+               @case has siblings at its root, so it would miss the suffix
+               slot (NG8011). -->
+          @if (input.type === 'date') {
+            <mat-form-field appearance="outline" class="af-grow">
+              <mat-label>{{ input.label }}</mat-label>
+              <input matInput [matDatepicker]="dp" [formControlName]="input.key" />
+              <mat-datepicker-toggle matIconSuffix [for]="dp"></mat-datepicker-toggle>
+              <mat-datepicker #dp></mat-datepicker>
+              @if (input.hint) { <mat-hint>{{ input.hint }}</mat-hint> }
+            </mat-form-field>
+          } @else {
+            <mat-form-field appearance="outline" class="af-grow">
+              <mat-label>{{ input.label }}</mat-label>
+              @switch (input.type) {
+                @case ('select') {
+                  <mat-select [formControlName]="input.key">
+                    @for (o of input.options ?? []; track o) { <mat-option [value]="o">{{ o }}</mat-option> }
+                  </mat-select>
+                }
+                @case ('number') { <input matInput type="number" [formControlName]="input.key" /> }
+                @default { <input matInput [formControlName]="input.key" /> }
+              }
+              @if (input.hint) { <mat-hint>{{ input.hint }}</mat-hint> }
+            </mat-form-field>
+          }
+        }
+      </div>
+      <div class="af-actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+          <mat-icon>bolt</mat-icon> Run adhoc job
+        </button>
+      </div>
+    </form>
+  } @else {
+    <p class="af-hint">Choose a job to see its inputs.</p>
+  }
+</div>

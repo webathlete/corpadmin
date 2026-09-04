@@ -1,0 +1,48 @@
+.bi-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 6px;
+
+  .bi-job { flex: 1; }
+  mat-button-toggle-group { margin-bottom: 20px; }
+}
+
+.bi-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 30px 16px;
+  border: 2px dashed var(--surface-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+
+  mat-icon { color: var(--app-primary); }
+
+  &:hover, &:focus-visible, &.dragging {
+    border-color: var(--app-primary);
+    background: color-mix(in srgb, var(--app-primary) 5%, transparent);
+  }
+}
+
+.bi-drop-title { font-size: var(--fs-base); font-weight: 500; color: var(--text-primary); }
+.bi-drop-sub { font-size: var(--fs-xs); color: var(--text-muted); }
+
+.bi-file {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+
+  .bi-file-icon { color: var(--app-primary); }
+  .bi-file-meta { flex: 1; min-width: 0; }
+  .bi-file-name { display: block; font-weight: 500; font-size: var(--fs-base); }
+  .bi-file-sub { display: block; font-size: var(--fs-xs); color: var(--text-secondary); }
+}
+
+.bi-text { width: 100%; }
+.bi-actions { display: flex; justify-content: flex-end; margin-top: 8px; }

@@ -1,0 +1,59 @@
+<app-page-layout title="Admin Console"
+                 description="Run, upload and manage privileged jobs. Every action is attributed and audited."
+                 [breadcrumbs]="[{ label: 'Home', link: '/dashboard' }, { label: 'Admin Console' }]">
+
+  <div class="ac-layout">
+
+    <!-- Operations rail: new admin functions are added as entries here. -->
+    <nav class="ac-rail" aria-label="Admin operations">
+      <div class="ac-rail-label">Operations</div>
+      @for (op of operations; track op.id) {
+        <button type="button" class="ac-op" [class.active]="selected() === op.id"
+                [attr.aria-current]="selected() === op.id" (click)="selected.set(op.id)">
+          <span class="ac-op-icon"><mat-icon>{{ op.icon }}</mat-icon></span>
+          <span class="ac-op-text">
+            <span class="ac-op-label">{{ op.label }}
+              @if (op.id === 'audit' && inFlight() > 0) {
+                <span class="ac-op-badge">{{ inFlight() }} live</span>
+              }
+            </span>
+            <span class="ac-op-sub">{{ op.sub }}</span>
+          </span>
+        </button>
+      }
+
+      <div class="ac-rail-spacer"></div>
+      <div class="ac-rail-note">
+        <mat-icon>lock</mat-icon>
+        <span>Visible to the <b>admin</b> role only. All actions are attributed and kept in the audit trail.</span>
+      </div>
+    </nav>
+
+    <!-- Workspace -->
+    <div class="ac-work">
+      <mat-card class="ac-card">
+        <h2 class="ac-card-title">
+          <mat-icon>{{ selectedOp().icon }}</mat-icon>{{ selectedOp().label }}
+        </h2>
+        @switch (selected()) {
+          @case ('manual') { <app-manual-run-form /> }
+          @case ('adhoc') { <app-adhoc-form /> }
+          @case ('batch') { <app-batch-input /> }
+          @case ('audit') { <app-admin-audit-table /> }
+        }
+      </mat-card>
+
+      @if (selected() !== 'audit') {
+        <mat-card class="ac-card">
+          <div class="ac-card-head">
+            <h2 class="ac-card-title ac-m0">Recent activity</h2>
+            <button mat-button color="primary" (click)="selected.set('audit')">
+              Full audit trail <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+            </button>
+          </div>
+          <app-admin-audit-table preview />
+        </mat-card>
+      }
+    </div>
+  </div>
+</app-page-layout>

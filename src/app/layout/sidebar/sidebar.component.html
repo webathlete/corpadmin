@@ -11,7 +11,7 @@
 
   <!-- Navigation groups -->
   <nav class="sidebar-nav">
-    @for (group of navGroups(); track group.title) {
+    @for (group of visibleGroups(); track group.title) {
       @if (!collapsed()) {
         <div class="nav-group-label">{{ group.title }}</div>
       }

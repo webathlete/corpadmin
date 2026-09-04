@@ -42,6 +42,8 @@ export interface NavItem {
   route: string;
   /** Optional badge text (count or label like "New"). */
   badge?: string;
+  /** Shown only when the current user has the admin role. */
+  adminOnly?: boolean;
 }
 
 export interface NavGroup {
@@ -141,6 +143,7 @@ export const DEFAULT_NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Team',        icon: 'group',         route: '/team', badge: '4' },
       { label: 'Settings',    icon: 'settings',      route: '/settings' },
+      { label: 'Admin Console', icon: 'admin_panel_settings', route: '/admin', adminOnly: true },
     ],
   },
 ];
