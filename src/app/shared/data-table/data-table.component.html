@@ -54,6 +54,36 @@
         }
       </mat-menu>
 
+      @if (exportable()) {
+        <button mat-icon-button [matMenuTriggerFor]="moreMenu"
+                matTooltip="More actions" aria-label="More actions">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #moreMenu="matMenu">
+          <div class="dt-col-menu-title" (click)="$event.stopPropagation()">Export</div>
+          <button mat-menu-item (click)="exportXlsx('filtered')">
+            <mat-icon>grid_on</mat-icon>
+            <span>Excel — {{ isFiltered ? 'filtered rows' : 'all rows' }} ({{ filteredRows.length }})</span>
+          </button>
+          <button mat-menu-item (click)="exportCsv('filtered')">
+            <mat-icon>description</mat-icon>
+            <span>CSV — {{ isFiltered ? 'filtered rows' : 'all rows' }} ({{ filteredRows.length }})</span>
+          </button>
+          <!-- Only worth offering when a filter is actually narrowing things. -->
+          @if (isFiltered) {
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="exportXlsx('all')">
+              <mat-icon>grid_on</mat-icon>
+              <span>Excel — all rows ({{ dataSource.data.length }})</span>
+            </button>
+            <button mat-menu-item (click)="exportCsv('all')">
+              <mat-icon>description</mat-icon>
+              <span>CSV — all rows ({{ dataSource.data.length }})</span>
+            </button>
+          }
+        </mat-menu>
+      }
+
       @if (hasActiveFilters) {
         <button mat-icon-button (click)="clearFilters()" matTooltip="Clear filters" aria-label="Clear filters">
           <mat-icon>filter_alt_off</mat-icon>

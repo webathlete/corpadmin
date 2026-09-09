@@ -1,5 +1,5 @@
 import {
-  AfterViewInit, Component, Input, OnInit, computed, input, output, signal, viewChild,
+  AfterViewInit, Component, Input, OnInit, computed, inject, input, output, signal, viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { ExportColumn, TableExportService } from '@corp/table-export';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
@@ -34,7 +36,7 @@ import { DataColumn, RowAction, RowActionEvent, TableState } from './data-table.
     CommonModule, FormsModule,
     MatTableModule, MatSortModule, MatPaginatorModule,
     MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule,
-    MatMenuModule, MatCheckboxModule, MatTooltipModule,
+    MatMenuModule, MatCheckboxModule, MatTooltipModule, MatDividerModule,
     SkeletonComponent,
   ],
   templateUrl: './data-table.component.html',
@@ -62,6 +64,10 @@ export class DataTableComponent implements OnInit, AfterViewInit {
   readonly addLabel = input<string>('');
   /** Shows a refresh icon-button in the toolbar. Omit to skip it. */
   readonly showRefresh = input<boolean>(false);
+  /** Shows the export menu (CSV / Excel) in the toolbar. */
+  readonly exportable = input<boolean>(false);
+  /** File name stem for exports; falls back to the title, then "export". */
+  readonly exportFileName = input<string>('');
 
   // ---- Outputs ----
   readonly stateChange = output<TableState>();
@@ -91,6 +97,56 @@ export class DataTableComponent implements OnInit, AfterViewInit {
   readonly filterColumns = computed(() =>
     [...this.visibleColumns().map(c => c.key + '_f'), ...(this.rowActions().length ? ['__actions_f'] : [])]);
   readonly hideableColumns = computed(() => this.columns().filter(c => c.hideable !== false));
+
+  // ---- Export ----
+  private readonly exporter = inject(TableExportService);
+
+  /** Rows after search + column filters, in the user's current sort order —
+   *  `filteredData` is what MatTableDataSource sorts, before pagination. */
+  get filteredRows(): any[] { return this.dataSource.filteredData; }
+
+  /** True when a search term or any column filter is narrowing the rows. */
+  get isFiltered(): boolean {
+    return this.dataSource.filteredData.length !== this.dataSource.data.length;
+  }
+
+  /** Visible columns become export columns; `type`/`format` carry over so
+   *  numbers and dates land as real Excel values, not text. */
+  private exportColumns(): ExportColumn<any>[] {
+    return this.visibleColumns().map(c => ({
+      key: c.key,
+      header: c.header,
+      type: c.type === 'currency' || c.type === 'number' ? 'number'
+          : c.type === 'date' ? 'date' : undefined,
+      format: c.type === 'currency' ? 'currency' : undefined,
+    }));
+  }
+
+  private exportRequest(scope: 'filtered' | 'all') {
+    return {
+      fileName: (this.exportFileName() || this.title().toLowerCase().replace(/\s+/g, '-') || 'export')
+        + (scope === 'filtered' && this.isFiltered ? '-filtered' : ''),
+      columns: this.exportColumns(),
+      rows: scope === 'filtered' ? this.filteredRows : this.dataSource.data,
+    };
+  }
+
+  /** "parameters-system" -> "Parameters System" for the worksheet tab. */
+  private sheetNameFrom(fileName: string): string {
+    const words = fileName.replace(/[-_]+/g, ' ').trim();
+    return words ? words.replace(/\b\w/g, c => c.toUpperCase()).slice(0, 31) : 'Data';
+  }
+
+  exportCsv(scope: 'filtered' | 'all'): void {
+    this.exporter.exportCsv(this.exportRequest(scope));
+  }
+
+  async exportXlsx(scope: 'filtered' | 'all'): Promise<void> {
+    const req = this.exportRequest(scope);
+    await this.exporter.exportXlsx(req, {
+      sheetName: this.title() || this.sheetNameFrom(req.fileName),
+    });
+  }
 
   // ---- Skeleton loading placeholder ----
   readonly skeletonRows = [0, 1, 2, 3, 4, 5];

@@ -12,6 +12,7 @@ import { DataTableComponent } from '../../shared/data-table/data-table.component
 import { DataColumn, RowAction, RowActionEvent } from '../../shared/data-table/data-table.types';
 import { ConfirmDialogService } from '../../shared/confirm-dialog/confirm-dialog.service';
 import {
+  CATEGORIES, CONDITIONS, PARAMETER_TYPES, lookupName,
   PARAM_GROUP_TYPES, ParamGroupType, ParameterConfigService, ParameterEntry,
 } from '../../core/services/parameter-config.service';
 import { DialogService } from '../../shared/dialog/dialog.service';

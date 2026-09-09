@@ -13,7 +13,10 @@
     <p class="showcase-note">
       Generic <code>&lt;app-data-table&gt;</code> — sort, per-column filters (filter icon),
       column chooser (columns icon), global search and pagination. Data arrives from a
-      simulated async API.
+      simulated async API. The ⋮ menu exports the <em>filtered</em> rows via
+      <code>shared/table-export</code> — an original, dependency-free .xlsx/.csv writer
+      (no SheetJS): styled frozen header, auto-filter, real date and currency formats,
+      100k rows in under a second.
     </p>
 
     <app-data-table
@@ -21,7 +24,9 @@
       [columns]="columns"
       [data]="rows()"
       [loading]="loading()"
-      [pageSize]="10">
+      [pageSize]="10"
+      [exportable]="true"
+      exportFileName="transactions">
     </app-data-table>
   </section>
 

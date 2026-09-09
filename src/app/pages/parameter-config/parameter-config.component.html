@@ -29,6 +29,8 @@
                 [pageSize]="10"
                 addLabel="Add Parameter"
                 [showRefresh]="true"
+                [exportable]="true"
+                [exportFileName]="'parameters-' + g.type.toLowerCase()"
                 (add)="addNew()"
                 (refresh)="refresh()"
                 (rowAction)="onRowAction($event)">
