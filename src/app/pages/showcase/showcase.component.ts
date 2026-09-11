@@ -1,4 +1,4 @@
-import { Component, TemplateRef, computed, inject, signal } from '@angular/core';
+import { Component, TemplateRef, WritableSignal, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -27,6 +27,8 @@ import { MessageDialogDemo, FormDialogDemo, TableDialogDemo } from './demo-dialo
 import { JobPanelComponent } from '../../shared/job-panel/job-panel.component';
 import { JobActionEvent, JobItem, JobPanelVariant } from '../../shared/job-panel/job-panel.types';
 import { makeDemoJobs } from './demo-jobs';
+import { FileUploadComponent } from '../../shared/file-upload/file-upload.component';
+import { FileRejection, UploadFile } from '../../shared/file-upload/file-upload.types';
 
 @Component({
   selector: 'app-showcase',
@@ -36,7 +38,7 @@ import { makeDemoJobs } from './demo-jobs';
     MatTabsModule, MatButtonToggleModule, MatRadioModule, MatButtonModule, MatIconModule,
     MatBadgeModule, MatTooltipModule, MatChipsModule, MatDialogModule,
     PageLayoutComponent, DataTableComponent, FooterRichComponent, MultiSelectComponent, ParamTableComponent,
-    NotificationBellComponent, DialogComponent, DialogActionsDirective, JobPanelComponent,
+    NotificationBellComponent, DialogComponent, DialogActionsDirective, JobPanelComponent, FileUploadComponent,
   ],
   templateUrl: './showcase.component.html',
   styleUrl: './showcase.component.scss',
@@ -312,5 +314,41 @@ export class ShowcaseComponent {
   resetJobs(): void {
     this.jobs.set(makeDemoJobs());
     this.busyJobId.set(null);
+  }
+
+  // ---- File upload variants ----
+  readonly uploadAny = signal<UploadFile[]>([]);
+  readonly uploadSingle = signal<UploadFile[]>([]);
+  readonly uploadImages = signal<UploadFile[]>([]);
+  readonly uploadDocs = signal<UploadFile[]>([]);
+
+  onRejected(rejections: FileRejection[]): void {
+    for (const r of rejections) this.notify.warning(r.message);
+  }
+
+  /** Simulates an upload so the progress bar and done state are visible. */
+  simulateUpload(list: WritableSignal<UploadFile[]>): void {
+    const pending = list().filter(f => f.status === 'ready' || f.status === 'error');
+    if (!pending.length) {
+      this.notify.info('Add a file first, then start the upload');
+      return;
+    }
+    for (const target of pending) {
+      let progress = 0;
+      const patch = (u: Partial<UploadFile>) =>
+        list.update(fs => fs.map(f => (f.id === target.id ? { ...f, ...u } : f)));
+      patch({ status: 'uploading', progress: 0 });
+      const timer = setInterval(() => {
+        progress = Math.min(100, progress + 12 + Math.random() * 18);
+        if (progress >= 100) {
+          clearInterval(timer);
+          // One in five fails, so the error state is demonstrable too.
+          if (Math.random() < 0.2) patch({ status: 'error', error: 'Server rejected the file' });
+          else patch({ status: 'done', progress: 100 });
+        } else {
+          patch({ status: 'uploading', progress: Math.round(progress) });
+        }
+      }, 220);
+    }
   }
 }

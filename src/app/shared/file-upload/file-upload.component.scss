@@ -1,0 +1,207 @@
+// Tokens resolve against the host app first, then a literal, so the folder
+// drops into any Angular Material project unchanged.
+:host {
+  --fu-accent: var(--app-primary, #1565c0);
+  --fu-line: var(--surface-border, rgb(0 0 0 / 12%));
+  --fu-muted: var(--text-secondary, #5f6368);
+
+  display: block;
+}
+
+.fu-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 22px 16px;
+  border: 1px dashed color-mix(in srgb, var(--fu-accent) 30%, var(--fu-line));
+  border-radius: var(--radius-md, 12px);
+  background: color-mix(in srgb, var(--fu-accent) 2%, transparent);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 140ms ease, background 140ms ease;
+
+  &:hover:not(.disabled),
+  &:focus-visible,
+  &.dragging {
+    border-color: var(--fu-accent);
+    background: color-mix(in srgb, var(--fu-accent) 6%, transparent);
+  }
+
+  // A solid border and a lifted icon make "release now" unmistakable.
+  &.dragging {
+    border-style: solid;
+    .fu-zone-icon { transform: translateY(-2px); }
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+.fu-zone-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 2px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--fu-accent) 10%, transparent);
+  color: var(--fu-accent);
+  font-size: 21px;
+  transition: transform 140ms ease;
+}
+
+.fu-zone-label {
+  font-size: var(--fs-base, 0.875rem);
+  font-weight: 500;
+  color: var(--text-primary, inherit);
+}
+
+.fu-zone-hint {
+  font-size: var(--fs-xs, 0.75rem);
+  color: var(--text-muted, #8e8e93);
+}
+
+// ---- File list ----
+.fu-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 16px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--fu-line);
+}
+
+.fu-list-count {
+  font-size: var(--fs-xs, 0.75rem);
+  font-weight: 600;
+  color: var(--fu-muted);
+}
+
+.fu-dot { margin: 0 5px; opacity: 0.6; }
+
+// Quiet text button — clearing is a secondary, destructive-ish action.
+.fu-clear.mat-mdc-button {
+  --mdc-text-button-label-text-color: var(--fu-muted);
+  min-width: 0;
+  height: 28px;
+  padding: 0 8px;
+  font-size: var(--fs-xs, 0.75rem);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+  }
+
+  &:hover { --mdc-text-button-label-text-color: var(--status-error, #c0392b); }
+}
+
+.fu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 6px 5px 8px;
+  border: 1px solid var(--fu-line);
+  border-radius: var(--radius-sm, 8px);
+  overflow: hidden;
+
+  &:hover { background: var(--overlay-hover, rgb(0 0 0 / 4%)); }
+
+  &[data-status='error'] {
+    border-color: color-mix(in srgb, var(--status-error, #c0392b) 40%, transparent);
+    background: color-mix(in srgb, var(--status-error, #c0392b) 4%, transparent);
+  }
+}
+
+.fu-thumb {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--overlay-hover, rgb(0 0 0 / 4%));
+}
+
+.fu-thumb-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fu-accent);
+
+  mat-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+  }
+}
+
+// Name takes the slack; the meta column stays put so rows align down the list.
+.fu-name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sm, 0.8125rem);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fu-sub {
+  flex: none;
+  font-size: var(--fs-xs, 0.75rem);
+  color: var(--fu-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.fu-error { color: var(--status-error, #c0392b); }
+
+// Fixed-width slot so rows don't shift as files settle into done/error.
+.fu-state {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+.fu-ok { color: var(--status-success, #27ae60); }
+.fu-bad { color: var(--status-error, #c0392b); }
+
+.fu-remove.mat-mdc-icon-button {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 4px;
+  color: var(--text-muted, #8e8e93);
+
+  mat-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+  }
+
+  &:hover { color: var(--status-error, #c0392b); }
+}
+
+.fu-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--fu-accent);
+  transition: width 160ms linear;
+}

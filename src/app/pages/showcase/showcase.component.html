@@ -553,6 +553,82 @@
     </div>
   </section>
 
+  <!-- ============ File upload ============ -->
+  <section class="showcase-section">
+    <h2>File upload</h2>
+    <p class="showcase-note">
+      Self-contained <code>&lt;app-file-upload&gt;</code> — drag-and-drop or click to browse,
+      with a keyboard-operable dropzone. Uploaded files are listed with image thumbnails or a
+      type-derived icon, size, per-file progress and remove. Configure it with
+      <code>multiple</code>, <code>accept</code>, <code>maxSizeMb</code>, <code>maxFiles</code>,
+      <code>allowDuplicates</code>, <code>showPreviews</code>, <code>disabled</code>,
+      <code>label</code> and <code>hint</code>; rejections come back on
+      <code>(rejected)</code>. No services, no global styles — copy the folder into any
+      Angular Material project.
+    </p>
+
+    <div class="upload-grid">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>Multiple files</h3>
+          <span>Any type · max 5 · 10 MB each</span>
+        </div>
+        <div class="section-card-body">
+          <app-file-upload [(files)]="uploadAny" multiple [maxFiles]="5" [maxSizeMb]="10"
+                           (rejected)="onRejected($event)" />
+          <div class="upload-actions">
+            <button mat-stroked-button class="upload-start" (click)="simulateUpload(uploadAny)">
+              <mat-icon>cloud_upload</mat-icon> Start upload
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>Single file</h3>
+          <span>Picking again replaces the current file</span>
+        </div>
+        <div class="section-card-body">
+          <app-file-upload [(files)]="uploadSingle" [maxSizeMb]="5"
+                           label="Drop one file here"
+                           (rejected)="onRejected($event)" />
+          <div class="upload-actions">
+            <button mat-stroked-button class="upload-start" (click)="simulateUpload(uploadSingle)">
+              <mat-icon>cloud_upload</mat-icon> Start upload
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>Images only</h3>
+          <span>accept="image/*" · thumbnails</span>
+        </div>
+        <div class="section-card-body">
+          <app-file-upload [(files)]="uploadImages" multiple accept="image/*" [maxSizeMb]="4"
+                           label="Drop images here"
+                           (rejected)="onRejected($event)" />
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <h3>Documents only</h3>
+          <span>accept=".csv,.xlsx,.pdf" · custom hint</span>
+        </div>
+        <div class="section-card-body">
+          <app-file-upload [(files)]="uploadDocs" multiple accept=".csv,.xlsx,.pdf"
+                           [maxSizeMb]="2" [maxFiles]="3"
+                           label="Drop a spreadsheet or PDF"
+                           hint="Exports from the tables above work here"
+                           (rejected)="onRejected($event)" />
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ Rich footer ============ -->
   <section class="showcase-section">
     <div class="showcase-head">
