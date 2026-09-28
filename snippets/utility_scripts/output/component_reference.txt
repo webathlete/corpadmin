@@ -1,0 +1,532 @@
+# =========================================
+# FILE: src/app/layout/footer/footer.component.ts
+# Begin File
+# =========================================
+
+import { Component, input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FooterConfig, DEFAULT_FOOTER } from '../layout.config';
+
+/**
+ * Global application footer, pinned to the bottom of the shell.
+ * Content is driven by the `footer` input — bind your own FooterConfig
+ * or rely on the default.
+ */
+@Component({
+  selector: 'app-footer',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './footer.component.html',
+  styleUrl: './footer.component.scss',
+})
+export class FooterComponent {
+  readonly footer = input<FooterConfig>(DEFAULT_FOOTER);
+}
+
+
+# =========================================
+# End File
+# =========================================
+# =========================================
+# FILE: src/app/layout/footer/footer.component.html
+# Begin File
+# =========================================
+
+<footer class="app-footer">
+  <span class="footer-copy">{{ footer().copyright }}</span>
+
+  <nav class="footer-links" aria-label="Footer">
+    @for (link of footer().links; track link.label) {
+      <a class="footer-link" [href]="link.url">{{ link.label }}</a>
+    }
+    @if (footer().version) {
+      <span class="footer-version">{{ footer().version }}</span>
+    }
+  </nav>
+</footer>
+
+
+# =========================================
+# End File
+# =========================================
+# =========================================
+# FILE: src/app/layout/footer/footer.component.scss
+# Begin File
+# =========================================
+
+:host { display: block; }
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  height: var(--footer-height, 48px);
+  padding: 0 24px;
+  background: var(--surface-bg);
+  border-top: 1px solid var(--surface-border);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.footer-copy {
+  white-space: nowrap;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast, 150ms ease);
+
+  &:hover {
+    color: var(--app-primary);
+  }
+}
+
+.footer-version {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--text-secondary) 12%, transparent);
+}
+
+@media (max-width: 599px) {
+  .app-footer {
+    height: auto;
+    padding: 10px 16px;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+
+# =========================================
+# End File
+# =========================================
+# =========================================
+# FILE: src/app/layout/header/header.component.ts
+# Begin File
+# =========================================
+
+import { Component, inject, input, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatListModule } from '@angular/material/list';
+import { MatChipsModule } from '@angular/material/chips';
+import { ThemeService, THEME_PRESETS } from '../../core/services/theme.service';
+import { NotificationBellComponent } from '../../shared/notification-bell/notification-bell.component';
+import {
+  AppUser,
+  BrandConfig,
+  UserRole,
+  DEFAULT_BRAND,
+  DEFAULT_USER,
+  DEFAULT_ROLES,
+} from '../layout.config';
+
+@Component({
+  selector: 'app-header',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatTooltipModule,
+    MatDividerModule,
+    MatListModule,
+    MatChipsModule,
+    NotificationBellComponent,
+  ],
+  templateUrl: './header.component.html',
+  styleUrl: './header.component.scss',
+})
+export class HeaderComponent {
+  menuToggle = output<void>();
+  openCustomizer = output<void>();
+  openInfo = output<void>();
+
+  // Branding & content — bind your own, or rely on the placeholder defaults.
+  readonly brand = input<BrandConfig>(DEFAULT_BRAND);
+  readonly user = input<AppUser>(DEFAULT_USER);
+  // Roles this user is assigned to (read-only — a user may have many).
+  // color = permission level: Admin (red) > Editor (blue) > Viewer (green).
+  readonly roles = input<UserRole[]>(DEFAULT_ROLES);
+
+  readonly themeService = inject(ThemeService);
+  readonly themes = THEME_PRESETS;
+
+  // Text-size options for the theme menu (value = --app-font-scale multiplier).
+  readonly fontSizes = [
+    { label: 'Small',  value: 0.875 },
+    { label: 'Medium', value: 1 },
+    { label: 'Large',  value: 1.125 },
+  ];
+
+  selectTheme(id: string): void {
+    this.themeService.setTheme(id);
+  }
+}
+
+
+# =========================================
+# End File
+# =========================================
+# =========================================
+# FILE: src/app/layout/header/header.component.html
+# Begin File
+# =========================================
+
+<mat-toolbar class="app-header">
+  <!-- Left: Menu toggle + Brand -->
+  <button mat-icon-button (click)="menuToggle.emit()" class="menu-btn"
+          matTooltip="Toggle sidebar" aria-label="Toggle sidebar">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <div class="brand">
+    <div class="brand-logo">
+      <mat-icon>{{ brand().icon }}</mat-icon>
+    </div>
+    <span class="brand-name">{{ brand().name }}</span>
+  </div>
+
+  <span class="flex-1"></span>
+
+  <!-- Right: Actions -->
+  <div class="header-actions">
+
+    <!-- App Info / About -->
+    <button mat-icon-button (click)="openInfo.emit()"
+            matTooltip="About this app" aria-label="About this app" class="header-icon-btn">
+      <mat-icon>info_outline</mat-icon>
+    </button>
+
+    <!-- Theme Switcher -->
+    <button mat-icon-button [matMenuTriggerFor]="themeMenu"
+            matTooltip="Switch theme" aria-label="Switch theme" class="header-icon-btn">
+      <mat-icon>palette</mat-icon>
+    </button>
+    <mat-menu #themeMenu="matMenu" class="theme-menu">
+      <div class="theme-menu-header">
+        <span>Choose Theme</span>
+      </div>
+      @for (theme of themes; track theme.id) {
+        <button mat-menu-item (click)="selectTheme(theme.id)"
+                class="theme-menu-item"
+                [class.active]="themeService.activeThemeId() === theme.id">
+          <span class="theme-row">
+            <span class="theme-color-dot" [style.background]="theme.primaryColor"></span>
+            <span class="theme-info">
+              <span class="theme-name">{{ theme.name }}</span>
+              <span class="theme-desc">{{ theme.description }}</span>
+            </span>
+            <mat-icon class="check-icon"
+                      [class.hidden]="themeService.activeThemeId() !== theme.id">check</mat-icon>
+          </span>
+        </button>
+      }
+      <mat-divider></mat-divider>
+
+      <!-- Text size — segmented selector; current size preselected -->
+      <div class="theme-menu-header"><span>Text Size</span></div>
+      <div class="text-size" (click)="$event.stopPropagation()">
+        @for (s of fontSizes; track s.value) {
+          <button type="button" class="size-btn"
+                  [class.active]="themeService.fontScale() === s.value"
+                  [matTooltip]="s.label"
+                  (click)="themeService.setFontScale(s.value)">A</button>
+        }
+      </div>
+
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="openCustomizer.emit()">
+        <mat-icon>tune</mat-icon>
+        <span>Customize Colors</span>
+      </button>
+    </mat-menu>
+
+    <!-- Notifications — real-time feed from NotificationService: every
+         toast fired anywhere in the app lands here too (list, count,
+         read/clear), not just a static placeholder list. -->
+    <app-notification-bell iconColor="var(--header-icon)"></app-notification-bell>
+
+    <!-- User Menu -->
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-btn"
+            [attr.aria-label]="'Account menu for ' + user().fullName">
+      <div class="avatar"><mat-icon>account_circle</mat-icon></div>
+      <span class="user-name">{{ user().name }}</span>
+      <mat-icon class="dropdown-icon">expand_more</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu" class="user-menu">
+      <div class="user-menu-header">
+        <div class="avatar-lg">{{ user().initials }}</div>
+        <div>
+          <p class="user-fullname">{{ user().fullName }}</p>
+          <p class="user-email">{{ user().email }}</p>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+
+      <!-- Roles this user is assigned to (read-only, color-coded chips) -->
+      <div class="roles-label">Your roles ({{ roles().length }})</div>
+      <div class="roles-chips" (click)="$event.stopPropagation()">
+        <mat-chip-set>
+          @for (r of roles(); track r.name) {
+            <mat-chip class="role-chip" [disableRipple]="true"
+                      [matTooltip]="r.scope"
+                      [style.color]="r.color"
+                      [style.background]="'color-mix(in srgb, ' + r.color + ' 14%, transparent)'">
+              <mat-icon matChipAvatar [style.color]="r.color">{{ r.icon }}</mat-icon>
+              {{ r.name }}
+            </mat-chip>
+          }
+        </mat-chip-set>
+      </div>
+      <mat-divider></mat-divider>
+
+      <button mat-menu-item>
+        <mat-icon>person</mat-icon><span>My Profile</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>settings</mat-icon><span>Account Settings</span>
+      </button>
+      <button mat-menu-item>
+        <mat-icon>help_outline</mat-icon><span>Help & Support</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item>
+        <mat-icon>logout</mat-icon><span>Sign Out</span>
+      </button>
+    </mat-menu>
+
+  </div>
+</mat-toolbar>
+
+
+# =========================================
+# End File
+# =========================================
+# =========================================
+# FILE: src/app/layout/header/header.component.scss
+# Begin File
+# =========================================
+
+:host { display: block; }
+
+.app-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: var(--header-height);
+  padding: 0 8px 0 16px;
+  gap: 8px;
+  box-shadow: var(--shadow-header);
+}
+
+.menu-btn { color: var(--header-icon); margin-right: 4px; }
+
+.brand {
+  display: flex; align-items: center; gap: 10px;
+}
+.brand-logo {
+  width: 36px; height: 36px;
+  background: var(--overlay-on-primary);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  mat-icon { color: var(--on-primary); font-size: 20px; }
+}
+.brand-name {
+  font-size: var(--fs-xl); font-weight: 600;
+  color: var(--on-primary); letter-spacing: 0.5px;
+}
+
+.header-actions {
+  display: flex; align-items: center; gap: 4px;
+}
+
+.header-icon-btn {
+  color: var(--header-icon);
+}
+
+.user-btn {
+  height: 48px;
+  color: var(--header-text);
+  border-radius: 24px;
+  padding: 0 12px 0 6px;
+}
+/* MDC wraps projected content in .mdc-button__label — make THAT the
+   flex container so the avatar, name and arrow align and get the gap. */
+.user-btn ::ng-deep .mdc-button__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar {
+  width: 32px; height: 32px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  background: var(--overlay-on-primary-strong);
+  border: 2px solid var(--on-primary-weak);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-2xs); font-weight: 600; line-height: 1; color: var(--on-primary);
+
+  mat-icon {
+    font-size: 20px; width: 20px; height: 20px;
+  }
+}
+
+.dropdown-icon {
+  opacity: 0.8;
+}
+
+.user-name {
+  font-weight: 500; font-size: var(--fs-base); line-height: 1;
+  white-space: nowrap;
+}
+.user-btn .mat-icon { margin: 0; }
+
+@media (max-width: 599px) {
+  .user-name { display: none; }
+}
+
+/* Theme menu */
+.theme-menu-header {
+  padding: 12px 16px 8px;
+  font-size: var(--fs-xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-secondary);
+}
+.theme-menu-item {
+  height: auto;
+  line-height: normal;
+  padding: 10px 16px;
+  &.active { background: color-mix(in srgb, var(--app-primary) 8%, transparent); }
+}
+// Single flex row inside the menu-item text wrapper → consistent layout
+.theme-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.theme-color-dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: var(--elevation-1);
+}
+.theme-info {
+  display: flex; flex-direction: column; flex: 1; gap: 2px;
+  min-width: 0; text-align: left;
+}
+.theme-name { font-size: var(--fs-base); font-weight: 500; line-height: 1.2; }
+.theme-desc {
+  font-size: var(--fs-2xs); color: var(--text-secondary);
+  line-height: 1.3; white-space: normal;
+}
+.check-icon {
+  color: var(--app-primary);
+  font-size: 20px; width: 20px; height: 20px; margin: 0;
+  flex-shrink: 0;
+  &.hidden { visibility: hidden; }   // reserve space so rows stay aligned
+}
+
+/* Text-size segmented selector (inside the theme menu) */
+.text-size {
+  display: flex;
+  gap: 6px;
+  padding: 4px 16px 10px;
+}
+.size-btn {
+  flex: 1;
+  height: 34px;
+  border: 1px solid var(--surface-border);
+  background: var(--surface-bg);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600;
+  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+
+  // The "A" previews each option's relative size (fixed, not scaled).
+  &:nth-child(1) { font-size: 12px; }
+  &:nth-child(2) { font-size: 15px; }
+  &:nth-child(3) { font-size: 18px; }
+
+  &:hover { border-color: var(--app-primary); color: var(--app-primary); }
+  &.active {
+    border-color: var(--app-primary);
+    color: var(--app-primary);
+    background: color-mix(in srgb, var(--app-primary) 12%, transparent);
+  }
+}
+
+/* User menu header */
+.user-menu-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px;
+}
+.avatar-lg {
+  width: 44px; height: 44px;
+  background: var(--app-primary);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-base); font-weight: 600; color: var(--on-primary);
+  flex-shrink: 0;
+}
+.user-fullname { margin: 0 0 2px; font-weight: 600; font-size: var(--fs-base); }
+.user-email { margin: 0; font-size: var(--fs-xs); color: var(--text-secondary); }
+
+/* Assigned roles (read-only list) */
+.roles-label {
+  padding: 8px 16px 4px;
+  font-size: var(--fs-2xs); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--text-secondary);
+}
+.roles-chips {
+  padding: 2px 16px 10px;
+  max-width: 280px;
+  // Scroll if the user has many roles
+  max-height: 132px;
+  overflow-y: auto;
+
+  ::ng-deep .mat-mdc-chip-set .mdc-evolution-chip-set__chips { gap: 6px; }
+}
+.role-chip {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  // Neutralise Material's default chip background/foreground so the
+  // per-role inline colors take effect.
+  ::ng-deep .mdc-evolution-chip__text-label { color: inherit; }
+  ::ng-deep .mat-mdc-chip-avatar {
+    width: 18px; height: 18px;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+}
+
+
+# =========================================
+# End File
+# =========================================

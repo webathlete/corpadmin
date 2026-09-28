@@ -1,0 +1,6 @@
+# Add one project-relative source-file path per line.
+# Example: src/app/app.component.ts
+src/app/core/services/admin-job.service.ts
+src/app/pages/admin/admin-console.component.ts
+src/app/pages/admin/admin-console.component.html
+src/app/pages/admin/admin-console.component.scss

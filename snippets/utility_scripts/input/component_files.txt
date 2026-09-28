@@ -1,0 +1,8 @@
+# Add one project-relative component file path per line.
+# Example: src/app/components/header/header.component.ts
+src/app/layout/footer/footer.component.ts
+src/app/layout/footer/footer.component.html
+src/app/layout/footer/footer.component.scss
+src/app/layout/header/header.component.ts
+src/app/layout/header/header.component.html
+src/app/layout/header/header.component.scss

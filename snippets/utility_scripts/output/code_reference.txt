@@ -1,0 +1,522 @@
+# =========================================
+# FILE: src/app/core/services/admin-job.service.ts
+# Begin File
+# =========================================
+
+import { Injectable, inject, signal } from '@angular/core';
+import { AuthRoleService } from './auth-role.service';
+
+export type AdminRunStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
+export type AdminOpKind = 'manual' | 'adhoc' | 'batch-file' | 'batch-text';
+
+export interface ManualJobDef {
+  id: string;
+  name: string;
+}
+
+export type AdhocInputType = 'text' | 'number' | 'select' | 'date';
+
+export interface AdhocInputDef {
+  key: string;
+  label: string;
+  type: AdhocInputType;
+  required: boolean;
+  options?: string[];
+  hint?: string;
+}
+
+export interface AdhocJobDef {
+  id: string;
+  name: string;
+  description: string;
+  inputs: AdhocInputDef[];
+}
+
+export interface ManualRunConfig {
+  jobId: string;
+  environment: string;
+  region: string;
+  runDate: Date;
+  runName: string;
+}
+
+export interface BatchSubmission {
+  jobId: string;
+  mode: 'file' | 'text';
+  /** File name, or a short label for pasted text. */
+  label: string;
+  /** Parsed record count (file rows or pasted lines). */
+  records: number;
+}
+
+export interface AdminAuditEntry {
+  id: string;
+  kind: AdminOpKind;
+  label: string;
+  paramsSummary: string;
+  triggeredBy: { name: string; initials: string };
+  triggeredAt: Date;
+  status: AdminRunStatus;
+}
+
+export const MANUAL_JOBS: ManualJobDef[] = [
+  { id: 'warehouse-sync', name: 'Warehouse Sync' },
+  { id: 'ledger-import', name: 'Finance Ledger Import' },
+  { id: 'catalog-refresh', name: 'Product Catalog Refresh' },
+  { id: 'customer-pipeline', name: 'Customer Data Pipeline' },
+];
+export const ENVIRONMENTS = ['Production', 'Staging', 'UAT'];
+export const REGIONS = ['All regions', 'Americas', 'EMEA', 'APAC'];
+
+export const ADHOC_JOBS: AdhocJobDef[] = [
+  {
+    id: 'reindex-search', name: 'Reindex customer search',
+    description: 'Rebuilds the customer search index for a region.',
+    inputs: [
+      { key: 'scope', label: 'Scope', type: 'select', required: true, options: ['All customers', 'EU only', 'US only'] },
+      { key: 'batchSize', label: 'Batch size', type: 'number', required: true, hint: '100–10,000' },
+    ],
+  },
+  {
+    id: 'purge-cache', name: 'Purge computed cache',
+    description: 'Evicts cached aggregates older than a cutoff date.',
+    inputs: [
+      { key: 'namespace', label: 'Cache namespace', type: 'text', required: true, hint: 'e.g. pricing.v2' },
+      { key: 'olderThan', label: 'Older than', type: 'date', required: true },
+    ],
+  },
+  {
+    id: 'regen-report', name: 'Regenerate report',
+    description: 'Re-runs one report and replaces its stored output.',
+    inputs: [
+      { key: 'reportId', label: 'Report ID', type: 'text', required: true, hint: 'e.g. RPT-2041' },
+      { key: 'format', label: 'Output format', type: 'select', required: true, options: ['PDF', 'CSV', 'XLSX'] },
+      { key: 'notify', label: 'Notify (email, optional)', type: 'text', required: false },
+    ],
+  },
+];
+
+/** Batch jobs that accept a file or pasted records. */
+export const BATCH_JOBS: ManualJobDef[] = [
+  { id: 'payments-load', name: 'Payments batch load' },
+  { id: 'customer-import', name: 'Customer bulk import' },
+  { id: 'price-update', name: 'Price list update' },
+];
+
+let seq = 500;
+
+@Injectable({ providedIn: 'root' })
+export class AdminJobService {
+  private readonly auth = inject(AuthRoleService);
+
+  /** Newest first. */
+  readonly audit = signal<AdminAuditEntry[]>(seedAudit());
+
+  triggerManual(cfg: ManualRunConfig): void {
+    const job = MANUAL_JOBS.find(j => j.id === cfg.jobId);
+    this.enqueue({
+      kind: 'manual',
+      label: `Manual run · ${job?.name ?? cfg.jobId}`,
+      paramsSummary: `${cfg.environment} · ${cfg.region} · ${cfg.runDate.toLocaleDateString()} · ${cfg.runName}`,
+    });
+  }
+
+  triggerAdhoc(jobId: string, values: Record<string, unknown>): void {
+    const job = ADHOC_JOBS.find(j => j.id === jobId);
+    const summary = Object.entries(values)
+      .filter(([, v]) => v !== null && v !== undefined && v !== '')
+      .map(([k, v]) => `${k}: ${v instanceof Date ? v.toLocaleDateString() : v}`)
+      .join(' · ');
+    this.enqueue({ kind: 'adhoc', label: `Adhoc · ${job?.name ?? jobId}`, paramsSummary: summary || '—' });
+  }
+
+  submitBatch(sub: BatchSubmission): void {
+    const job = BATCH_JOBS.find(j => j.id === sub.jobId);
+    this.enqueue({
+      kind: sub.mode === 'file' ? 'batch-file' : 'batch-text',
+      label: `${sub.mode === 'file' ? 'Batch upload' : 'Batch text'} · ${job?.name ?? sub.jobId}`,
+      paramsSummary: `${sub.label} · ${sub.records.toLocaleString()} ${sub.mode === 'file' ? 'rows' : 'lines'}`,
+    });
+  }
+
+  canCancel(e: AdminAuditEntry): boolean {
+    return e.status === 'queued' || e.status === 'running';
+  }
+
+  canRemove(e: AdminAuditEntry): boolean {
+    return !this.canCancel(e);
+  }
+
+  cancel(id: string): boolean {
+    const entry = this.audit().find(e => e.id === id);
+    if (!entry || !this.canCancel(entry)) return false;
+    this.patch(id, e => ({ ...e, status: 'cancelled' }));
+    return true;
+  }
+
+  /** Deletes a terminal entry from the audit records. */
+  remove(id: string): boolean {
+    const entry = this.audit().find(e => e.id === id);
+    if (!entry || !this.canRemove(entry)) return false;
+    this.audit.update(list => list.filter(e => e.id !== id));
+    return true;
+  }
+
+  statusColor(status: AdminRunStatus): string {
+    switch (status) {
+      case 'queued':    return '#8e8e93';
+      case 'running':   return '#1565c0';
+      case 'completed': return '#27ae60';
+      case 'failed':    return '#c0392b';
+      case 'cancelled': return '#e67e22';
+    }
+  }
+
+  statusIcon(status: AdminRunStatus): string {
+    switch (status) {
+      case 'queued':    return 'schedule';
+      case 'running':   return 'autorenew';
+      case 'completed': return 'check_circle';
+      case 'failed':    return 'error';
+      case 'cancelled': return 'cancel';
+    }
+  }
+
+  statusLabel(status: AdminRunStatus): string {
+    return status === 'queued' ? 'Queued' : status[0].toUpperCase() + status.slice(1);
+  }
+
+  kindIcon(kind: AdminOpKind): string {
+    switch (kind) {
+      case 'manual':     return 'play_circle';
+      case 'adhoc':      return 'bolt';
+      case 'batch-file': return 'upload_file';
+      case 'batch-text': return 'notes';
+    }
+  }
+
+  private enqueue(partial: Pick<AdminAuditEntry, 'kind' | 'label' | 'paramsSummary'>): void {
+    const user = this.auth.currentUser();
+    const entry: AdminAuditEntry = {
+      ...partial,
+      id: `adm-${seq++}`,
+      triggeredBy: { name: user.name, initials: user.initials },
+      triggeredAt: new Date(),
+      status: 'queued',
+    };
+    this.audit.update(list => [entry, ...list]);
+
+    // Simulated lifecycle: queued -> running -> completed (85%) / failed.
+    setTimeout(() => this.patch(entry.id, e =>
+      this.canCancel(e) ? { ...e, status: 'running' } : e), 900);
+    setTimeout(() => this.patch(entry.id, e =>
+      e.status === 'running' ? { ...e, status: Math.random() < 0.85 ? 'completed' : 'failed' } : e),
+      2200 + Math.random() * 1800);
+  }
+
+  private patch(id: string, fn: (e: AdminAuditEntry) => AdminAuditEntry): void {
+    this.audit.update(list => list.map(e => (e.id === id ? fn(e) : e)));
+  }
+}
+
+function seedAudit(): AdminAuditEntry[] {
+  const at = (h: number, m: number, daysAgo = 0) => {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    d.setHours(h, m, 0, 0);
+    return d;
+  };
+  return [
+    { id: 'adm-104', kind: 'manual', label: 'Manual run · Warehouse Sync', paramsSummary: 'Production · All regions · MonthEnd-01', triggeredBy: { name: 'Govind S.', initials: 'GS' }, triggeredAt: at(10, 42), status: 'running' },
+    { id: 'adm-103', kind: 'adhoc', label: 'Adhoc · Reindex customer search', paramsSummary: 'scope: EU only · batchSize: 500', triggeredBy: { name: 'Priya Sharma', initials: 'PS' }, triggeredAt: at(9, 15), status: 'completed' },
+    { id: 'adm-102', kind: 'batch-file', label: 'Batch upload · Payments batch load', paramsSummary: 'payments_0829.csv · 2,410 rows', triggeredBy: { name: 'James Rowe', initials: 'JR' }, triggeredAt: at(18, 3, 1), status: 'failed' },
+    { id: 'adm-101', kind: 'batch-text', label: 'Batch text · Customer bulk import', paramsSummary: 'Inline paste · 312 lines', triggeredBy: { name: 'Maria Lopez', initials: 'ML' }, triggeredAt: at(16, 56, 1), status: 'completed' },
+    { id: 'adm-100', kind: 'manual', label: 'Manual run · Finance Ledger Import', paramsSummary: 'Staging · EMEA · PreClose-3', triggeredBy: { name: 'Govind S.', initials: 'GS' }, triggeredAt: at(20, 20, 2), status: 'cancelled' },
+  ];
+}
+
+
+# =========================================
+# End File
+# =========================================
+# =========================================
+# FILE: src/app/pages/admin/admin-console.component.ts
+# Begin File
+# =========================================
+
+import { Component, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { PageLayoutComponent } from '../../shared/page-layout/page-layout.component';
+import { AdminJobService } from '../../core/services/admin-job.service';
+import { ManualRunFormComponent } from './manual-run-form.component';
+import { AdhocFormComponent } from './adhoc-form.component';
+import { BatchInputComponent } from './batch-input.component';
+import { AdminAuditTableComponent } from './audit-table.component';
+
+type AdminOp = 'manual' | 'adhoc' | 'batch' | 'audit';
+
+interface OpDef {
+  id: AdminOp;
+  label: string;
+  icon: string;
+  sub: string;
+}
+
+/**
+ * Admin Console — split workspace: operations rail on the left, the selected
+ * operation's form on the right, recent activity beneath it. The audit trail
+ * is a first-class rail entry, not just a preview link.
+ */
+@Component({
+  selector: 'app-admin-console',
+  standalone: true,
+  imports: [
+    CommonModule, MatIconModule, MatButtonModule, MatCardModule,
+    PageLayoutComponent, ManualRunFormComponent, AdhocFormComponent,
+    BatchInputComponent, AdminAuditTableComponent,
+  ],
+  templateUrl: './admin-console.component.html',
+  styleUrl: './admin-console.component.scss',
+})
+export class AdminConsoleComponent {
+  private readonly service = inject(AdminJobService);
+
+  readonly operations: OpDef[] = [
+    { id: 'manual', label: 'Manual run', icon: 'play_circle', sub: 'Configured jobs with parameters' },
+    { id: 'adhoc', label: 'Adhoc job', icon: 'bolt', sub: 'Pick a job, supply inputs' },
+    { id: 'batch', label: 'Batch input', icon: 'upload_file', sub: 'Upload a file or paste records' },
+    { id: 'audit', label: 'Audit trail', icon: 'history', sub: 'Every trigger — who, when, outcome' },
+  ];
+
+  readonly selected = signal<AdminOp>('manual');
+
+  readonly selectedOp = computed(() =>
+    this.operations.find(o => o.id === this.selected())!);
+
+  readonly inFlight = computed(() =>
+    this.service.audit().filter(e => this.service.canCancel(e)).length);
+}
+
+
+# =========================================
+# End File
+# =========================================
+# =========================================
+# FILE: src/app/pages/admin/admin-console.component.html
+# Begin File
+# =========================================
+
+<app-page-layout title="Admin Console"
+                 description="Run, upload and manage privileged jobs. Every action is attributed and audited."
+                 [breadcrumbs]="[{ label: 'Home', link: '/dashboard' }, { label: 'Admin Console' }]">
+
+  <div class="ac-layout">
+
+    <!-- Operations rail: new admin functions are added as entries here. -->
+    <nav class="ac-rail" aria-label="Admin operations">
+      <div class="ac-rail-label">Operations</div>
+      @for (op of operations; track op.id) {
+        <button type="button" class="ac-op" [class.active]="selected() === op.id"
+                [attr.aria-current]="selected() === op.id" (click)="selected.set(op.id)">
+          <span class="ac-op-icon"><mat-icon>{{ op.icon }}</mat-icon></span>
+          <span class="ac-op-text">
+            <span class="ac-op-label">{{ op.label }}
+              @if (op.id === 'audit' && inFlight() > 0) {
+                <span class="ac-op-badge">{{ inFlight() }} live</span>
+              }
+            </span>
+            <span class="ac-op-sub">{{ op.sub }}</span>
+          </span>
+        </button>
+      }
+
+      <div class="ac-rail-spacer"></div>
+      <div class="ac-rail-note">
+        <mat-icon>lock</mat-icon>
+        <span>Visible to the <b>admin</b> role only. All actions are attributed and kept in the audit trail.</span>
+      </div>
+    </nav>
+
+    <!-- Workspace -->
+    <div class="ac-work">
+      <mat-card class="ac-card">
+        <h2 class="ac-card-title">
+          <mat-icon>{{ selectedOp().icon }}</mat-icon>{{ selectedOp().label }}
+        </h2>
+        @switch (selected()) {
+          @case ('manual') { <app-manual-run-form /> }
+          @case ('adhoc') { <app-adhoc-form /> }
+          @case ('batch') { <app-batch-input /> }
+          @case ('audit') { <app-admin-audit-table /> }
+        }
+      </mat-card>
+
+      @if (selected() !== 'audit') {
+        <mat-card class="ac-card">
+          <div class="ac-card-head">
+            <h2 class="ac-card-title ac-m0">Recent activity</h2>
+            <button mat-button color="primary" (click)="selected.set('audit')">
+              Full audit trail <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+            </button>
+          </div>
+          <app-admin-audit-table preview />
+        </mat-card>
+      }
+    </div>
+  </div>
+</app-page-layout>
+
+
+# =========================================
+# End File
+# =========================================
+# =========================================
+# FILE: src/app/pages/admin/admin-console.component.scss
+# Begin File
+# =========================================
+
+.ac-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+// ---- Operations rail ----
+.ac-rail {
+  flex: none;
+  width: 290px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 16px;
+}
+
+.ac-rail-label {
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding: 0 2px 2px;
+}
+
+.ac-op {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background: var(--surface-bg);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover { background: var(--overlay-hover); }
+  &.active {
+    border-color: color-mix(in srgb, var(--app-primary) 45%, transparent);
+    background: color-mix(in srgb, var(--app-primary) 7%, transparent);
+  }
+}
+
+.ac-op-icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--app-primary) 10%, transparent);
+  color: var(--app-primary);
+}
+
+.ac-op-text { min-width: 0; }
+.ac-op-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.ac-op-sub {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.ac-op-badge {
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--app-primary) 12%, transparent);
+  color: var(--app-primary);
+  font-size: var(--fs-3xs);
+  font-weight: 700;
+}
+
+.ac-rail-spacer { height: 8px; }
+
+.ac-rail-note {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  line-height: 1.5;
+
+  mat-icon {
+    flex: none;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--status-warning);
+  }
+  b { color: var(--text-primary); }
+}
+
+// ---- Workspace ----
+.ac-work {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ac-card { padding: 20px; }
+
+.ac-card-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 16px;
+  font-size: var(--fs-lg);
+  font-weight: 600;
+
+  mat-icon { color: var(--app-primary); }
+}
+
+.ac-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.ac-m0 { margin: 0; }
+
+@media (max-width: 900px) {
+  .ac-layout { flex-direction: column; }
+  .ac-rail { width: 100%; position: static; }
+}
+
+
+# =========================================
+# End File
+# =========================================
